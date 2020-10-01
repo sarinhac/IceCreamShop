@@ -1,0 +1,69 @@
+﻿@model IEnumerable<IceCreamSystem.Models.Company>
+
+@{
+    ViewBag.Title = "Company";
+}
+
+<p>
+    <a class="btn btn-block bg-gradient-success create" href="./Create"> <i class="fas fa-plus-circle"></i> New Company </a>
+</p>
+<table class="table table-bordered table-striped dataTable dtr-inline" style="width:100%" role="grid">
+    <thead>
+        <tr role="row">
+            <th>
+                @Html.DisplayNameFor(model => model.NameCompany)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Status)
+            </th>
+            <th class="sorting"></th>
+        </tr>
+    </thead>
+
+    @foreach (var item in Model)
+    {
+        <tbody>
+            <tr role="row">
+                <td>
+                    @Html.DisplayFor(modelItem => item.NameCompany)
+                </td>
+                <td>
+                    @if (item.Status != 0)
+                    {
+                        <div class="badge badge-danger">@Html.DisplayFor(modelItem => item.Status)</div>
+                    }
+                    else
+                    {
+                        <div class="badge badge-success">@Html.DisplayFor(modelItem => item.Status)</div>
+                    }
+                </td>
+                <td>
+                    <div class="btn-group pull-center d-lg-inline">
+                        <a class="btn btn-block bg-gradient-info d-lg-inline details" data-toggle="modal" data-target="#modal" data-url="@Url.Action("Details", "Companies", new { id = item.IdCompany })"> <i class="fas fa-info-circle"></i> Details </a>
+                        <a class="btn btn-block bg-gradient-warning d-lg-inline" href="@Url.Action("Edit", "Companies", new { id = item.IdCompany })"> <i class="fas fa-edit"></i> Edit </a>
+
+                        @if (item.Status != 0)
+                        {
+                            <a class="btn btn-block bg-gradient-success d-lg-inline active" data-toggle="modal" data-target="#modal" data-url="@Url.Action("Active", "Companies", new { id = item.IdCompany })"> <i class="fas fa-history"></i> Active </a>
+                        }
+                        else
+                        {
+                            <a class="btn btn-block bg-gradient-danger d-lg-inline delete" data-toggle="modal" data-target="#modal" data-url="@Url.Action("Delete", "Companies", new { id = item.IdCompany })"> <i class="fas fa-trash-alt"></i> Delete </a>
+                        }
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    }
+</table>
+<div id="modal" class="modal fade" role="dialog" />
+
+
+
+@section scripts{
+    <script src="~/Scripts/Modal.js"></script>
+}
+
+
+
+

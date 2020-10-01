@@ -1,0 +1,40 @@
+﻿@model IceCreamSystem.Models.Company
+
+@{
+    ViewBag.Title = "Company: " + Model.NameCompany;
+}
+
+<div class="modal-dialog modal-lg">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4 class="modal-title">@ViewBag.Title</h4>
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        </div>
+        <div class="modal-body">
+            <dl class="dl-horizontal">
+                <dt>
+                    @Html.DisplayNameFor(model => model.NameCompany)
+                </dt>
+                <dd>
+                    @Html.DisplayFor(model => model.NameCompany)
+                </dd>
+                <dt>
+                    @Html.DisplayNameFor(model => model.Status)
+                </dt>
+                <dd>
+                    @Html.DisplayFor(model => model.Status)
+                </dd>
+                <dt>
+                    @Html.DisplayNameFor(model => model.Created)
+                </dt>
+                <dd>
+                    @Html.DisplayFor(model => model.Created)
+                </dd>
+            </dl>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal" aria-hidden="true">Cancelar</button>
+            @Html.ActionLink("Edit", "Edit", new { id = Model.IdCompany, @class = "btn btn-block bg-gradient-warning d-lg-inline" })
+        </div>
+    </div><!-- /.modal-content -->
+</div><!-- /.modal-dialog -->
