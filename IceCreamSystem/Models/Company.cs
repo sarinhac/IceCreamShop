@@ -88,7 +88,7 @@ namespace IceCreamSystem.Models
         public override bool Equals(object obj)
         {
             Company company = (Company)obj;
-            return company.IdCompany == IdCompany && company.NameCompany == NameCompany;
+            return company.IdCompany == IdCompany && company.NameCompany.Equals(NameCompany);
         }
         #endregion //METHODS
     }
