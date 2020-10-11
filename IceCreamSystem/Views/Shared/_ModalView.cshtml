@@ -1,0 +1,37 @@
+﻿<div class="modal-dialog modal-lg" role="document">
+
+    <div class="modal-content">
+
+        <div class="modal-header" style="background-color:#C0C0C0">
+            <h5 class="modal-title">@ViewBag.Title</h5>
+            <a class="close" data-dismiss="modal">&times;</a>
+        </div><!-- /.modal-header -->
+
+        <div class="modal-body" style="background-color: #DCDCDC;" >
+            @RenderBody()
+        </div><!-- /.modal-body -->
+
+        <div class="modal-footer" style="background-color:#C0C0C0;">
+            @using (Html.BeginForm())
+            {
+                @Html.AntiForgeryToken()
+
+                <div class="form-actions no-color">
+                    <button type="button" class="btn btn-default" data-dismiss="modal" aria-hidden="true">Cancelar</button>
+                    @if (@ViewBag.Title != "Details")
+                    {
+                        <input type="submit" value="@ViewBag.Title" class="btn btn-@ViewBag.Btn" />
+                    }
+                    else
+                    {
+                        <a class="btn btn-block bg-gradient-warning d-lg-inline" href="@Url.Action("Edit", @ViewBag.Controller, new { id = @ViewBag.Id })"> Edit </a>
+                    }
+                </div>
+            }
+        </div><!-- /.modal-footer -->
+
+    </div><!-- /.modal-content -->
+</div><!-- /.modal-dialog -->
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>

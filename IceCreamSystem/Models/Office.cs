@@ -21,6 +21,7 @@ namespace IceCreamSystem.Models
 
         [Required]
         [StringLength(50)]
+        [Display(Name = "Office")]
         public string NameOffice { get; set; }
 
         [StringLength(255)]

@@ -5,8 +5,6 @@ namespace IceCreamSystem.Models
     using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations;
     using System.ComponentModel.DataAnnotations.Schema;
-    using System.Data.Entity.Spatial;
-    using System.Drawing;
 
     [Table("Employee")]
     public partial class Employee
@@ -18,6 +16,9 @@ namespace IceCreamSystem.Models
             Log1 = new HashSet<Log>();
             Phone = new HashSet<Phone>();
             Sale = new HashSet<Sale>();
+
+            Status = 0;
+            Created = DateTime.Now;
         }
 
         #region ATTRIBUTES
@@ -26,12 +27,15 @@ namespace IceCreamSystem.Models
 
         [Required]
         [StringLength(50)]
+        [Display(Name = "Employee")]
         public string NameEmployee { get; set; }
 
         [Column(TypeName = "date")]
+        [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:d}")]
         public DateTime Birth { get; set; }
 
         [Column(TypeName = "date")]
+        [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:d}")]
         public DateTime Admission { get; set; }
 
         public decimal Salary { get; set; }
@@ -42,11 +46,12 @@ namespace IceCreamSystem.Models
 
         public int CompanyId { get; set; }
 
-        public bool HaveLogin { get; set; }
+        public bool HaveLogin { get; set; } = false;
 
         public Permission? Permission { get; set; }
 
         [StringLength(10)]
+        [Display(Name = "Login")]
         public string LoginUser { get; set; }
 
         [StringLength(255)]

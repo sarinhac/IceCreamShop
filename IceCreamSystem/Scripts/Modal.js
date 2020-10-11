@@ -1,11 +1,5 @@
 ﻿
 $(function () {
-    /*$(".create").click(function () {
-        var url = $(this).data('url');
-        $("#modal").load(url, function () {
-            $("#modal").modal("show");
-        })
-    });*/
 
     $(".details").click(function () {
         var url = $(this).data('url');
@@ -14,17 +8,10 @@ $(function () {
         })
     });
 
-    /*$(".edit").click(function () {
+    $(".delete").on('click',function () {
         var url = $(this).data('url');
         $("#modal").load(url, function () {
-            $("#modal").modal("show");
-        })
-    });*/
-
-    $(".delete").click(function () {
-        var url = $(this).data('url');
-        $("#modal").load(url, function () {
-            $("#modal").modal("show");
+            $("#modal").modal({ show: true });
         })
     });
 
@@ -35,3 +22,4 @@ $(function () {
         })
     });
 });
+

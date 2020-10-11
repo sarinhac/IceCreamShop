@@ -1,9 +1,13 @@
-﻿using System.Data.Entity;
+﻿using System;
+using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Net;
 using System.Web.Mvc;
 using IceCreamSystem.DBContext;
 using IceCreamSystem.Models;
+using IceCreamSystem.Models.Enum;
+using IceCreamSystem.Services;
 
 namespace IceCreamSystem.Controllers
 {
@@ -17,9 +21,13 @@ namespace IceCreamSystem.Controllers
             return View(employee.ToList());
         }
 
+
         #region CRUD
         public ActionResult Create()
         {
+            IEnumerable<SelectListItem> permission = new SelectList(Enum.GetValues(typeof(Permission)));
+            ViewBag.Permission = permission;
+
             ViewBag.AddressId = new SelectList(db.Address, "IdAddress", "Cep");
             ViewBag.CompanyId = new SelectList(db.Company, "IdCompany", "NameCompany");
             ViewBag.OfficeId = new SelectList(db.Office, "IdOffice", "NameOffice");
@@ -30,13 +38,14 @@ namespace IceCreamSystem.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Create([Bind(Include = "IdEmployee,NameEmployee,Birth,Admission,Salary,AddressId,OfficeId,CompanyId,HaveLogin,Permission,LoginUser,PasswordUser,Status,Created")] Employee employee)
         {
+            employee.NameEmployee = HashService.HashPassword(employee.PasswordUser);
             if (ModelState.IsValid)
             {
                 db.Employee.Add(employee);
                 db.SaveChanges();
                 return RedirectToAction("Index");
             }
-
+            
             ViewBag.AddressId = new SelectList(db.Address, "IdAddress", "Cep", employee.AddressId);
             ViewBag.CompanyId = new SelectList(db.Company, "IdCompany", "NameCompany", employee.CompanyId);
             ViewBag.OfficeId = new SelectList(db.Office, "IdOffice", "NameOffice", employee.OfficeId);
