@@ -28,7 +28,6 @@ namespace IceCreamSystem.Controllers
             IEnumerable<SelectListItem> permission = new SelectList(Enum.GetValues(typeof(Permission)));
             ViewBag.Permission = permission;
 
-            ViewBag.AddressId = new SelectList(db.Address, "IdAddress", "Cep");
             ViewBag.CompanyId = new SelectList(db.Company, "IdCompany", "NameCompany");
             ViewBag.OfficeId = new SelectList(db.Office, "IdOffice", "NameOffice");
             return View();
@@ -45,8 +44,9 @@ namespace IceCreamSystem.Controllers
                 db.SaveChanges();
                 return RedirectToAction("Index");
             }
-            
-            ViewBag.AddressId = new SelectList(db.Address, "IdAddress", "Cep", employee.AddressId);
+
+            IEnumerable<SelectListItem> permission = new SelectList(Enum.GetValues(typeof(Permission)));
+            ViewBag.Permission = permission;
             ViewBag.CompanyId = new SelectList(db.Company, "IdCompany", "NameCompany", employee.CompanyId);
             ViewBag.OfficeId = new SelectList(db.Office, "IdOffice", "NameOffice", employee.OfficeId);
             return View(employee);
@@ -77,7 +77,9 @@ namespace IceCreamSystem.Controllers
             {
                 return HttpNotFound();
             }
-            ViewBag.AddressId = new SelectList(db.Address, "IdAddress", "Cep", employee.AddressId);
+
+            IEnumerable<SelectListItem> permission = new SelectList(Enum.GetValues(typeof(Permission)));
+            ViewBag.Permission = permission;
             ViewBag.CompanyId = new SelectList(db.Company, "IdCompany", "NameCompany", employee.CompanyId);
             ViewBag.OfficeId = new SelectList(db.Office, "IdOffice", "NameOffice", employee.OfficeId);
             return View(employee);
@@ -94,7 +96,8 @@ namespace IceCreamSystem.Controllers
                 db.SaveChanges();
                 return RedirectToAction("Index");
             }
-            ViewBag.AddressId = new SelectList(db.Address, "IdAddress", "Cep", employee.AddressId);
+            IEnumerable<SelectListItem> permission = new SelectList(Enum.GetValues(typeof(Permission)));
+            ViewBag.Permission = permission;
             ViewBag.CompanyId = new SelectList(db.Company, "IdCompany", "NameCompany", employee.CompanyId);
             ViewBag.OfficeId = new SelectList(db.Office, "IdOffice", "NameOffice", employee.OfficeId);
             return View(employee);
