@@ -145,6 +145,7 @@
     <Compile Include="Models\EntryStock.cs" />
     <Compile Include="Models\Enum\Permission.cs" />
     <Compile Include="Models\Enum\StatusGeneral.cs" />
+    <Compile Include="Models\Enum\TypePhone.cs" />
     <Compile Include="Models\Log.cs" />
     <Compile Include="DBContext\Context.cs" />
     <Compile Include="Models\Office.cs" />
@@ -205,6 +206,7 @@
     <Content Include="Views\Employees\Index.cshtml" />
     <Content Include="Views\Shared\_IndexsView.cshtml" />
     <Content Include="Views\Employees\Active.cshtml" />
+    <Content Include="Views\Employees\_Phone.cshtml" />
     <None Include="Views\Shared\_AdminLite.cshtml" />
     <Content Include="Images\sorvetelogo.png" />
     <Content Include="Images\user.png" />

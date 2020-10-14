@@ -28,6 +28,9 @@ namespace IceCreamSystem.Controllers
             IEnumerable<SelectListItem> permission = new SelectList(Enum.GetValues(typeof(Permission)));
             ViewBag.Permission = permission;
 
+            IEnumerable<SelectListItem> phone = new SelectList(Enum.GetValues(typeof(TypePhone)));
+            ViewBag.TypePhone = phone;
+
             ViewBag.CompanyId = new SelectList(db.Company, "IdCompany", "NameCompany");
             ViewBag.OfficeId = new SelectList(db.Office, "IdOffice", "NameOffice");
             return View();
@@ -47,6 +50,10 @@ namespace IceCreamSystem.Controllers
 
             IEnumerable<SelectListItem> permission = new SelectList(Enum.GetValues(typeof(Permission)));
             ViewBag.Permission = permission;
+
+            IEnumerable<SelectListItem> phone = new SelectList(Enum.GetValues(typeof(TypePhone)));
+            ViewBag.TypePhone = phone;
+
             ViewBag.CompanyId = new SelectList(db.Company, "IdCompany", "NameCompany", employee.CompanyId);
             ViewBag.OfficeId = new SelectList(db.Office, "IdOffice", "NameOffice", employee.OfficeId);
             return View(employee);
