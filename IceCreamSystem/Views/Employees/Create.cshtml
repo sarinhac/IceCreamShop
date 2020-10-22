@@ -364,39 +364,6 @@
             });
         });
     </script>
-
-    <script type="text/javascript">
-
-        /*$('#submit').on("click", function () {
-            var objtTypePhones = document.getElementsByClassName("form-control typePhone");
-            var objDDD = document.getElementsByClassName("form-control ddd");
-            var objNumberPhone = document.getElementsByClassName("form-control numberPhone");
-            var phones;
-
-            for (i = 0; i < objNumberPhone.length; i++)
-            {
-                var typePhone = objtTypePhones[i].value;
-                var ddd = objDDD[i].value;
-                var numberPhone = objNumberPhone[i].value;
-
-                var phone = { TypePhone = typePhone, DDD  = ddd, NumberPhone = numberPhone };
-
-                phones.push(phone);
-            };
-
-            $.ajax({
-               contentType: 'application/json; charset=utf-8',
-               dataType: 'json',
-               type: 'POST',
-               url: 'Url.Action("Create", "Employee")',
-               data: JSON.stringify({ 'phones': phones }),
-                    success: function (result) {
-                        window.location.href = result.url;
-                    },
-                    error: function (ex) {
-                    }
-             });*/
-    </script>
 }
 
 

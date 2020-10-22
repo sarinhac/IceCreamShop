@@ -56,8 +56,6 @@ namespace IceCreamSystem.Models
         [StringLength(255)]
         public string PasswordUser { get; set; }
 
-        public ICollection<Phone> Phones { get; set; }
-
         public StatusGeneral Status { get; set; }
 
         public DateTime Created { get; set; }
