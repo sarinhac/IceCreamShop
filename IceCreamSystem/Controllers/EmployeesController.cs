@@ -50,38 +50,41 @@ namespace IceCreamSystem.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Create(Employee employee)
-        {
-            #region CATCHING ALL PHONES IN REQUEST
-            List<Phone> phones = new List<Phone>();
-            List<string> request = Request.Form.ToString().Split('&').Where(p => p.Contains("DDD") || p.Contains("TypePhone") || p.Contains("Number")).ToList();
-
-            for (int i = 0; i < request.Count; i++)
-            {
-                Phone phoneRequest = new Phone();
-
-                if (request[i].Contains("TypePhone"))
-                {
-                    phoneRequest.TypePhone = request[i].Replace("TypePhone=", "").ToString().Equals("Mobile") ? (TypePhone)1 : (TypePhone)2; //1 => Mobile | 2 => Landline
-
-                    int index = request.IndexOf(request.Where(p => p.ToString().Contains("DDD=")).FirstOrDefault());
-                    phoneRequest.DDD = request[index].Replace("DDD=", "");
-                    request[index] = request[index].Replace("DDD=", "");
-
-                    index = request.IndexOf(request.Where(p => p.ToString().Contains("Number=")).FirstOrDefault());
-                    phoneRequest.Number = request[index].Replace("Number=", "");
-                    request[index] = request[index].Replace("Number=", "");
-
-                    phones.Add(phoneRequest);
-
-                }
-                else
-                    break;
-
-            }
-            #endregion
-
+        {          
             if (ModelState.IsValid)
             {
+                #region CATCHING ALL PHONES IN REQUEST
+                List<Phone> phones = new List<Phone>();
+                List<string> request = Request.Form.ToString().Split('&').Where(p => p.Contains("DDD") || p.Contains("TypePhone") || p.Contains("Number")).ToList();
+
+                for (int i = 0; i < request.Count; i++)
+                {
+                    Phone phoneRequest = new Phone();
+
+                    if (request[i].Contains("TypePhone"))
+                    {
+                        phoneRequest.TypePhone = request[i].Replace("TypePhone=", "").ToString().Equals("Mobile") ? (TypePhone)1 : (TypePhone)2; //1 => Mobile | 2 => Landline
+
+                        int index = request.IndexOf(request.Where(p => p.ToString().Contains("DDD=")).FirstOrDefault());
+                        phoneRequest.DDD = request[index].Replace("DDD=", "");
+                        request[index] = request[index].Replace("DDD=", "");
+
+                        index = request.IndexOf(request.Where(p => p.ToString().Contains("Number=")).FirstOrDefault());
+                        phoneRequest.Number = request[index].Replace("Number=", "");
+                        request[index] = request[index].Replace("Number=", "");
+
+                        phones.Add(phoneRequest);
+
+                    }
+                    else
+                        break;
+
+                }
+                #endregion
+
+                if (employee.HaveLogin)
+                    employee.PasswordUser = HashService.HashPassword(employee.PasswordUser);
+
                 db.Employee.Add(employee);
                 db.SaveChanges();
                 return RedirectToAction("Index");
