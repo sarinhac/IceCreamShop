@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Data.Entity;
 using System.Linq;
 using System.Net;
 using System.Web.Mvc;
+using System.Web.UI;
 using IceCreamSystem.DBContext;
 using IceCreamSystem.Models;
 using IceCreamSystem.Models.Enum;
+using IceCreamSystem.Models.ViewModels;
 using IceCreamSystem.Services;
 
 namespace IceCreamSystem.Controllers
@@ -36,11 +39,47 @@ namespace IceCreamSystem.Controllers
             return View();
         }
 
+        public ActionResult AddOtherPhone()
+        {
+            IEnumerable<SelectListItem> phone = new SelectList(Enum.GetValues(typeof(TypePhone)));
+            ViewBag.TypePhone = phone;
+
+            return PartialView("_Phone");
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "IdEmployee,NameEmployee,Birth,Admission,Salary,AddressId,OfficeId,CompanyId,HaveLogin,Permission,LoginUser,PasswordUser,Status,Created")] Employee employee)
+        public ActionResult Create(Employee employee)
         {
-            employee.NameEmployee = HashService.HashPassword(employee.PasswordUser);
+            #region CATCHING ALL PHONES IN REQUEST
+            List<Phone> phones = new List<Phone>();
+            List<string> request = Request.Form.ToString().Split('&').Where(p => p.Contains("DDD") || p.Contains("TypePhone") || p.Contains("Number")).ToList();
+
+            for (int i = 0; i < request.Count; i++)
+            {
+                Phone phoneRequest = new Phone();
+
+                if (request[i].Contains("TypePhone"))
+                {
+                    phoneRequest.TypePhone = request[i].Replace("TypePhone=", "").ToString().Equals("Mobile") ? (TypePhone)1 : (TypePhone)2; //1 => Mobile | 2 => Landline
+
+                    int index = request.IndexOf(request.Where(p => p.ToString().Contains("DDD=")).FirstOrDefault());
+                    phoneRequest.DDD = request[index].Replace("DDD=", "");
+                    request[index] = request[index].Replace("DDD=", "");
+
+                    index = request.IndexOf(request.Where(p => p.ToString().Contains("Number=")).FirstOrDefault());
+                    phoneRequest.Number = request[index].Replace("Number=", "");
+                    request[index] = request[index].Replace("Number=", "");
+
+                    phones.Add(phoneRequest);
+
+                }
+                else
+                    break;
+
+            }
+            #endregion
+
             if (ModelState.IsValid)
             {
                 db.Employee.Add(employee);

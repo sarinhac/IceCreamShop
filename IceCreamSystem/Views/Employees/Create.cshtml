@@ -43,7 +43,10 @@
                 </div>
 
                 <div class="form-group col-md-12">
-                    @Html.Partial("_Phone")
+                    <div class="input-group" id="divPhone">
+                        @Html.Partial("_Phone")
+                    </div>
+                    <button class="btn btn-outline-secondary" id="btnPhone" type="button">Add Other Telephone</button>
                 </div>
 
                 <!-- Address -->
@@ -260,7 +263,7 @@
                 <div class="col-md-6">
                     <div class="form-group">
                         @Html.ActionLink("Cancelar", "Index", null, new { @class = "btn btn-secondary btn-lg" })
-                        <input type="submit" value="Criar" class="btn btn-success btn-lg" />
+                        <input type="submit" value="Criar" class="btn btn-success btn-lg" id="submit" />
                     </div>
                 </div>
             </div>
@@ -349,5 +352,51 @@
             });
         });
     </script>
+
+    <script type="text/javascript">
+        $("#btnPhone").on("click", function () {
+            $.ajax({
+                url: '@Url.Content("~/Employees/AddOtherPhone")',
+                success: function (view)
+                {
+                    $('#divPhone').append(view);
+                }
+            });
+        });
+    </script>
+
+    <script type="text/javascript">
+
+        /*$('#submit').on("click", function () {
+            var objtTypePhones = document.getElementsByClassName("form-control typePhone");
+            var objDDD = document.getElementsByClassName("form-control ddd");
+            var objNumberPhone = document.getElementsByClassName("form-control numberPhone");
+            var phones;
+
+            for (i = 0; i < objNumberPhone.length; i++)
+            {
+                var typePhone = objtTypePhones[i].value;
+                var ddd = objDDD[i].value;
+                var numberPhone = objNumberPhone[i].value;
+
+                var phone = { TypePhone = typePhone, DDD  = ddd, NumberPhone = numberPhone };
+
+                phones.push(phone);
+            };
+
+            $.ajax({
+               contentType: 'application/json; charset=utf-8',
+               dataType: 'json',
+               type: 'POST',
+               url: 'Url.Action("Create", "Employee")',
+               data: JSON.stringify({ 'phones': phones }),
+                    success: function (result) {
+                        window.location.href = result.url;
+                    },
+                    error: function (ex) {
+                    }
+             });*/
+    </script>
 }
+
 

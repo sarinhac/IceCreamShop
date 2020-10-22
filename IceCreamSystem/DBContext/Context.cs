@@ -218,12 +218,6 @@ namespace IceCreamSystem.DBContext
                 .HasForeignKey(e => e.EmployeeId);
 
             modelBuilder.Entity<Employee>()
-                .HasMany(e => e.Log1)
-                .WithRequired(e => e.Employee1)
-                .HasForeignKey(e => e.Who)
-                .WillCascadeOnDelete(false);
-
-            modelBuilder.Entity<Employee>()
                 .HasMany(e => e.Phone)
                 .WithRequired(e => e.Employee)
                 .HasForeignKey(e => e.EmployeeId)

@@ -13,7 +13,6 @@ namespace IceCreamSystem.Models
         public Employee()
         {
             Log = new HashSet<Log>();
-            Log1 = new HashSet<Log>();
             Phone = new HashSet<Phone>();
             Sale = new HashSet<Sale>();
 
@@ -57,6 +56,8 @@ namespace IceCreamSystem.Models
         [StringLength(255)]
         public string PasswordUser { get; set; }
 
+        public ICollection<Phone> Phones { get; set; }
+
         public StatusGeneral Status { get; set; }
 
         public DateTime Created { get; set; }
@@ -69,9 +70,6 @@ namespace IceCreamSystem.Models
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Log> Log { get; set; }
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<Log> Log1 { get; set; }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Phone> Phone { get; set; }
