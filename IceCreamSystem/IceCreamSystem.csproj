@@ -207,6 +207,7 @@
     <Content Include="Views\Shared\_IndexsView.cshtml" />
     <Content Include="Views\Employees\Active.cshtml" />
     <Content Include="Views\Employees\_Phone.cshtml" />
+    <Content Include="Views\Employees\Login.cshtml" />
     <None Include="Views\Shared\_AdminLite.cshtml" />
     <Content Include="Images\sorvetelogo.png" />
     <Content Include="Images\user.png" />
@@ -244,7 +245,7 @@
     <Content Include="Views\Companies\Details.cshtml" />
     <Content Include="Views\Companies\Edit.cshtml" />
     <Content Include="Views\Companies\Index.cshtml" />
-    <Content Include="Views\Shared\_Login.cshtml" />
+    <Content Include="Views\Shared\_LoginView.cshtml" />
     <Content Include="webfonts\fa-brands-400.eot" />
     <Content Include="webfonts\fa-brands-400.ttf" />
     <Content Include="webfonts\fa-brands-400.woff" />

@@ -1,11 +1,16 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Login V18</title>
+    <title>Sing in</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <link rel="stylesheet" type="text/css" href="~/Scripts/bootstrap.min.js">
+    <link rel="stylesheet" href="~/Content/all.min.css">
+    <link rel="stylesheet" href="~/Content/adminlte.min.css">
+    <link rel="stylesheet" href="~/Content/dataTables.bootstrap4.min.css">
+    <link rel="stylesheet" href="~/Content/responsive.bootstrap4.min.css">
+
+    <link rel="stylesheet" type="text/css" href="~/Content/bootstrap.min.css">
     <!--===============================================================================================-->
     <link rel="stylesheet" type="text/css" href="~/Content/font-awesome.min.css">
     <!--===============================================================================================-->
@@ -33,7 +38,8 @@
                 <form class="login100-form validate-form">
                     @RenderBody()
                 </form>
-                <div class="login100-more" style="background-image: url('Images/sorvetecapa.jpg');">
+                <div class="login100-more" style="background-image: url('../Images/sorvetecapa.jpg');
+    ">
                 </div>
             </div>
         </div>
@@ -49,12 +55,11 @@
     <!--===============================================================================================-->
     <script src="~/Scripts/select2.min.js"></script>
     <!--===============================================================================================-->
-    <script src="~/Scripts/daterangepicker.js"></script>
     <script src="~/Scripts/moment.min.js"></script>
+    <script src="~/Scripts/daterangepicker.js"></script>
     <!--===============================================================================================-->
     <script src="~/Scripts/countdowntime.js"></script>
     <!--===============================================================================================-->
     <script src="~/Scripts/main.js"></script>
-
 </body>
 </html>

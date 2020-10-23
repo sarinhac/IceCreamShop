@@ -1,15 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data.Entity;
 using System.Linq;
 using System.Net;
 using System.Web.Mvc;
-using System.Web.UI;
 using IceCreamSystem.DBContext;
 using IceCreamSystem.Models;
 using IceCreamSystem.Models.Enum;
-using IceCreamSystem.Models.ViewModels;
 using IceCreamSystem.Services;
 
 namespace IceCreamSystem.Controllers
@@ -22,6 +19,34 @@ namespace IceCreamSystem.Controllers
         {
             var employee = db.Employee.Include(e => e.Address).Include(e => e.Company).Include(e => e.Office);
             return View(employee.ToList());
+        }
+
+        public ActionResult Login()
+        {
+            return View();
+        }
+
+        [HttpPost, ActionName("Login")]
+        public ActionResult Login(Employee employee)
+        {
+            var currentUser = db.Employee.SingleOrDefault(
+                u => u.LoginUser.Equals(employee.LoginUser));
+
+            if (currentUser != null)
+            {
+                if (HashService.ValidatePassword(employee.PasswordUser, currentUser.PasswordUser))
+                {
+                    Session.Add("userName", currentUser.NameEmployee);
+                    Session.Add("idUser", currentUser.IdEmployee);
+                    Session.Add("idCompany", currentUser.CompanyId);
+                    Session.Add("permission", currentUser.Permission);
+
+                    return View("Home", Session);
+                }
+            }
+
+            ViewBag.error = "Invalid";
+            return View();
         }
 
 
@@ -50,7 +75,7 @@ namespace IceCreamSystem.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Create(Employee employee)
-        {          
+        {
             if (ModelState.IsValid)
             {
                 #region CATCHING ALL PHONES IN REQUEST
