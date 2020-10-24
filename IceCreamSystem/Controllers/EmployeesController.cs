@@ -26,8 +26,9 @@ namespace IceCreamSystem.Controllers
             return View();
         }
 
-        [HttpPost, ActionName("Login")]
-        public ActionResult Login(Employee employee)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Login([Bind(Include = "LoginUser,PasswordUser")] Employee employee)
         {
             var currentUser = db.Employee.SingleOrDefault(
                 u => u.LoginUser.Equals(employee.LoginUser));
@@ -45,7 +46,7 @@ namespace IceCreamSystem.Controllers
                 }
             }
 
-            ViewBag.error = "Invalid";
+            ViewBag.error = "Login or Password Invalid, Please try again";
             return View();
         }
 
