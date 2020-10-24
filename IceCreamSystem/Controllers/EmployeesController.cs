@@ -21,6 +21,11 @@ namespace IceCreamSystem.Controllers
             return View(employee.ToList());
         }
 
+        public ActionResult Home()
+        {
+            return View();
+        }
+
         public ActionResult Login()
         {
             return View();

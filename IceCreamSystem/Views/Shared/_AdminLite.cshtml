@@ -29,7 +29,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
                     <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
                 </li>
                 <li class="nav-item d-none d-sm-inline-block">
-                    <a href="./Employee/Welcome" class="nav-link">Home</a>
+                    <a href="../Employees/Home" class="nav-link">Home</a>
                 </li>
                 <li class="nav-item d-none d-sm-inline-block">
                     <a href="#" class="nav-link">Contact</a>
@@ -40,7 +40,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
         <!-- Main Sidebar Container -->
         <aside class="main-sidebar sidebar-dark-primary elevation-4">
             <!-- Brand Logo -->
-            <a href="./Employee/Welcome" class="brand-link">
+            <a href="../Employees/Home" class="brand-link">
                 <img src="~/Images/sorvetelogo.png" alt="Logo" class="brand-image img-circle elevation-3"
                      style="opacity: .8">
                 <span class="brand-text font-weight-light">IceCreamShop</span>
@@ -54,7 +54,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
                         <img src="~/Images/user.png" alt="User" class="img-circle elevation-2">
                     </div>
                     <div class="info">
-                        <a href="#" class="d-block">@Session["username"]</a>
+                        <a href="../Employees/Details/@Session["idUser"]" class="d-block">@Session["username"]</a>
                     </div>
                 </div>
 
@@ -62,7 +62,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
                 <nav class="mt-2">
                     <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
                         <li class="nav-item has-treeview menu-open">
-                            <a href="./Sale/Create" class="nav-link active">
+                            <a href="../Sales/Create" class="nav-link active">
                                 <i class="fas fa-cart-plus"></i>
                                 <p> New Sale </p>
                             </a>
@@ -83,7 +83,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
                             </a>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="../Sale" class="nav-link">
+                                    <a href="../Sales" class="nav-link">
                                         <i class="fas fa-shopping-cart"></i>
                                         <p>Sales</p>
                                     </a>
@@ -165,13 +165,13 @@ scratch. This page gets rid of all links and provides the needed markup only.
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="../Employees" class="nav-link">
+                                    <a href="../Employees/Index" class="nav-link">
                                         <i class="fas fa-users"></i>
                                         <p>Employees</p>
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="../Offices" class="nav-link">
+                                    <a href="../Offices/Index" class="nav-link">
                                         <i class="fas fa-paste"></i>
                                         <p>Offices</p>
                                     </a>
@@ -197,7 +197,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
                         </div><!-- /.col -->
                         <div class="col-sm-6">
                             <ol class="breadcrumb float-sm-right">
-                                <li class="breadcrumb-item"><a href="../Employee/Home">Home</a></li>
+                                <li class="breadcrumb-item"><a href="../Employees/Home">Home</a></li>
                                 <li class="breadcrumb-item active">@ViewBag.Title</li>
                             </ol>
                         </div><!-- /.col -->

@@ -13,13 +13,11 @@ namespace IceCreamSystem
         {
             routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
 
-            _ = routes.MapRoute(
+            routes.MapRoute(
                 name: "Default",
-                url: "{action}",
-                defaults: new { controller = "Employees", action = "Login" }
+                url: "{controller}/{action}/{id}",
+                defaults: new { controller = "Employees", action = "Login", id = UrlParameter.Optional }
             );
-
-            routes.MapMvcAttributeRoutes();
 
         }
     }
