@@ -43,12 +43,24 @@
                 </div>
 
                 <div class="form-group col-md-12">
-                    <div class="input-group" id="divPhone">
-                        @Html.Partial("_Phone")
-                    </div>
+                    @if (ViewBag.Phones != null)
+                    {
+                        foreach (IceCreamSystem.Models.Phone phone in ViewBag.Phones)
+                        {
+                            <div class="input-group" id="divPhone">
+                                @Html.Partial("_Phone", phone)
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="input-group" id="divPhone">
+                            @Html.Partial("_Phone")
+                        </div>
+                    }
+
                     <button class="btn btn-outline-secondary" id="btnPhone" type="button">Add Other Telephone</button>
                 </div>
-
                 <!-- Address -->
                 <div class="form-group">
                     @Html.LabelFor(model => model.Address.Cep, "CEP", htmlAttributes: new { @class = "control-label col-md-2" })
@@ -274,15 +286,18 @@
 
 @section Scripts {
     <script type="text/javascript">
+        //login information
 
         $(document).ready(function () {
             //Inicialmente desmarca o CheckBox
-            $('#HaveLogin').removeAttr('checked');
+            var login = $('#login').val();
+            if (login != null) {
+                $('#HaveLogin').removeAttr('checked');
 
-            $('#permission').hide();
-            $('#login').hide();
-            $('#password').hide();
-
+                $('#permission').hide();
+                $('#login').hide();
+                $('#password').hide();
+            }
         });
 
         $('#HaveLogin').change(function () {
@@ -300,15 +315,18 @@
     </script>
 
     <script type="text/javascript">
+        //address
 
         $(document).ready(function () {
-
-            $('#address').hide();
-            $('#number').hide();
-            $('#moreInformation').hide();
-            $('#neighborhood').hide();
-            $('#city').hide();
-            $('#estate').hide();
+            var address = $('#address').val();
+            if (address != null) {
+                $('#address').hide();
+                $('#number').hide();
+                $('#moreInformation').hide();
+                $('#neighborhood').hide();
+                $('#city').hide();
+                $('#estate').hide();
+            }
         });
 
         $("#btnCep").on("click", function () {
@@ -354,6 +372,7 @@
     </script>
 
     <script type="text/javascript">
+ //add more phones
         $("#btnPhone").on("click", function () {
             $.ajax({
                 url: '@Url.Content("~/Employees/AddOtherPhone")',
