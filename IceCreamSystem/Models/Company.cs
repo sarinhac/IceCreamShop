@@ -1,10 +1,11 @@
 namespace IceCreamSystem.Models
 {
+    using IceCreamSystem.Models.Enum;
     using System;
     using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations;
     using System.ComponentModel.DataAnnotations.Schema;
-    using IceCreamSystem.Models.Enum;
+    using System.Data.Entity.Spatial;
 
     [Table("Company")]
     public partial class Company
@@ -15,7 +16,6 @@ namespace IceCreamSystem.Models
             Category = new HashSet<Category>();
             CreditCard = new HashSet<CreditCard>();
             DebitCard = new HashSet<DebitCard>();
-            Employee = new HashSet<Employee>();
             Log = new HashSet<Log>();
             Office = new HashSet<Office>();
             Payment = new HashSet<Payment>();
@@ -23,12 +23,13 @@ namespace IceCreamSystem.Models
             Sale = new HashSet<Sale>();
             EntryStock = new HashSet<EntryStock>();
             UnitMeasure = new HashSet<UnitMeasure>();
+            Worker = new HashSet<Worker>();
+
             Status = 0;
             Created = DateTime.Now;
         }
 
         #region ATTRIBUTES
-
         [Key]
         public int IdCompany { get; set; }
 
@@ -50,9 +51,6 @@ namespace IceCreamSystem.Models
         public virtual ICollection<DebitCard> DebitCard { get; set; }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<Employee> Employee { get; set; }
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Log> Log { get; set; }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
@@ -72,7 +70,10 @@ namespace IceCreamSystem.Models
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<UnitMeasure> UnitMeasure { get; set; }
-        #endregion //ATTRIBUTES
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<Worker> Worker { get; set; }
+        #endregion 
 
         #region METHODS
         public void ReactivateCompany()

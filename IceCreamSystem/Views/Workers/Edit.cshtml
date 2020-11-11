@@ -1,4 +1,4 @@
-﻿@model IceCreamSystem.Models.Employee
+﻿@model IceCreamSystem.Models.Worker
 
 @{
     ViewBag.Title = "Edit";
@@ -14,17 +14,17 @@
             <div class="form-horizontal">
 
                 @Html.ValidationSummary(true, "", new { @class = "text-danger" })
-                @Html.HiddenFor(model => model.IdEmployee)
+                @Html.HiddenFor(model => model.IdWorker)
 
                 <div class="form-group">
-                    @Html.LabelFor(model => model.NameEmployee, htmlAttributes: new { @class = "control-label col-md-2" })
+                    @Html.LabelFor(model => model.NameWorker, htmlAttributes: new { @class = "control-label col-md-2" })
                     <div class="col-md-12">
                         <div class="input-group">
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fas fa-user"></i></span>
                             </div>
-                            @Html.EditorFor(model => model.NameEmployee, new { htmlAttributes = new { @class = "form-control" } })
-                            @Html.ValidationMessageFor(model => model.NameEmployee, "", new { @class = "text-danger" })
+                            @Html.EditorFor(model => model.NameWorker, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.NameWorker, "", new { @class = "text-danger" })
                         </div>
                     </div>
                 </div>
@@ -76,41 +76,41 @@
                 <div class="input-group">
 
                     <div class="form-group col-md-9" id="address">
-                        @Html.LabelFor(model => model.Address.Logradouro, "Address", htmlAttributes: new { @class = "control-label col-md-2" })
+                        @Html.LabelFor(model => model.Address.Street, "Address", htmlAttributes: new { @class = "control-label col-md-2" })
                         <div class="col-md-12">
                             <div class="input-group">
                                 <div class="input-group-prepend">
                                     <span class="input-group-text"><i class="fas fa-house-user"></i></span>
                                 </div>
-                                @Html.EditorFor(model => model.Address.Logradouro, new { htmlAttributes = new { @class = "form-control" } })
-                                @Html.ValidationMessageFor(model => model.Address.Logradouro, "", new { @class = "text-danger" })
+                                @Html.EditorFor(model => model.Address.Street, new { htmlAttributes = new { @class = "form-control" } })
+                                @Html.ValidationMessageFor(model => model.Address.Street, "", new { @class = "text-danger" })
                             </div>
                         </div>
                     </div>
 
                     <div class="form-group col-md-3" id="number">
-                        @Html.LabelFor(model => model.Address.Numero, "Number", htmlAttributes: new { @class = "control-label col-md-2" })
+                        @Html.LabelFor(model => model.Address.Number, "Number", htmlAttributes: new { @class = "control-label col-md-2" })
                         <div class="col-md-12">
                             <div class="input-group">
                                 <div class="input-group-prepend">
                                     <span class="input-group-text"><i class="fas fa-house-user"></i></span>
                                 </div>
-                                @Html.EditorFor(model => model.Address.Numero, new { htmlAttributes = new { @class = "form-control" } })
-                                @Html.ValidationMessageFor(model => model.Address.Numero, "", new { @class = "text-danger" })
+                                @Html.EditorFor(model => model.Address.Number, new { htmlAttributes = new { @class = "form-control" } })
+                                @Html.ValidationMessageFor(model => model.Address.Number, "", new { @class = "text-danger" })
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <div class="form-group" id="moreInformation">
-                    @Html.LabelFor(model => model.Address.Complemento, "More information about your Address", htmlAttributes: new { @class = "control-label col-md-12" })
+                    @Html.LabelFor(model => model.Address.Complement, "More information about your Address", htmlAttributes: new { @class = "control-label col-md-12" })
                     <div class="col-md-12">
                         <div class="input-group">
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fas fa-house-user"></i></span>
                             </div>
-                            @Html.EditorFor(model => model.Address.Complemento, new { htmlAttributes = new { @class = "form-control" } })
-                            @Html.ValidationMessageFor(model => model.Address.Complemento, "", new { @class = "text-danger" })
+                            @Html.EditorFor(model => model.Address.Complement, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.Address.Complement, "", new { @class = "text-danger" })
                         </div>
                     </div>
                 </div>
@@ -118,27 +118,27 @@
 
                 <div class="input-group">
                     <div class="form-group col-md-5" id="neighborhood">
-                        @Html.LabelFor(model => model.Address.Bairro, "Neighborhood", htmlAttributes: new { @class = "control-label col-md-2" })
+                        @Html.LabelFor(model => model.Address.Neighborhood, "Neighborhood", htmlAttributes: new { @class = "control-label col-md-2" })
                         <div class="col-md-12">
                             <div class="input-group">
                                 <div class="input-group-prepend">
                                     <span class="input-group-text"><i class="fas fa-house-user"></i></span>
                                 </div>
-                                @Html.EditorFor(model => model.Address.Bairro, new { htmlAttributes = new { @class = "form-control" } })
-                                @Html.ValidationMessageFor(model => model.Address.Bairro, "", new { @class = "text-danger" })
+                                @Html.EditorFor(model => model.Address.Neighborhood, new { htmlAttributes = new { @class = "form-control" } })
+                                @Html.ValidationMessageFor(model => model.Address.Neighborhood, "", new { @class = "text-danger" })
                             </div>
                         </div>
                     </div>
 
                     <div class="form-group col-md-4" id="city">
-                        @Html.LabelFor(model => model.Address.Cidade, "City", htmlAttributes: new { @class = "control-label col-md-2" })
+                        @Html.LabelFor(model => model.Address.City, "City", htmlAttributes: new { @class = "control-label col-md-2" })
                         <div class="col-md-12">
                             <div class="input-group">
                                 <div class="input-group-prepend">
                                     <span class="input-group-text"><i class="fas fa-house-user"></i></span>
                                 </div>
-                                @Html.EditorFor(model => model.Address.Cidade, new { htmlAttributes = new { @class = "form-control" } })
-                                @Html.ValidationMessageFor(model => model.Address.Cidade, "", new { @class = "text-danger" })
+                                @Html.EditorFor(model => model.Address.City, new { htmlAttributes = new { @class = "form-control" } })
+                                @Html.ValidationMessageFor(model => model.Address.City, "", new { @class = "text-danger" })
                             </div>
                         </div>
                     </div>
@@ -254,18 +254,18 @@
                 dataType: 'json',
                 success: function (resposta) {
 
-                    if (resposta.logradouro == null) {
+                    if (resposta.Street == null) {
                         $("#erromsg").text("CEP Invalido ou Inexistente, Preencha um CEP válido ou digite o endereço manualmente");
                         return;
                     }
 
                     $("#erromsg").text("");
-                    $("#Address_Logradouro").val(resposta.logradouro);
-                    $("#Address_Complemento").val(resposta.complemento);
-                    $("#Address_Bairro").val(resposta.bairro);
-                    $("#Address_Cidade").val(resposta.localidade);
+                    $("#Address_Street").val(resposta.Street);
+                    $("#Address_Complement").val(resposta.Complement);
+                    $("#Address_Neighborhood").val(resposta.Neighborhood);
+                    $("#Address_City").val(resposta.localidade);
                     $("#Address_Uf").val(resposta.uf);
-                    $("#Address_Numero").focus();
+                    $("#Address_Number").focus();
 
                 },
                 error: function () {

@@ -12,8 +12,8 @@ namespace IceCreamSystem.Models
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public Office()
         {
-            Employee = new HashSet<Employee>();
             Log = new HashSet<Log>();
+            Worker = new HashSet<Worker>();
         }
 
         [Key]
@@ -21,7 +21,6 @@ namespace IceCreamSystem.Models
 
         [Required]
         [StringLength(50)]
-        [Display(Name = "Office")]
         public string NameOffice { get; set; }
 
         [StringLength(255)]
@@ -38,9 +37,9 @@ namespace IceCreamSystem.Models
         public virtual Company Company { get; set; }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<Employee> Employee { get; set; }
+        public virtual ICollection<Log> Log { get; set; }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<Log> Log { get; set; }
+        public virtual ICollection<Worker> Worker { get; set; }
     }
 }

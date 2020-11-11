@@ -1,8 +1,8 @@
-﻿@model IEnumerable<IceCreamSystem.Models.Employee>
+﻿@model IEnumerable<IceCreamSystem.Models.Worker>
 
 @{
     Layout = "~/Views/Shared/_IndexsView.cshtml";
-    ViewBag.Title = "Employees";
+    ViewBag.Title = "Workers";
 }
 
 <table class="table table-bordered table-striped dataTable dtr-inline" style="width:100%" role="grid">
@@ -15,7 +15,7 @@
                 </th>
             }
             <th>
-                @Html.DisplayNameFor(model => model.NameEmployee)
+                @Html.DisplayNameFor(model => model.NameWorker)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Address.Cep)
@@ -50,7 +50,7 @@
                     </td>
                 }
                 <td>
-                    @Html.DisplayFor(modelItem => item.NameEmployee)
+                    @Html.DisplayFor(modelItem => item.NameWorker)
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.Address.Cep)
@@ -73,33 +73,33 @@
                 }
                 else if (item.Permission != null && item.Permission.ToString().Equals("Admin"))
                 {
-                <td>
-                    <div class="badge badge-pill badge-danger"> @Html.DisplayFor(modelItem => item.Permission)</div>
-                </td>
+                    <td>
+                        <div class="badge badge-pill badge-danger"> @Html.DisplayFor(modelItem => item.Permission)</div>
+                    </td>
                 }
                 else if (item.Permission != null && item.Permission.ToString().Equals("Supervisor"))
                 {
-                <td>
-                    <div class="badge badge-pill badge-warning"> @Html.DisplayFor(modelItem => item.Permission)</div>
-                </td>
+                    <td>
+                        <div class="badge badge-pill badge-warning"> @Html.DisplayFor(modelItem => item.Permission)</div>
+                    </td>
                 }
                 else if (item.Permission != null && item.Permission.ToString().Equals("Stockist"))
                 {
-                <td>
-                    <div class="badge badge-pill badge-secondary"> @Html.DisplayFor(modelItem => item.Permission)</div>
-                </td>
+                    <td>
+                        <div class="badge badge-pill badge-secondary"> @Html.DisplayFor(modelItem => item.Permission)</div>
+                    </td>
                 }
                 else if (item.Permission != null && item.Permission.ToString().Equals("Seller"))
                 {
-                <td>
-                    <div class="badge badge-pill badge-info"> @Html.DisplayFor(modelItem => item.Permission)</div>
-                </td>
+                    <td>
+                        <div class="badge badge-pill badge-info"> @Html.DisplayFor(modelItem => item.Permission)</div>
+                    </td>
                 }
                 else
                 {
-                <td>
-                    <div class="badge badge-pill badge-light"> <i class="fas fa-ban"></i></div>
-                </td>
+                    <td>
+                        <div class="badge badge-pill badge-light"> <i class="fas fa-ban"></i></div>
+                    </td>
                 }
 
                 <td>
@@ -114,18 +114,18 @@
                 </td>
                 <td>
                     <div class="btn-group pull-center d-lg-inline">
-                        <a class="btn btn-block bg-gradient-info d-lg-inline details" data-toggle="modal" data-target="#modal" data-url="@Url.Action("Details", "Employees", new { id = item.IdEmployee })"> <i class="fas fa-info-circle"></i> Details </a>
-                        <a class="btn btn-block bg-gradient-warning d-lg-inline" href="@Url.Action("Edit", "Employees", new { id = item.IdEmployee })"> <i class="fas fa-edit"></i> Edit </a>
+                        <a class="btn btn-block bg-gradient-info d-lg-inline details" data-toggle="modal" data-target="#modal" data-url="@Url.Action("Details", "Workers", new { id = item.IdWorker })"> <i class="fas fa-info-circle"></i> Details </a>
+                        <a class="btn btn-block bg-gradient-warning d-lg-inline" href="@Url.Action("Edit", "Workers", new { id = item.IdWorker })"> <i class="fas fa-edit"></i> Edit </a>
 
                         @if (item.Status != 0)
                         {
                             //Green for delete btn
-                            <a class="btn btn-block bg-gradient-success d-lg-inline active" data-toggle="modal" data-target="#modal" data-url="@Url.Action("Active", "Employees", new { id = item.IdEmployee })"> <i class="fas fa-history"></i> Active </a>
+                            <a class="btn btn-block bg-gradient-success d-lg-inline active" data-toggle="modal" data-target="#modal" data-url="@Url.Action("Active", "Workers", new { id = item.IdWorker })"> <i class="fas fa-history"></i> Active </a>
                         }
                         else
                         {
                             //Red for delete btn
-                            <a class="btn btn-block bg-gradient-danger d-lg-inline delete" data-toggle="modal" data-target="#modal" data-url="@Url.Action("Delete", "Employees", new { id = item.IdEmployee })"> <i class="fas fa-trash-alt"></i> Delete </a>
+                            <a class="btn btn-block bg-gradient-danger d-lg-inline delete" data-toggle="modal" data-target="#modal" data-url="@Url.Action("Delete", "Workers", new { id = item.IdWorker })"> <i class="fas fa-trash-alt"></i> Delete </a>
                         }
                     </div>
                 </td>

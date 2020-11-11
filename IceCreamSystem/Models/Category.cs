@@ -1,10 +1,10 @@
 namespace IceCreamSystem.Models
 {
-    using IceCreamSystem.Models.Enum;
     using System;
     using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations;
     using System.ComponentModel.DataAnnotations.Schema;
+    using System.Data.Entity.Spatial;
 
     [Table("Category")]
     public partial class Category
@@ -15,7 +15,7 @@ namespace IceCreamSystem.Models
             Log = new HashSet<Log>();
             Product = new HashSet<Product>();
         }
-        #region ATTRIBUTES
+
         [Key]
         public int IdCategory { get; set; }
 
@@ -28,7 +28,7 @@ namespace IceCreamSystem.Models
 
         public int CompanyId { get; set; }
 
-        public StatusGeneral Status { get; set; }
+        public int Status { get; set; }
 
         public DateTime Created { get; set; }
 
@@ -39,6 +39,5 @@ namespace IceCreamSystem.Models
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Product> Product { get; set; }
-        #endregion
     }
 }
