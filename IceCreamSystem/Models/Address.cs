@@ -12,7 +12,7 @@ namespace IceCreamSystem.Models
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public Address()
         {
-            Employee = new HashSet<Employee>();
+            Worker = new HashSet<Worker>();
         }
 
         [Key]
@@ -24,28 +24,28 @@ namespace IceCreamSystem.Models
 
         [Required]
         [StringLength(255)]
-        public string Logradouro { get; set; }
+        public string Street { get; set; }
 
         [Required]
         [StringLength(5)]
-        public string Numero { get; set; }
+        public string Number { get; set; }
 
         [StringLength(255)]
-        public string Complemento { get; set; }
+        public string Complement { get; set; }
 
         [Required]
         [StringLength(50)]
-        public string Bairro { get; set; }
+        public string Neighborhood { get; set; }
 
         [Required]
         [StringLength(50)]
-        public string Cidade { get; set; }
+        public string City { get; set; }
 
         [Required]
         [StringLength(2)]
         public string Uf { get; set; }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<Employee> Employee { get; set; }
+        public virtual ICollection<Worker> Worker { get; set; }
     }
 }

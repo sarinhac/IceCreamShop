@@ -25,7 +25,7 @@ namespace IceCreamSystem.Models
 
         public int? CompanyId { get; set; }
 
-        public int? EmployeeId { get; set; }
+        public int? WorkerId { get; set; }
 
         public int? OfficeId { get; set; }
 
@@ -53,10 +53,6 @@ namespace IceCreamSystem.Models
 
         public virtual DebitCard DebitCard { get; set; }
 
-        public virtual Employee Employee { get; set; }
-
-        public virtual Employee Employee1 { get; set; }
-
         public virtual EntryStock EntryStock { get; set; }
 
         public virtual Office Office { get; set; }
@@ -68,5 +64,9 @@ namespace IceCreamSystem.Models
         public virtual Sale Sale { get; set; }
 
         public virtual UnitMeasure UnitMeasure { get; set; }
+
+        public virtual Worker Worker { get; set; }
+
+        public virtual Worker Worker1 { get; set; }
     }
 }

@@ -5,36 +5,34 @@ namespace IceCreamSystem.Models
     using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations;
     using System.ComponentModel.DataAnnotations.Schema;
+    using System.Data.Entity.Spatial;
 
-    [Table("Employee")]
-    public partial class Employee
+    [Table("Worker")]
+    public partial class Worker
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
-        public Employee()
+        public Worker()
         {
             Log = new HashSet<Log>();
+            Log1 = new HashSet<Log>();
             Phone = new HashSet<Phone>();
             Sale = new HashSet<Sale>();
 
             Status = 0;
             Created = DateTime.Now;
         }
-
         #region ATTRIBUTES
         [Key]
-        public int IdEmployee { get; set; }
+        public int IdWorker { get; set; }
 
         [Required]
         [StringLength(50)]
-        [Display(Name = "Employee")]
-        public string NameEmployee { get; set; }
+        public string NameWorker { get; set; }
 
         [Column(TypeName = "date")]
-        [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:d}")]
         public DateTime Birth { get; set; }
 
         [Column(TypeName = "date")]
-        [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:d}")]
         public DateTime Admission { get; set; }
 
         public decimal Salary { get; set; }
@@ -45,12 +43,11 @@ namespace IceCreamSystem.Models
 
         public int CompanyId { get; set; }
 
-        public bool HaveLogin { get; set; } = false;
+        public bool HaveLogin { get; set; }
 
         public Permission? Permission { get; set; }
 
         [StringLength(10)]
-        [Display(Name = "Login")]
         public string LoginUser { get; set; }
 
         [StringLength(255)]
@@ -64,39 +61,42 @@ namespace IceCreamSystem.Models
 
         public virtual Company Company { get; set; }
 
-        public virtual Office Office { get; set; }
-
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Log> Log { get; set; }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<Log> Log1 { get; set; }
+
+        public virtual Office Office { get; set; }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Phone> Phone { get; set; }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Sale> Sale { get; set; }
-        #endregion
+#endregion
 
         #region METHODS
-        public void ReactivateEmployee()
+        public void ReactivateWorker()
         {
             Status = 0;
         }
 
-        public void DeactivateEmployee()
+        public void DeactivateWorker()
         {
             Status = (StatusGeneral)1;
         }
 
         public override bool Equals(object obj)
         {
-            Employee employee = (Employee)obj;
-            return employee.IdEmployee == IdEmployee
+            Worker employee = (Worker)obj;
+            return employee.IdWorker == IdWorker
                 && employee.CompanyId == CompanyId
                 && employee.HaveLogin == HaveLogin
                 && employee.Permission == Permission
                 && employee.Salary == Salary
                 && employee.OfficeId == OfficeId
-                && employee.NameEmployee.Equals(NameEmployee)
+                && employee.NameWorker.Equals(NameWorker)
                 && employee.Birth.ToString("dd/MM/yyyy").Equals(Birth.ToString("dd/MM/yyyy"))
                 && employee.Admission.ToString("dd/MM/yyyy").Equals(Admission.ToString("dd/MM/yyyy"));
         }

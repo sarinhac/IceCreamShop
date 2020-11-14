@@ -11,13 +11,13 @@ using IceCreamSystem.Services;
 
 namespace IceCreamSystem.Controllers
 {
-    public class EmployeesController : Controller
+    public class WorkersController : Controller
     {
         private Context db = new Context();
 
         public ActionResult Index()
         {
-            var employee = db.Employee.Include(e => e.Address).Include(e => e.Company).Include(e => e.Office);
+            var employee = db.Worker.Include(e => e.Address).Include(e => e.Company).Include(e => e.Office);
             return View(employee.ToList());
         }
 
@@ -34,17 +34,17 @@ namespace IceCreamSystem.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Login([Bind(Include = "LoginUser,PasswordUser")] Employee employee)
+        public ActionResult Login([Bind(Include = "LoginUser,PasswordUser")] Worker employee)
         {
-            var currentUser = db.Employee.SingleOrDefault(
+            var currentUser = db.Worker.SingleOrDefault(
                 u => u.LoginUser.Equals(employee.LoginUser));
 
             if (currentUser != null)
             {
                 if (HashService.ValidatePassword(employee.PasswordUser, currentUser.PasswordUser))
                 {
-                    Session.Add("userName", currentUser.NameEmployee);
-                    Session.Add("idUser", currentUser.IdEmployee);
+                    //Session.Add("userName", currentUser.NameEmployee);
+                    //Session.Add("idUser", currentUser.IdEmployee);
                     Session.Add("idCompany", currentUser.CompanyId);
                     Session.Add("permission", currentUser.Permission);
 
@@ -83,7 +83,7 @@ namespace IceCreamSystem.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "NameEmployee, Birth, Admission, Salary, OfficeId, CompanyId, HaveLogin, Permission, LoginUser, PasswordUser")] Employee employee,
+        public ActionResult Create([Bind(Include = "NameEmployee, Birth, Admission, Salary, OfficeId, CompanyId, HaveLogin, Permission, LoginUser, PasswordUser")] Worker employee,
             [Bind(Include = "Cep, Logradouro, Numero, Bairro, Cidade, Uf")] Address address)
         {
             #region CATCHING ALL PHONES IN REQUEST
@@ -117,14 +117,14 @@ namespace IceCreamSystem.Controllers
 
             if (ModelState.IsValid)
             {
-                var currentUser = db.Employee.SingleOrDefault(
+                var currentUser = db.Worker.SingleOrDefault(
                 u => u.LoginUser.Equals(employee.LoginUser));
 
                 if (currentUser == null && employee.LoginUser != null)
                 {
                     using (var trans = db.Database.BeginTransaction())
                     {
-                        try
+                        /*try
                         {
                             #region SAVE NEW EMPLOYEE
                             int idUser = (int)Session["idUser"]; //who is login
@@ -135,7 +135,7 @@ namespace IceCreamSystem.Controllers
                             db.SaveChanges();
 
                             employee.AddressId = address.IdAddress;
-                            db.Employee.Add(employee);
+                            db.Worker.Add(employee);
                             db.SaveChanges();
 
                             foreach (Phone p in phones)
@@ -164,7 +164,7 @@ namespace IceCreamSystem.Controllers
                         {
                             trans.Rollback();
                             goto ReturnIfError;
-                        }
+                        }*/
                     }
                 }
                 goto ReturnIfError;
@@ -192,7 +192,7 @@ namespace IceCreamSystem.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Employee employee = db.Employee.Find(id);
+            Worker employee = db.Worker.Find(id);
             if (employee == null)
             {
                 return HttpNotFound();
@@ -208,13 +208,13 @@ namespace IceCreamSystem.Controllers
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
 
-            Employee employee = db.Employee.Find(id);
+            Worker employee = db.Worker.Find(id);
             if (employee == null)
             {
                 return HttpNotFound();
             }
 
-            List<Phone> phones = db.Phone.Where(p => p.EmployeeId == id).ToList();
+            List<Phone> phones = db.Phone.Where(p => p.WorkerId == id).ToList();
             ViewBag.Phones = phones;
 
             IEnumerable<SelectListItem> permission = new SelectList(Enum.GetValues(typeof(Permission)));
@@ -222,7 +222,7 @@ namespace IceCreamSystem.Controllers
 
             IEnumerable<SelectListItem> typePhone = new SelectList(Enum.GetValues(typeof(TypePhone)));
             ViewBag.TypePhone = typePhone;
-           
+
             ViewBag.CompanyId = new SelectList(db.Company, "IdCompany", "NameCompany", employee.CompanyId);
             ViewBag.OfficeId = new SelectList(db.Office, "IdOffice", "NameOffice", employee.OfficeId);
             return View(employee);
@@ -231,7 +231,7 @@ namespace IceCreamSystem.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "IdEmployee,NameEmployee,Birth,Admission,Salary,AddressId,OfficeId,CompanyId,HaveLogin,Permission,LoginUser,PasswordUser,Status,Created")] Employee employee)
+        public ActionResult Edit([Bind(Include = "IdEmployee,NameEmployee,Birth,Admission,Salary,AddressId,OfficeId,CompanyId,HaveLogin,Permission,LoginUser,PasswordUser,Status,Created")] Worker employee)
         {
             if (ModelState.IsValid)
             {
@@ -253,7 +253,7 @@ namespace IceCreamSystem.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Employee employee = db.Employee.Find(id);
+            Worker employee = db.Worker.Find(id);
             if (employee == null)
             {
                 return HttpNotFound();
@@ -265,8 +265,8 @@ namespace IceCreamSystem.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)
         {
-            Employee employee = db.Employee.Find(id);
-            employee.DeactivateEmployee();
+            Worker employee = db.Worker.Find(id);
+            //employee.DeactivateEmployee();
             db.SaveChanges();
             return RedirectToAction("Index");
         }
@@ -277,7 +277,7 @@ namespace IceCreamSystem.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Employee employee = db.Employee.Find(id);
+            Worker employee = db.Worker.Find(id);
             if (employee == null)
             {
                 return HttpNotFound();
@@ -289,8 +289,8 @@ namespace IceCreamSystem.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult ActiveConfirmed(int id)
         {
-            Employee employee = db.Employee.Find(id);
-            employee.ReactivateEmployee();
+            Worker employee = db.Worker.Find(id);
+            //employee.ReactivateEmployee();
             db.SaveChanges();
             return RedirectToAction("Index");
         }
