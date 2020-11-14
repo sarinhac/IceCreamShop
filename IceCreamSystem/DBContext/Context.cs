@@ -6,7 +6,7 @@ namespace IceCreamSystem.DBContext
     public partial class Context : DbContext
     {
         public Context()
-            : base("name=Model1")
+            : base("name=Context")
         {
         }
 
@@ -15,7 +15,6 @@ namespace IceCreamSystem.DBContext
         public virtual DbSet<Company> Company { get; set; }
         public virtual DbSet<CreditCard> CreditCard { get; set; }
         public virtual DbSet<DebitCard> DebitCard { get; set; }
-        public virtual DbSet<Employee> Employee { get; set; }
         public virtual DbSet<EntryStock> EntryStock { get; set; }
         public virtual DbSet<Log> Log { get; set; }
         public virtual DbSet<Office> Office { get; set; }
@@ -25,6 +24,7 @@ namespace IceCreamSystem.DBContext
         public virtual DbSet<Sale> Sale { get; set; }
         public virtual DbSet<SaleProduct> SaleProduct { get; set; }
         public virtual DbSet<UnitMeasure> UnitMeasure { get; set; }
+        public virtual DbSet<Worker> Worker { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
@@ -34,23 +34,23 @@ namespace IceCreamSystem.DBContext
                 .IsUnicode(false);
 
             modelBuilder.Entity<Address>()
-                .Property(e => e.Logradouro)
+                .Property(e => e.Street)
                 .IsUnicode(false);
 
             modelBuilder.Entity<Address>()
-                .Property(e => e.Numero)
+                .Property(e => e.Number)
                 .IsUnicode(false);
 
             modelBuilder.Entity<Address>()
-                .Property(e => e.Complemento)
+                .Property(e => e.Complement)
                 .IsUnicode(false);
 
             modelBuilder.Entity<Address>()
-                .Property(e => e.Bairro)
+                .Property(e => e.Neighborhood)
                 .IsUnicode(false);
 
             modelBuilder.Entity<Address>()
-                .Property(e => e.Cidade)
+                .Property(e => e.City)
                 .IsUnicode(false);
 
             modelBuilder.Entity<Address>()
@@ -59,7 +59,7 @@ namespace IceCreamSystem.DBContext
                 .IsUnicode(false);
 
             modelBuilder.Entity<Address>()
-                .HasMany(e => e.Employee)
+                .HasMany(e => e.Worker)
                 .WithRequired(e => e.Address)
                 .HasForeignKey(e => e.AddressId)
                 .WillCascadeOnDelete(false);
@@ -106,12 +106,6 @@ namespace IceCreamSystem.DBContext
                 .WillCascadeOnDelete(false);
 
             modelBuilder.Entity<Company>()
-                .HasMany(e => e.Employee)
-                .WithRequired(e => e.Company)
-                .HasForeignKey(e => e.CompanyId)
-                .WillCascadeOnDelete(false);
-
-            modelBuilder.Entity<Company>()
                 .HasMany(e => e.Log)
                 .WithOptional(e => e.Company)
                 .HasForeignKey(e => e.CompanyId);
@@ -148,6 +142,12 @@ namespace IceCreamSystem.DBContext
 
             modelBuilder.Entity<Company>()
                 .HasMany(e => e.UnitMeasure)
+                .WithRequired(e => e.Company)
+                .HasForeignKey(e => e.CompanyId)
+                .WillCascadeOnDelete(false);
+
+            modelBuilder.Entity<Company>()
+                .HasMany(e => e.Worker)
                 .WithRequired(e => e.Company)
                 .HasForeignKey(e => e.CompanyId)
                 .WillCascadeOnDelete(false);
@@ -196,39 +196,6 @@ namespace IceCreamSystem.DBContext
                 .WithOptional(e => e.DebitCard)
                 .HasForeignKey(e => e.DebitCardId);
 
-            modelBuilder.Entity<Employee>()
-                .Property(e => e.NameEmployee)
-                .IsUnicode(false);
-
-            modelBuilder.Entity<Employee>()
-                .Property(e => e.Salary)
-                .HasPrecision(7, 2);
-
-            modelBuilder.Entity<Employee>()
-                .Property(e => e.LoginUser)
-                .IsUnicode(false);
-
-            modelBuilder.Entity<Employee>()
-                .Property(e => e.PasswordUser)
-                .IsUnicode(false);
-
-            modelBuilder.Entity<Employee>()
-                .HasMany(e => e.Log)
-                .WithOptional(e => e.Employee)
-                .HasForeignKey(e => e.EmployeeId);
-
-            modelBuilder.Entity<Employee>()
-                .HasMany(e => e.Phone)
-                .WithRequired(e => e.Employee)
-                .HasForeignKey(e => e.EmployeeId)
-                .WillCascadeOnDelete(false);
-
-            modelBuilder.Entity<Employee>()
-                .HasMany(e => e.Sale)
-                .WithRequired(e => e.Employee)
-                .HasForeignKey(e => e.EmployeeId)
-                .WillCascadeOnDelete(false);
-
             modelBuilder.Entity<EntryStock>()
                 .Property(e => e.ProductBatch)
                 .IsUnicode(false);
@@ -259,15 +226,15 @@ namespace IceCreamSystem.DBContext
                 .HasPrecision(5, 2);
 
             modelBuilder.Entity<Office>()
-                .HasMany(e => e.Employee)
-                .WithRequired(e => e.Office)
-                .HasForeignKey(e => e.OfficeId)
-                .WillCascadeOnDelete(false);
-
-            modelBuilder.Entity<Office>()
                 .HasMany(e => e.Log)
                 .WithOptional(e => e.Office)
                 .HasForeignKey(e => e.OfficeId);
+
+            modelBuilder.Entity<Office>()
+                .HasMany(e => e.Worker)
+                .WithRequired(e => e.Office)
+                .HasForeignKey(e => e.OfficeId)
+                .WillCascadeOnDelete(false);
 
             modelBuilder.Entity<Payment>()
                 .HasMany(e => e.Log)
@@ -350,6 +317,45 @@ namespace IceCreamSystem.DBContext
                 .HasMany(e => e.Product)
                 .WithRequired(e => e.UnitMeasure)
                 .HasForeignKey(e => e.UnitMeasureId)
+                .WillCascadeOnDelete(false);
+
+            modelBuilder.Entity<Worker>()
+                .Property(e => e.NameWorker)
+                .IsUnicode(false);
+
+            modelBuilder.Entity<Worker>()
+                .Property(e => e.Salary)
+                .HasPrecision(7, 2);
+
+            modelBuilder.Entity<Worker>()
+                .Property(e => e.LoginUser)
+                .IsUnicode(false);
+
+            modelBuilder.Entity<Worker>()
+                .Property(e => e.PasswordUser)
+                .IsUnicode(false);
+
+            modelBuilder.Entity<Worker>()
+                .HasMany(e => e.Log)
+                .WithRequired(e => e.Worker)
+                .HasForeignKey(e => e.Who)
+                .WillCascadeOnDelete(false);
+
+            modelBuilder.Entity<Worker>()
+                .HasMany(e => e.Log1)
+                .WithOptional(e => e.Worker1)
+                .HasForeignKey(e => e.WorkerId);
+
+            modelBuilder.Entity<Worker>()
+                .HasMany(e => e.Phone)
+                .WithRequired(e => e.Worker)
+                .HasForeignKey(e => e.WorkerId)
+                .WillCascadeOnDelete(false);
+
+            modelBuilder.Entity<Worker>()
+                .HasMany(e => e.Sale)
+                .WithRequired(e => e.Worker)
+                .HasForeignKey(e => e.WorkerId)
                 .WillCascadeOnDelete(false);
         }
     }

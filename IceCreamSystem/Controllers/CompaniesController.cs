@@ -95,7 +95,7 @@ namespace IceCreamSystem.Controllers
         public ActionResult DeleteConfirmed(int id)
         {
             Company company = db.Company.Find(id);
-            company.DeactivateCompany();
+            //company.DeactivateCompany();
             db.SaveChanges();
             return RedirectToAction("Index");
         }
@@ -118,7 +118,7 @@ namespace IceCreamSystem.Controllers
         public ActionResult ActiveConfirmed(int id)
         {
             Company company = db.Company.Find(id);
-            company.ReactivateCompany();
+            //company.ReactivateCompany();
             db.SaveChanges();
             return RedirectToAction("Index");
         }

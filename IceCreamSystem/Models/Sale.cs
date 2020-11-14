@@ -22,7 +22,7 @@ namespace IceCreamSystem.Models
 
         public int CompanyId { get; set; }
 
-        public int EmployeeId { get; set; }
+        public int WorkerId { get; set; }
 
         public int Status { get; set; }
 
@@ -30,13 +30,13 @@ namespace IceCreamSystem.Models
 
         public virtual Company Company { get; set; }
 
-        public virtual Employee Employee { get; set; }
-
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Log> Log { get; set; }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Payment> Payment { get; set; }
+
+        public virtual Worker Worker { get; set; }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<SaleProduct> SaleProduct { get; set; }
