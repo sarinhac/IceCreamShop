@@ -9,6 +9,11 @@ namespace IceCreamSystem.Models
     [Table("Log")]
     public partial class Log
     {
+        public Log()
+        {
+            Created = DateTime.Now;
+        }
+
         [Key]
         public int IdLog { get; set; }
 
@@ -54,8 +59,6 @@ namespace IceCreamSystem.Models
         public virtual DebitCard DebitCard { get; set; }
 
         public virtual Employee Employee { get; set; }
-
-        public virtual Employee Employee1 { get; set; }
 
         public virtual EntryStock EntryStock { get; set; }
 

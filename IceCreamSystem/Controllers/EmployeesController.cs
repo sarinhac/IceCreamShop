@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.Entity;
+using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Web.Mvc;
@@ -117,57 +118,112 @@ namespace IceCreamSystem.Controllers
 
             if (ModelState.IsValid)
             {
-                var currentUser = db.Employee.SingleOrDefault(
-                u => u.LoginUser.Equals(employee.LoginUser));
-
-                if (currentUser == null && employee.LoginUser != null)
+                if (employee.HaveLogin)
                 {
-                    using (var trans = db.Database.BeginTransaction())
+                    var currentUser = db.Employee.SingleOrDefault(u => u.LoginUser.Equals(employee.LoginUser));
+                    if (currentUser == null)
+                        employee.PasswordUser = HashService.HashPassword(employee.PasswordUser);
+                    else
                     {
+                        ViewBag.error = "Please choose another Login User";
+                        goto ReturnIfError;
+                    }
+                }
+
+                using (var trans = db.Database.BeginTransaction())
+                {
+                    try
+                    {
+                        #region SAVE NEW EMPLOYEE
+                        int idUser = (int)Session["idUser"]; //who is login
+
+                        #region Insert new Address with Add
+                        //Using (System.Data.Entity) Add -> Adds the given entity to the context that it will be inserted into the database when SaveChanges is called.
+                        db.Address.Add(address);
+                        db.SaveChanges();
+                        #endregion
+
+                        #region Insert New Employee with RAW
+                        //Using Raw -> can be useful for Code First models that currently do not support mapping to stored procedures
+                        //Non-query commands (Insert,Update,Delete,...) can be sent to the database using the --ExecuteSqlCommand-- method on the database.
+                        employee.AddressId = address.IdAddress;
+                        string loginEmployee = employee.LoginUser == null ? "NULL" : "'" + employee.LoginUser + "' ";
+                        string passEmployee = employee.PasswordUser == null ? "NULL" : "'" + employee.PasswordUser + "' ";
                         try
                         {
-                            #region SAVE NEW EMPLOYEE
-                            int idUser = (int)Session["idUser"]; //who is login
-                            if (employee.HaveLogin)
-                                employee.PasswordUser = HashService.HashPassword(employee.PasswordUser);
+                            string commands = "INSERT INTO [dbo].[Employee] (NameEmployee, Birth, Admission, Salary, AddressId, OfficeId," +
+                                                      "CompanyId, HaveLogin, Permission, LoginUser, PasswordUser, Status)" +
+                                                      " VALUES('" + employee.NameEmployee + "' ,'" + employee.Birth.ToString("yyyy-MM-dd") + "' " +
+                                                      ",'" + employee.Admission.ToString("yyyy-MM-dd") + "' " +
+                                                      ", " + employee.Salary.ToString(CultureInfo.GetCultureInfo("en-GB")) +
+                                                      ", " + employee.AddressId +
+                                                      ", " + employee.OfficeId +
+                                                      ", " + employee.CompanyId +
+                                                      ", " + Convert.ToInt32(employee.HaveLogin) +
+                                                      ", " + Convert.ToInt32(employee.Permission) +
+                                                      ", " + loginEmployee +
+                                                      ", " + passEmployee +
+                                                      ", " + Convert.ToInt32(employee.Status) + ")";
 
-                            db.Address.Add(address);
-                            db.SaveChanges();
-
-                            employee.AddressId = address.IdAddress;
-                            db.Employee.Add(employee);
-                            db.SaveChanges();
-
-                            foreach (Phone p in phones)
-                                p.EmployeeId = employee.IdEmployee;
-
-                            db.Phone.AddRange(phones);
-                            db.SaveChanges();
-
-                            Log log = new Log
-                            {
-                                New = employee.NameEmployee + "/BD " + employee.Birth.ToString("dd/MM/yy") + "/AD " + employee.Admission.ToString("dd/MM/yy") + "/ " + employee.Salary
-                                + "/Office " + employee.OfficeId + "/Address " + address.Cep + "/ " + address.Numero
-                                + "/ " + address.Cidade + "/ " + address.Uf + "/ " + employee.LoginUser != null ? employee.LoginUser : "",
-
-                                Who = idUser,
-                                EmployeeId = employee.IdEmployee
-                            };
-                            db.Log.Add(log);
-                            db.SaveChanges();
-
-                            trans.Commit();
-                            return RedirectToAction("Index");
-                            #endregion
+                            db.Database.ExecuteSqlCommand(commands);
                         }
                         catch
                         {
                             trans.Rollback();
+                            ViewBag.error = "There was an error inserting the new worker";
                             goto ReturnIfError;
                         }
+
+                        //Get Employee just inserted in the db
+                        //A SQL query returning instances of any type, can be created using the ---SqlQuery-- method on the Database class, The results returned from SqlQuery on Database will never be tracked by the context even if the objects are instances of an entity type.
+                        try
+                        {
+                            string query1 = "Select IdEmployee from Employee " +
+                                "Where AddressId = " + employee.AddressId;
+
+                            employee.IdEmployee = db.Database.SqlQuery<int>(query1).FirstOrDefault();
+                        }
+                        catch
+                        {
+                            trans.Rollback();
+                            ViewBag.error = "Sorry, but an error happened";
+                            goto ReturnIfError;
+                        }
+                        #endregion
+
+                        #region Insert news Phones with AddRange
+                        foreach (Phone p in phones)
+                            p.EmployeeId = employee.IdEmployee;
+                        
+                        //Using (System.Data.Entity) AddRange -> Adds a collection of entities into context that it will be inserted into the database when SaveChanges is called.
+                        db.Phone.AddRange(phones);
+                        db.SaveChanges();
+                        #endregion
+
+                        #region Register Log
+                        Log log = new Log
+                        {
+                            New = employee.NameEmployee + "-BD " + employee.Birth.ToString("dd/MM/yy") + "-AD " + employee.Admission.ToString("dd/MM/yy") + "-" + employee.Salary
+                                + "-Office " + employee.OfficeId + "-Address " + address.Cep + "/" + address.Numero
+                                + "/" + address.Cidade + "/" + address.Uf,
+                            Who = idUser,
+                            EmployeeId = employee.IdEmployee
+                        };
+                        db.Log.Add(log);
+                        db.SaveChanges();
+                        #endregion
+
+                        trans.Commit();
+                        return RedirectToAction("Index");
+                        #endregion
+                    }
+                    catch
+                    {
+                        trans.Rollback();
+                        ViewBag.error = "Sorry, but an error happened";
+                        goto ReturnIfError;
                     }
                 }
-                goto ReturnIfError;
             }
 
         ReturnIfError:
@@ -222,7 +278,7 @@ namespace IceCreamSystem.Controllers
 
             IEnumerable<SelectListItem> typePhone = new SelectList(Enum.GetValues(typeof(TypePhone)));
             ViewBag.TypePhone = typePhone;
-           
+
             ViewBag.CompanyId = new SelectList(db.Company, "IdCompany", "NameCompany", employee.CompanyId);
             ViewBag.OfficeId = new SelectList(db.Office, "IdOffice", "NameOffice", employee.OfficeId);
             return View(employee);

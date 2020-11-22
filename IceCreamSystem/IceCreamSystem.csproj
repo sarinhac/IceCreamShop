@@ -142,6 +142,7 @@
     <Compile Include="Models\CreditCard.cs" />
     <Compile Include="Models\DebitCard.cs" />
     <Compile Include="Models\Employee.cs" />
+    <Compile Include="Models\ViewModels\EmployeeViewModel.cs" />
     <Compile Include="Models\EntryStock.cs" />
     <Compile Include="Models\Enum\Permission.cs" />
     <Compile Include="Models\Enum\StatusGeneral.cs" />

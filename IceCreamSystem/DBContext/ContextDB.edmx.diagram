@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+ <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+      <Diagram DiagramId="97385ada3e2e4b9695f762d794aa8a8c" Name="Diagram1">
+        <EntityTypeShape EntityType="IceCreamShopModel.Address" Width="1.5" PointX="6" PointY="22.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="IceCreamShopModel.Category" Width="1.5" PointX="3" PointY="9.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="IceCreamShopModel.Company" Width="1.5" PointX="0.75" PointY="16.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="IceCreamShopModel.CreditCard" Width="1.5" PointX="3" PointY="13" IsExpanded="true" />
+        <EntityTypeShape EntityType="IceCreamShopModel.DebitCard" Width="1.5" PointX="3" PointY="16.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="IceCreamShopModel.EntryStock" Width="1.5" PointX="10.5" PointY="16.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="IceCreamShopModel.Log" Width="1.5" PointX="5.25" PointY="14.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="IceCreamShopModel.Office" Width="1.5" PointX="3" PointY="19.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="IceCreamShopModel.Payment" Width="1.5" PointX="8.25" PointY="10.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="IceCreamShopModel.Phone" Width="1.5" PointX="10.5" PointY="22.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="IceCreamShopModel.Product" Width="1.5" PointX="8.25" PointY="15.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="IceCreamShopModel.Sale" Width="1.5" PointX="13.5" PointY="20.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="IceCreamShopModel.SaleProduct" Width="1.5" PointX="13.5" PointY="17" IsExpanded="true" />
+        <EntityTypeShape EntityType="IceCreamShopModel.UnitMeasure" Width="1.5" PointX="3.125" PointY="23.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="IceCreamShopModel.Worker" Width="1.5" PointX="8.25" PointY="21.25" IsExpanded="true" />
+        <AssociationConnector Association="IceCreamShopModel.FK_Worker_Address" ManuallyRouted="false" />
+        <AssociationConnector Association="IceCreamShopModel.FK_Category_Company" ManuallyRouted="false" />
+        <AssociationConnector Association="IceCreamShopModel.FK_Log_Category" ManuallyRouted="false" />
+        <AssociationConnector Association="IceCreamShopModel.FK_Product_Category" ManuallyRouted="false" />
+        <AssociationConnector Association="IceCreamShopModel.FK_CreditCard_Company" ManuallyRouted="false" />
+        <AssociationConnector Association="IceCreamShopModel.FK_DebitCard_Company" ManuallyRouted="false" />
+        <AssociationConnector Association="IceCreamShopModel.FK_Log_Company" ManuallyRouted="false" />
+        <AssociationConnector Association="IceCreamShopModel.FK_Office_Company" ManuallyRouted="false" />
+        <AssociationConnector Association="IceCreamShopModel.FK_Payment_Company" ManuallyRouted="false" />
+        <AssociationConnector Association="IceCreamShopModel.FK_Product_Company" ManuallyRouted="false" />
+        <AssociationConnector Association="IceCreamShopModel.FK_Sale_Company" ManuallyRouted="false" />
+        <AssociationConnector Association="IceCreamShopModel.FK_Stock_Campany" ManuallyRouted="false" />
+        <AssociationConnector Association="IceCreamShopModel.FK_UnitMeasure_Company" ManuallyRouted="false" />
+        <AssociationConnector Association="IceCreamShopModel.FK_Worker_Company" ManuallyRouted="false" />
+        <AssociationConnector Association="IceCreamShopModel.FK_Log_CreditCard" ManuallyRouted="false" />
+        <AssociationConnector Association="IceCreamShopModel.FK_Payment_CreditCard" ManuallyRouted="false" />
+        <AssociationConnector Association="IceCreamShopModel.FK_Log_DebitCard" ManuallyRouted="false" />
+        <AssociationConnector Association="IceCreamShopModel.FK_Payment_DebitCard" ManuallyRouted="false" />
+        <AssociationConnector Association="IceCreamShopModel.FK_Log_EntryStock" ManuallyRouted="false" />
+        <AssociationConnector Association="IceCreamShopModel.FK_Stock_Product" ManuallyRouted="false" />
+        <AssociationConnector Association="IceCreamShopModel.FK_Log_Office" ManuallyRouted="false" />
+        <AssociationConnector Association="IceCreamShopModel.FK_Log_Payment" ManuallyRouted="false" />
+        <AssociationConnector Association="IceCreamShopModel.FK_Log_Product" ManuallyRouted="false" />
+        <AssociationConnector Association="IceCreamShopModel.FK_Log_Sale" ManuallyRouted="false" />
+        <AssociationConnector Association="IceCreamShopModel.FK_Log_UnitMeasure" ManuallyRouted="false" />
+        <AssociationConnector Association="IceCreamShopModel.FK_Log_Who" ManuallyRouted="false" />
+        <AssociationConnector Association="IceCreamShopModel.FK_Log_Worker" ManuallyRouted="false" />
+        <AssociationConnector Association="IceCreamShopModel.FK_Worker_Office" ManuallyRouted="false" />
+        <AssociationConnector Association="IceCreamShopModel.FK_Payment_Sale" ManuallyRouted="false" />
+        <AssociationConnector Association="IceCreamShopModel.FK_Phone_Worker" ManuallyRouted="false" />
+        <AssociationConnector Association="IceCreamShopModel.FK_Product_UnitMeasure" ManuallyRouted="false" />
+        <AssociationConnector Association="IceCreamShopModel.FK_SaleProduct_Product" ManuallyRouted="false" />
+        <AssociationConnector Association="IceCreamShopModel.FK_Sale_User" ManuallyRouted="false" />
+        <AssociationConnector Association="IceCreamShopModel.FK_SaleProduct_Sale" ManuallyRouted="false" />
+      </Diagram>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>

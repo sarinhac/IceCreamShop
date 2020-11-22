@@ -16,7 +16,7 @@ namespace IceCreamSystem.Models
             Phone = new HashSet<Phone>();
             Sale = new HashSet<Sale>();
 
-            Status = 0;
+            Status = (StatusGeneral)1;
             Created = DateTime.Now;
         }
 
@@ -77,12 +77,12 @@ namespace IceCreamSystem.Models
         #endregion
 
         #region METHODS
-        public void ReactivateEmployee()
+        public void DeactivateEmployee()
         {
             Status = 0;
         }
 
-        public void DeactivateEmployee()
+        public void ReactivateEmployee()
         {
             Status = (StatusGeneral)1;
         }
