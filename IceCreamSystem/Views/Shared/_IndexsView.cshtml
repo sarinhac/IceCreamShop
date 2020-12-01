@@ -210,13 +210,22 @@ scratch. This page gets rid of all links and provides the needed markup only.
                 <div class="container-fluid">
                     <div class="row">
 
-                        <p>
-                            <a class="btn btn-block bg-gradient-success create" href="../@ViewBag.Title/Create"> <i class="fas fa-plus-circle"></i> New </a>
-                        </p>
+                        <div>
+                            <p>
+                                <a class="btn btn-block bg-gradient-success create" href="../@ViewBag.Title/Create"> <i class="fas fa-plus-circle"></i> New </a>
+                            </p>
+                        </div>
+                       
+                        @if (ViewBag.error != null)
+                        {
+                            <div class="alert alert-danger" role="alert" style="width:100%">
+                                @ViewBag.error
+                            </div>
+                        }
 
                         @RenderBody()
 
-                    <div id="modal" class="modal fade" role="dialog"></div>
+                        <div id="modal" class="modal fade" role="dialog"></div>
 
                     </div>
                 </div>

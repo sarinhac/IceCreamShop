@@ -7,6 +7,13 @@
 <div class="container">
     <div class="col-xs-12 col-sm-8 col-md-7 col-lg-7">
 
+        @if (ViewBag.error != null)
+        {
+            <div class="alert alert-danger" role="alert">
+                @ViewBag.error
+            </div>
+        }
+
         @using (Html.BeginForm())
         {
             @Html.AntiForgeryToken()
@@ -15,6 +22,7 @@
 
                 @Html.ValidationSummary(true, "", new { @class = "text-danger" })
                 @Html.HiddenFor(model => model.IdEmployee)
+                @Html.HiddenFor(model => model.AddressId)
 
                 <div class="form-group">
                     @Html.LabelFor(model => model.NameEmployee, htmlAttributes: new { @class = "control-label col-md-2" })
@@ -55,6 +63,19 @@
                             </div>
                         </div>
                     </div>
+                </div>
+
+                <div class="form-group col-md-12">
+                    @if (ViewBag.Phones != null)
+                    {
+                        foreach (IceCreamSystem.Models.Phone phone in ViewBag.Phones)
+                        {
+                            <div class="input-group" id="divPhone">
+                                @Html.Partial("_PhoneEdit", phone)
+                            </div>
+                        }
+                    }
+                    <button class="btn btn-outline-secondary" id="btnPhone" type="button">Add Other Telephone</button>
                 </div>
 
                 <div class="form-group">
@@ -272,6 +293,18 @@
 
                     $("#erromsg").text("CEP Inválido ou Inexistente, Preencha um CEP válido ou digite o endereço manualmente");
                     return;
+                }
+            });
+        });
+    </script>
+    <script type="text/javascript">
+            //add more phones
+        $("#btnPhone").on("click", function () {
+            $.ajax({
+                url: '@Url.Content("~/Employees/AddOtherPhone")',
+                success: function (view)
+                {
+                    $('#divPhone').append(view);
                 }
             });
         });

@@ -3,7 +3,7 @@ namespace IceCreamSystem.Models.Enum
 {
     public enum StatusGeneral : int
     {
-        active = 0,
-        deactivated = 1
+        deactivated = 0,
+        active = 1,
     }
 }

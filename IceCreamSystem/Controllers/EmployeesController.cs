@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.Entity;
+using System.Data.Entity.Infrastructure;
+using System.Data.Entity.Validation;
 using System.Globalization;
 using System.Linq;
 using System.Net;
@@ -18,6 +20,8 @@ namespace IceCreamSystem.Controllers
 
         public ActionResult Index()
         {
+
+            ViewBag.error = TempData["error"] != null ? TempData["error"].ToString() : null;
             var employee = db.Employee.Include(e => e.Address).Include(e => e.Company).Include(e => e.Office);
             return View(employee.ToList());
         }
@@ -135,66 +139,26 @@ namespace IceCreamSystem.Controllers
                     try
                     {
                         #region SAVE NEW EMPLOYEE
-                        int idUser = (int)Session["idUser"]; //who is login
+                        int idUser = 1; //who is login
 
-                        #region Insert new Address with Add
+                        #region Insert new Address
                         //Using (System.Data.Entity) Add -> Adds the given entity to the context that it will be inserted into the database when SaveChanges is called.
                         db.Address.Add(address);
                         db.SaveChanges();
                         #endregion
 
-                        #region Insert New Employee with RAW
-                        //Using Raw -> can be useful for Code First models that currently do not support mapping to stored procedures
-                        //Non-query commands (Insert,Update,Delete,...) can be sent to the database using the --ExecuteSqlCommand-- method on the database.
+                        #region Insert New Employee                   
+
                         employee.AddressId = address.IdAddress;
-                        string loginEmployee = employee.LoginUser == null ? "NULL" : "'" + employee.LoginUser + "' ";
-                        string passEmployee = employee.PasswordUser == null ? "NULL" : "'" + employee.PasswordUser + "' ";
-                        try
-                        {
-                            string commands = "INSERT INTO [dbo].[Employee] (NameEmployee, Birth, Admission, Salary, AddressId, OfficeId," +
-                                                      "CompanyId, HaveLogin, Permission, LoginUser, PasswordUser, Status)" +
-                                                      " VALUES('" + employee.NameEmployee + "' ,'" + employee.Birth.ToString("yyyy-MM-dd") + "' " +
-                                                      ",'" + employee.Admission.ToString("yyyy-MM-dd") + "' " +
-                                                      ", " + employee.Salary.ToString(CultureInfo.GetCultureInfo("en-GB")) +
-                                                      ", " + employee.AddressId +
-                                                      ", " + employee.OfficeId +
-                                                      ", " + employee.CompanyId +
-                                                      ", " + Convert.ToInt32(employee.HaveLogin) +
-                                                      ", " + Convert.ToInt32(employee.Permission) +
-                                                      ", " + loginEmployee +
-                                                      ", " + passEmployee +
-                                                      ", " + Convert.ToInt32(employee.Status) + ")";
+                        db.Employee.Add(employee);
+                        db.SaveChanges();
 
-                            db.Database.ExecuteSqlCommand(commands);
-                        }
-                        catch
-                        {
-                            trans.Rollback();
-                            ViewBag.error = "There was an error inserting the new worker";
-                            goto ReturnIfError;
-                        }
-
-                        //Get Employee just inserted in the db
-                        //A SQL query returning instances of any type, can be created using the ---SqlQuery-- method on the Database class, The results returned from SqlQuery on Database will never be tracked by the context even if the objects are instances of an entity type.
-                        try
-                        {
-                            string query1 = "Select IdEmployee from Employee " +
-                                "Where AddressId = " + employee.AddressId;
-
-                            employee.IdEmployee = db.Database.SqlQuery<int>(query1).FirstOrDefault();
-                        }
-                        catch
-                        {
-                            trans.Rollback();
-                            ViewBag.error = "Sorry, but an error happened";
-                            goto ReturnIfError;
-                        }
                         #endregion
 
                         #region Insert news Phones with AddRange
                         foreach (Phone p in phones)
                             p.EmployeeId = employee.IdEmployee;
-                        
+
                         //Using (System.Data.Entity) AddRange -> Adds a collection of entities into context that it will be inserted into the database when SaveChanges is called.
                         db.Phone.AddRange(phones);
                         db.SaveChanges();
@@ -239,7 +203,6 @@ namespace IceCreamSystem.Controllers
             ViewBag.OfficeId = new SelectList(db.Office, "IdOffice", "NameOffice", employee.OfficeId);
             return View(employee);
         }
-
         #endregion
 
         public ActionResult Details(int? id)
@@ -270,36 +233,100 @@ namespace IceCreamSystem.Controllers
                 return HttpNotFound();
             }
 
+            IEnumerable<SelectListItem> typePhone = new SelectList(Enum.GetValues(typeof(TypePhone)));
+            ViewBag.TypePhone = typePhone;
+
             List<Phone> phones = db.Phone.Where(p => p.EmployeeId == id).ToList();
-            ViewBag.Phones = phones;
+            if (phones != null && phones.Count > 0)
+                ViewBag.Phones = phones;
+            else
+            {
+                TempData["error"] = "Sorry, but an error happened, Please contact your system supplier";
+                return RedirectToAction("Index");
+            }
 
             IEnumerable<SelectListItem> permission = new SelectList(Enum.GetValues(typeof(Permission)));
             ViewBag.Permission = permission;
 
-            IEnumerable<SelectListItem> typePhone = new SelectList(Enum.GetValues(typeof(TypePhone)));
-            ViewBag.TypePhone = typePhone;
-
             ViewBag.CompanyId = new SelectList(db.Company, "IdCompany", "NameCompany", employee.CompanyId);
             ViewBag.OfficeId = new SelectList(db.Office, "IdOffice", "NameOffice", employee.OfficeId);
+            
             return View(employee);
         }
 
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "IdEmployee,NameEmployee,Birth,Admission,Salary,AddressId,OfficeId,CompanyId,HaveLogin,Permission,LoginUser,PasswordUser,Status,Created")] Employee employee)
+        public ActionResult Edit([Bind(Include = "IdEmployee,NameEmployee,Birth,Admission,Salary,AddressId,Address,OfficeId,CompanyId,HaveLogin,Permission")] Employee editEmployee)
         {
+            #region CATCHING ALL PHONES IN REQUEST
+            List<Phone> editPhones = new List<Phone>();
+            List<string> request = Request.Form.ToString().Split('&').Where(p => p.Contains("DDD") || p.Contains("TypePhone") || p.Contains("Number") || p.Contains("IdPhone")).ToList();
+
+            for (int i = 0; i < request.Count; i++)
+            {
+                Phone phoneRequest = new Phone();
+
+                if (request[i].Contains("IdPhone"))
+                {
+                    phoneRequest.IdPhone = Convert.ToInt32(request[i].Replace("IdPhone=", ""));
+
+                    int index = request.IndexOf(request.Where(p => p.ToString().Contains("TypePhone=")).FirstOrDefault());
+                    phoneRequest.TypePhone = request[index].Replace("TypePhone=", "").ToString().Equals("Mobile") ? (TypePhone)1 : (TypePhone)2; //1 => Mobile | 2 => Landline
+                    request[index] = request[index].Replace("TypePhone=", "");
+
+                    index = request.IndexOf(request.Where(p => p.ToString().Contains("DDD=")).FirstOrDefault());
+                    phoneRequest.DDD = request[index].Replace("DDD=", "");
+                    request[index] = request[index].Replace("DDD=", "");
+
+                    index = request.IndexOf(request.Where(p => p.ToString().Contains("Number=")).FirstOrDefault());
+                    phoneRequest.Number = request[index].Replace("Number=", "");
+                    request[index] = request[index].Replace("Number=", "");
+
+                    editPhones.Add(phoneRequest);
+                }
+                else
+                    break;
+            }
+            #endregion
+
             if (ModelState.IsValid)
             {
-                db.Entry(employee).State = EntityState.Modified;
-                db.SaveChanges();
-                return RedirectToAction("Index");
+                Address editAddress = editEmployee.Address;
+                editAddress.IdAddress = editEmployee.AddressId;
+
+                Employee oldEmployee = db.Employee.Find(editEmployee.IdEmployee);
+                Address oldAddress = db.Address.Find(editAddress.IdAddress);
+                List<Phone> oldPhones = db.Phone.Where(p => p.EmployeeId == editEmployee.IdEmployee).ToList();
+                int idUser = (int)Session["idUser"];
+
+                bool qual = oldPhones.SequenceEqual(editPhones, new Phone());
+
+                if (!oldEmployee.Equals(editEmployee) || !oldAddress.Equals(editAddress) || !oldPhones.SequenceEqual(editPhones, new Phone()))
+                {
+                    using (var trans = db.Database.BeginTransaction())
+                    {
+
+                    }
+                }
+                else
+                {
+                    ViewBag.error = "No changes were recorded";
+                    return RedirectToAction("Details", editEmployee.IdEmployee);
+                }               
             }
+
+        ReturnIfError:
+            IEnumerable<SelectListItem> typePhone = new SelectList(Enum.GetValues(typeof(TypePhone)));
+            ViewBag.TypePhone = typePhone;
+            ViewBag.Phones = editPhones;
+
             IEnumerable<SelectListItem> permission = new SelectList(Enum.GetValues(typeof(Permission)));
             ViewBag.Permission = permission;
-            ViewBag.CompanyId = new SelectList(db.Company, "IdCompany", "NameCompany", employee.CompanyId);
-            ViewBag.OfficeId = new SelectList(db.Office, "IdOffice", "NameOffice", employee.OfficeId);
-            return View(employee);
+
+            ViewBag.CompanyId = new SelectList(db.Company, "IdCompany", "NameCompany", editEmployee.CompanyId);
+            ViewBag.OfficeId = new SelectList(db.Office, "IdOffice", "NameOffice", editEmployee.OfficeId);
+            return View(editEmployee);
         }
         #endregion
 
@@ -333,7 +360,7 @@ namespace IceCreamSystem.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Employee employee = db.Employee.Find(id);
+            Employee employee = db.Employee.Include(e => e.Address).Include(e => e.Company).Include(e => e.Office).Where(e => e.IdEmployee == id).FirstOrDefault();
             if (employee == null)
             {
                 return HttpNotFound();

@@ -68,6 +68,7 @@
 
                     <button class="btn btn-outline-secondary" id="btnPhone" type="button">Add Other Telephone</button>
                 </div>
+
                 <!-- Address -->
                 <div class="form-group">
                     @Html.LabelFor(model => model.Address.Cep, "CEP", htmlAttributes: new { @class = "control-label col-md-2" })
@@ -297,7 +298,7 @@
 
         $(document).ready(function () {
             //Inicialmente desmarca o CheckBox
-            var login = $('#login').val();
+            var login = $('#LoginUser').val();
             if (login != null) {
                 $('#HaveLogin').removeAttr('checked');
 
@@ -325,7 +326,7 @@
         //address
 
         $(document).ready(function () {
-            var address = $('#address').val();
+            var address = $('#Address_Logradouro').val();
             if (address != null) {
                 $('#address').hide();
                 $('#number').hide();

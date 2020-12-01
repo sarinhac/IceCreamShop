@@ -73,43 +73,43 @@
                 }
                 else if (item.Permission != null && item.Permission.ToString().Equals("Admin"))
                 {
-                <td>
-                    <div class="badge badge-pill badge-danger"> @Html.DisplayFor(modelItem => item.Permission)</div>
-                </td>
+                    <td>
+                        <div class="badge badge-pill badge-danger"> @Html.DisplayFor(modelItem => item.Permission)</div>
+                    </td>
                 }
                 else if (item.Permission != null && item.Permission.ToString().Equals("Supervisor"))
                 {
-                <td>
-                    <div class="badge badge-pill badge-warning"> @Html.DisplayFor(modelItem => item.Permission)</div>
-                </td>
+                    <td>
+                        <div class="badge badge-pill badge-warning"> @Html.DisplayFor(modelItem => item.Permission)</div>
+                    </td>
                 }
                 else if (item.Permission != null && item.Permission.ToString().Equals("Stockist"))
                 {
-                <td>
-                    <div class="badge badge-pill badge-secondary"> @Html.DisplayFor(modelItem => item.Permission)</div>
-                </td>
+                    <td>
+                        <div class="badge badge-pill badge-secondary"> @Html.DisplayFor(modelItem => item.Permission)</div>
+                    </td>
                 }
                 else if (item.Permission != null && item.Permission.ToString().Equals("Seller"))
                 {
-                <td>
-                    <div class="badge badge-pill badge-info"> @Html.DisplayFor(modelItem => item.Permission)</div>
-                </td>
+                    <td>
+                        <div class="badge badge-pill badge-info"> @Html.DisplayFor(modelItem => item.Permission)</div>
+                    </td>
                 }
                 else
                 {
-                <td>
-                    <div class="badge badge-pill badge-light"> <i class="fas fa-ban"></i></div>
-                </td>
+                    <td>
+                        <div class="badge badge-pill badge-light"> <i class="fas fa-ban"></i></div>
+                    </td>
                 }
 
                 <td>
                     @if (item.Status != 0)
                     {
-                        <div class="badge badge-danger">@Html.DisplayFor(modelItem => item.Status)</div> //red when desactived
+                        <div class="badge badge-success">@Html.DisplayFor(modelItem => item.Status)</div> //green when actived
                     }
                     else
                     {
-                        <div class="badge badge-success">@Html.DisplayFor(modelItem => item.Status)</div>//greem when actived
+                        <div class="badge badge-danger">@Html.DisplayFor(modelItem => item.Status)</div>//red when desactived
                     }
                 </td>
                 <td>
@@ -119,13 +119,13 @@
 
                         @if (item.Status != 0)
                         {
-                            //Green for delete btn
-                            <a class="btn btn-block bg-gradient-success d-lg-inline active" data-toggle="modal" data-target="#modal" data-url="@Url.Action("Active", "Employees", new { id = item.IdEmployee })"> <i class="fas fa-history"></i> Active </a>
+                            //Red for delete btn
+                            <a class="btn btn-block bg-gradient-danger d-lg-inline delete" data-toggle="modal" data-target="#modal" data-url="@Url.Action("Delete", "Employees", new { id = item.IdEmployee })"> <i class="fas fa-trash-alt"></i> Delete </a>
                         }
                         else
                         {
-                            //Red for delete btn
-                            <a class="btn btn-block bg-gradient-danger d-lg-inline delete" data-toggle="modal" data-target="#modal" data-url="@Url.Action("Delete", "Employees", new { id = item.IdEmployee })"> <i class="fas fa-trash-alt"></i> Delete </a>
+                            //Green for active btn
+                            <a class="btn btn-block bg-gradient-success d-lg-inline active" data-toggle="modal" data-target="#modal" data-url="@Url.Action("Active", "Employees", new { id = item.IdEmployee })"> <i class="fas fa-history"></i> Active </a>
                         }
                     </div>
                 </td>
