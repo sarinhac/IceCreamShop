@@ -47,5 +47,32 @@ namespace IceCreamSystem.Models
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Employee> Employee { get; set; }
+
+
+        public override bool Equals(object obj)
+        {
+            if (obj == null || obj.Equals(""))
+                return false;
+
+            Address address = (Address)obj;
+
+            if (address.Complemento == null || Complemento == null)
+                return address.Cep.Equals(Cep)
+                    && address.Logradouro.Equals(Logradouro)
+                    && address.Numero.Equals(Numero)
+                    && address.Bairro.Equals(Bairro)
+                    && address.Cidade.Equals(Cidade)
+                    && address.Uf.Equals(Uf);
+            else if ((address.Complemento != null && Complemento == null) || (address.Complemento == null && Complemento != null))
+                return false;
+            else
+                return address.Cep.Equals(Cep)
+                       && address.Logradouro.Equals(Logradouro)
+                       && address.Numero.Equals(Numero)
+                       && address.Complemento.Equals(Complemento)
+                       && address.Bairro.Equals(Bairro)
+                       && address.Cidade.Equals(Cidade)
+                       && address.Uf.Equals(Uf);
+        }
     }
 }

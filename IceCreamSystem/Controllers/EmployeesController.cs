@@ -114,9 +114,6 @@ namespace IceCreamSystem.Controllers
                     phones.Add(phoneRequest);
 
                 }
-                else
-                    break;
-
             }
             #endregion
 
@@ -250,7 +247,7 @@ namespace IceCreamSystem.Controllers
 
             ViewBag.CompanyId = new SelectList(db.Company, "IdCompany", "NameCompany", employee.CompanyId);
             ViewBag.OfficeId = new SelectList(db.Office, "IdOffice", "NameOffice", employee.OfficeId);
-            
+
             return View(employee);
         }
 
@@ -259,6 +256,9 @@ namespace IceCreamSystem.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Edit([Bind(Include = "IdEmployee,NameEmployee,Birth,Admission,Salary,AddressId,Address,OfficeId,CompanyId,HaveLogin,Permission")] Employee editEmployee)
         {
+            Address editAddress = editEmployee.Address;
+            editAddress.IdAddress = editEmployee.AddressId;
+
             #region CATCHING ALL PHONES IN REQUEST
             List<Phone> editPhones = new List<Phone>();
             List<string> request = Request.Form.ToString().Split('&').Where(p => p.Contains("DDD") || p.Contains("TypePhone") || p.Contains("Number") || p.Contains("IdPhone")).ToList();
@@ -285,35 +285,131 @@ namespace IceCreamSystem.Controllers
 
                     editPhones.Add(phoneRequest);
                 }
-                else
-                    break;
+                else if(request[i].StartsWith("TypePhone=") || request[i].StartsWith("Number=") || request[i].StartsWith("DDD="))
+                {
+                    phoneRequest.TypePhone = request[i].Replace("TypePhone=", "").ToString().Equals("Mobile") ? (TypePhone)1 : (TypePhone)2; //1 => Mobile | 2 => Landline
+
+                    int index = request.IndexOf(request.Where(p => p.ToString().Contains("DDD=")).FirstOrDefault());
+                    phoneRequest.DDD = request[index].Replace("DDD=", "");
+                    request[index] = request[index].Replace("DDD=", "");
+
+                    index = request.IndexOf(request.Where(p => p.ToString().Contains("Number=")).FirstOrDefault());
+                    phoneRequest.Number = request[index].Replace("Number=", "");
+                    request[index] = request[index].Replace("Number=", "");
+
+                    editPhones.Add(phoneRequest);
+                }
             }
             #endregion
 
             if (ModelState.IsValid)
-            {
-                Address editAddress = editEmployee.Address;
-                editAddress.IdAddress = editEmployee.AddressId;
+            {                
+                if (!editEmployee.HaveLogin)
+                    editEmployee.Permission = null;
 
                 Employee oldEmployee = db.Employee.Find(editEmployee.IdEmployee);
                 Address oldAddress = db.Address.Find(editAddress.IdAddress);
                 List<Phone> oldPhones = db.Phone.Where(p => p.EmployeeId == editEmployee.IdEmployee).ToList();
-                int idUser = (int)Session["idUser"];
+                int idUser = 1;//(int)Session["idUser"];
 
-                bool qual = oldPhones.SequenceEqual(editPhones, new Phone());
-
+                bool a = oldEmployee.Equals(editEmployee);
+                bool b = oldAddress.Equals(editAddress);
+                bool c = oldPhones.SequenceEqual(editPhones, new Phone());
                 if (!oldEmployee.Equals(editEmployee) || !oldAddress.Equals(editAddress) || !oldPhones.SequenceEqual(editPhones, new Phone()))
                 {
                     using (var trans = db.Database.BeginTransaction())
                     {
+                        Log log = new Log { Who = idUser, EmployeeId = editEmployee.IdEmployee, New = "", Old = "" };
 
+                        try
+                        {
+                            if (!oldEmployee.Equals(editEmployee))
+                            {
+                                oldEmployee.NameEmployee = editEmployee.NameEmployee;
+                                oldEmployee.Birth = editEmployee.Birth;
+                                oldEmployee.Admission = editEmployee.Admission;
+                                oldEmployee.Salary = editEmployee.Salary;
+                                oldEmployee.OfficeId = editEmployee.OfficeId;
+                                oldEmployee.CompanyId = editEmployee.CompanyId;
+                                oldEmployee.HaveLogin = editEmployee.HaveLogin;
+                                oldEmployee.Permission = editEmployee.Permission;
+
+                                db.SaveChanges();
+
+                                log.New += "E "+ editEmployee.NameEmployee + "/ " + editEmployee.Birth.ToString("dd/MM/yy") + "/ " + editEmployee.Admission.ToString("dd/MM/yy") + "/ " + editEmployee.Salary
+                                + "/ " + editEmployee.OfficeId + "/ " + editEmployee.CompanyId + "/ " + Convert.ToByte(editEmployee.HaveLogin) + "/ " + Convert.ToInt32(editEmployee.Permission);
+
+                                log.Old += "E " + oldEmployee.NameEmployee + "/ " + oldEmployee.Birth.ToString("dd/MM/yy") + "/ " + oldEmployee.Admission.ToString("dd/MM/yy") + "/ " + oldEmployee.Salary
+                                + "/ " + oldEmployee.OfficeId + "/ " + oldEmployee.CompanyId + "/ " + Convert.ToByte(oldEmployee.HaveLogin) + "/ " + Convert.ToInt32(oldEmployee.Permission);
+                            }
+                            if (!oldAddress.Equals(editAddress))
+                            {
+                                oldAddress.Cep = editAddress.Cep;
+                                oldAddress.Logradouro = editAddress.Logradouro;
+                                oldAddress.Complemento = editAddress.Complemento;
+                                oldAddress.Numero = editAddress.Numero;
+                                oldAddress.Bairro = editAddress.Bairro;
+                                oldAddress.Cidade = editAddress.Cidade;
+                                oldAddress.Uf = editAddress.Uf;
+                                
+                                db.SaveChanges();
+
+                                log.New += "P " + editAddress.Cep + "/ " + editAddress.Logradouro + "/ " + editAddress.Numero + "/ " + editAddress.Bairro
+                                + "/ " + editAddress.Cidade + "/ " + editAddress.Uf;
+
+                                log.Old += "P " + oldAddress.Cep + "/ " + oldAddress.Logradouro + "/ " + oldAddress.Numero + "/ " + oldAddress.Bairro
+                                + "/ " + oldAddress.Cidade + "/ " + oldAddress.Uf;
+                            }
+                            if(!oldPhones.SequenceEqual(editPhones, new Phone()))
+                            {
+
+                               //List<Phone> phonesOff = oldPhones.Where(p => editPhones.All(ph => ph.IdPhone != p.IdPhone)).ToList();
+                               List<Phone> phonesChanged = editPhones.Where(p => oldPhones.All(ph => ph.IdPhone == p.IdPhone && (!ph.DDD.Equals(p.DDD) || !ph.Number.Equals(p.Number) || !ph.TypePhone.Equals(p.TypePhone)))).ToList();
+                               List<Phone> phonesNew = editPhones.Where(p => oldPhones.All(ph => ph.IdPhone != p.IdPhone)).ToList();
+
+                                /*if (phonesOff != null && phonesOff.Count > 0)
+                                {
+                                    //trocar status
+                                }*/
+                                if(phonesChanged != null && phonesChanged.Count > 0)
+                                {
+                                    foreach (Phone phone in phonesChanged)
+                                    {
+                                        int index = oldPhones.IndexOf(oldPhones.Where(p => p.IdPhone == phone.IdPhone).FirstOrDefault());
+
+                                        oldPhones[index].DDD = phone.DDD;
+                                        oldPhones[index].Number = phone.Number;
+                                        oldPhones[index].TypePhone = phone.TypePhone;
+                                    }
+                                } 
+                                if(phonesNew != null && phonesNew.Count > 0)
+                                {
+                                    foreach (Phone p in phonesNew)
+                                        p.EmployeeId = oldEmployee.IdEmployee;
+
+                                    db.Phone.AddRange(phonesNew);
+                                    
+                                }
+
+                                db.SaveChanges();
+
+                                trans.Commit();
+                                return RedirectToAction("Index");
+                            }
+                        }
+                        catch
+                        {
+                            trans.Rollback();
+                            ViewBag.error = "Sorry, but an error happened, try again, if the error continues please contact your system supplier";
+                            goto ReturnIfError;
+                        }
                     }
                 }
                 else
                 {
-                    ViewBag.error = "No changes were recorded";
-                    return RedirectToAction("Details", editEmployee.IdEmployee);
-                }               
+                    TempData["error"] = "No changes were recorded";
+                    return RedirectToAction("Index");
+                }
             }
 
         ReturnIfError:

@@ -18,7 +18,6 @@ namespace IceCreamSystem
                 url: "{controller}/{action}/{id}",
                 defaults: new { controller = "Employees", action = "Login", id = UrlParameter.Optional }
             );
-
         }
     }
 }
