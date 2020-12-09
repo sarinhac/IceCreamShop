@@ -393,6 +393,9 @@ namespace IceCreamSystem.Controllers
 
                                 db.SaveChanges();
 
+                                db.Log.Add(log);
+                                db.SaveChanges();
+
                                 trans.Commit();
                                 return RedirectToAction("Index");
                             }
