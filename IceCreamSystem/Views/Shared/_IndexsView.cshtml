@@ -215,11 +215,23 @@ scratch. This page gets rid of all links and provides the needed markup only.
                                 <a class="btn btn-block bg-gradient-success create" href="../@ViewBag.Title/Create"> <i class="fas fa-plus-circle"></i> New </a>
                             </p>
                         </div>
-                       
+
                         @if (ViewBag.error != null)
                         {
-                            <div class="alert alert-danger" role="alert" style="width:100%">
+                            <div class="alert alert-default-danger" role="alert" style="width:100%">
                                 @ViewBag.error
+                            </div>
+                        }
+                        @if (ViewBag.confirm != null)
+                        {
+                            <div class="alert alert-default-success" role="alert" style="width:100%">
+                                @ViewBag.confirm
+                            </div>
+                        }
+                        @if (ViewBag.message != null)
+                        {
+                            <div class="alert alert-default-info" role="alert" style="width:100%">
+                                @ViewBag.message
                             </div>
                         }
 

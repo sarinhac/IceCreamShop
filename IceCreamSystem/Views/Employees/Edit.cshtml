@@ -68,12 +68,12 @@
                 <div class="form-group col-md-12">
                     @if (ViewBag.Phones != null)
                     {
-                        foreach (IceCreamSystem.Models.Phone phone in ViewBag.Phones)
+                    <div class="input-group" id="divPhone">
+                        @foreach (IceCreamSystem.Models.Phone phone in ViewBag.Phones)
                         {
-                            <div class="input-group" id="divPhone">
-                                @Html.Partial("_PhoneEdit", phone)
-                            </div>
+                            @Html.Partial("_PhoneEdit", phone)
                         }
+                    </div>
                     }
                     <button class="btn btn-outline-secondary" id="btnPhone" type="button">Add Other Telephone</button>
                 </div>

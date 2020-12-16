@@ -20,7 +20,8 @@ namespace IceCreamSystem.Controllers
 
         public ActionResult Index()
         {
-
+            ViewBag.message = TempData["message"] != null ? TempData["message"].ToString() : null;
+            ViewBag.confirm = TempData["confirm"] != null ? TempData["confirm"].ToString() : null;
             ViewBag.error = TempData["error"] != null ? TempData["error"].ToString() : null;
             var employee = db.Employee.Include(e => e.Address).Include(e => e.Company).Include(e => e.Office);
             return View(employee.ToList());
@@ -64,7 +65,7 @@ namespace IceCreamSystem.Controllers
 
         #region CRUD
 
-        #region Actions Create 
+        #region CREATE ACTIONS 
         public ActionResult Create()
         {
             IEnumerable<SelectListItem> permission = new SelectList(Enum.GetValues(typeof(Permission)));
@@ -136,7 +137,7 @@ namespace IceCreamSystem.Controllers
                     try
                     {
                         #region SAVE NEW EMPLOYEE
-                        int idUser = 1; //who is login
+                        int idUser = (int)Session["idUser"]; //who is login
 
                         #region Insert new Address
                         //Using (System.Data.Entity) Add -> Adds the given entity to the context that it will be inserted into the database when SaveChanges is called.
@@ -151,10 +152,10 @@ namespace IceCreamSystem.Controllers
                         db.SaveChanges();
 
                         #endregion
-
+                        Employee em = db.Employee.Where(e => e.NameEmployee.Equals(employee.NameEmployee)).FirstOrDefault();
                         #region Insert news Phones with AddRange
                         foreach (Phone p in phones)
-                            p.EmployeeId = employee.IdEmployee;
+                            p.EmployeeId = em.IdEmployee;
 
                         //Using (System.Data.Entity) AddRange -> Adds a collection of entities into context that it will be inserted into the database when SaveChanges is called.
                         db.Phone.AddRange(phones);
@@ -168,13 +169,14 @@ namespace IceCreamSystem.Controllers
                                 + "-Office " + employee.OfficeId + "-Address " + address.Cep + "/" + address.Numero
                                 + "/" + address.Cidade + "/" + address.Uf,
                             Who = idUser,
-                            EmployeeId = employee.IdEmployee
+                            EmployeeId = em.IdEmployee
                         };
                         db.Log.Add(log);
                         db.SaveChanges();
                         #endregion
 
                         trans.Commit();
+                        TempData["confirm"] = "New Employee Created";
                         return RedirectToAction("Index");
                         #endregion
                     }
@@ -209,14 +211,25 @@ namespace IceCreamSystem.Controllers
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
             Employee employee = db.Employee.Find(id);
+            
             if (employee == null)
             {
                 return HttpNotFound();
             }
+
+            List<Phone> phones = db.Phone.Where(p => p.EmployeeId == id).ToList();
+            if (phones != null && phones.Count > 0)
+                ViewBag.Phones = phones;
+
             return View(employee);
         }
 
-        #region Actions Edit
+        public ActionResult AddOtherDetailsPhone()
+        {
+            return PartialView("_PhoneDetails");
+        }
+
+        #region EDIT ACTIONS
         public ActionResult Edit(int? id)
         {
             if (id == null)
@@ -251,7 +264,6 @@ namespace IceCreamSystem.Controllers
             return View(employee);
         }
 
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Edit([Bind(Include = "IdEmployee,NameEmployee,Birth,Admission,Salary,AddressId,Address,OfficeId,CompanyId,HaveLogin,Permission")] Employee editEmployee)
@@ -285,7 +297,7 @@ namespace IceCreamSystem.Controllers
 
                     editPhones.Add(phoneRequest);
                 }
-                else if(request[i].StartsWith("TypePhone=") || request[i].StartsWith("Number=") || request[i].StartsWith("DDD="))
+                else if (request[i].StartsWith("TypePhone=") || request[i].StartsWith("Number=") || request[i].StartsWith("DDD="))
                 {
                     phoneRequest.TypePhone = request[i].Replace("TypePhone=", "").ToString().Equals("Mobile") ? (TypePhone)1 : (TypePhone)2; //1 => Mobile | 2 => Landline
 
@@ -303,18 +315,15 @@ namespace IceCreamSystem.Controllers
             #endregion
 
             if (ModelState.IsValid)
-            {                
+            {
                 if (!editEmployee.HaveLogin)
                     editEmployee.Permission = null;
 
                 Employee oldEmployee = db.Employee.Find(editEmployee.IdEmployee);
                 Address oldAddress = db.Address.Find(editAddress.IdAddress);
                 List<Phone> oldPhones = db.Phone.Where(p => p.EmployeeId == editEmployee.IdEmployee).ToList();
-                int idUser = 1;//(int)Session["idUser"];
+                int idUser = (int)Session["idUser"];
 
-                bool a = oldEmployee.Equals(editEmployee);
-                bool b = oldAddress.Equals(editAddress);
-                bool c = oldPhones.SequenceEqual(editPhones, new Phone());
                 if (!oldEmployee.Equals(editEmployee) || !oldAddress.Equals(editAddress) || !oldPhones.SequenceEqual(editPhones, new Phone()))
                 {
                     using (var trans = db.Database.BeginTransaction())
@@ -336,7 +345,7 @@ namespace IceCreamSystem.Controllers
 
                                 db.SaveChanges();
 
-                                log.New += "E "+ editEmployee.NameEmployee + "/ " + editEmployee.Birth.ToString("dd/MM/yy") + "/ " + editEmployee.Admission.ToString("dd/MM/yy") + "/ " + editEmployee.Salary
+                                log.New += "E " + editEmployee.NameEmployee + "/ " + editEmployee.Birth.ToString("dd/MM/yy") + "/ " + editEmployee.Admission.ToString("dd/MM/yy") + "/ " + editEmployee.Salary
                                 + "/ " + editEmployee.OfficeId + "/ " + editEmployee.CompanyId + "/ " + Convert.ToByte(editEmployee.HaveLogin) + "/ " + Convert.ToInt32(editEmployee.Permission);
 
                                 log.Old += "E " + oldEmployee.NameEmployee + "/ " + oldEmployee.Birth.ToString("dd/MM/yy") + "/ " + oldEmployee.Admission.ToString("dd/MM/yy") + "/ " + oldEmployee.Salary
@@ -351,7 +360,7 @@ namespace IceCreamSystem.Controllers
                                 oldAddress.Bairro = editAddress.Bairro;
                                 oldAddress.Cidade = editAddress.Cidade;
                                 oldAddress.Uf = editAddress.Uf;
-                                
+
                                 db.SaveChanges();
 
                                 log.New += "P " + editAddress.Cep + "/ " + editAddress.Logradouro + "/ " + editAddress.Numero + "/ " + editAddress.Bairro
@@ -360,18 +369,21 @@ namespace IceCreamSystem.Controllers
                                 log.Old += "P " + oldAddress.Cep + "/ " + oldAddress.Logradouro + "/ " + oldAddress.Numero + "/ " + oldAddress.Bairro
                                 + "/ " + oldAddress.Cidade + "/ " + oldAddress.Uf;
                             }
-                            if(!oldPhones.SequenceEqual(editPhones, new Phone()))
+                            if (!oldPhones.SequenceEqual(editPhones, new Phone()))
                             {
+                                //Using Any or All? 
+                                //Any=> Returns true if at least one of the elements in the source sequence matches the provided predicate.
+                                //All => Returns true if every element in the source sequence matches the provided predicate.
 
-                               //List<Phone> phonesOff = oldPhones.Where(p => editPhones.All(ph => ph.IdPhone != p.IdPhone)).ToList();
-                               List<Phone> phonesChanged = editPhones.Where(p => oldPhones.All(ph => ph.IdPhone == p.IdPhone && (!ph.DDD.Equals(p.DDD) || !ph.Number.Equals(p.Number) || !ph.TypePhone.Equals(p.TypePhone)))).ToList();
-                               List<Phone> phonesNew = editPhones.Where(p => oldPhones.All(ph => ph.IdPhone != p.IdPhone)).ToList();
+                                //List<Phone> phonesOff = oldPhones.Where(p => editPhones.Any(ph => ph.IdPhone != p.IdPhone)).ToList();
+                                List<Phone> phonesChanged = editPhones.Where(p => oldPhones.Any(ph => ph.IdPhone == p.IdPhone && (!ph.DDD.Equals(p.DDD) || !ph.Number.Equals(p.Number) || !ph.TypePhone.Equals(p.TypePhone)))).ToList();
+                                List<Phone> phonesNew = editPhones.Where(p => oldPhones.All(ph => ph.IdPhone != p.IdPhone)).ToList();
 
                                 /*if (phonesOff != null && phonesOff.Count > 0)
                                 {
                                     //trocar status
                                 }*/
-                                if(phonesChanged != null && phonesChanged.Count > 0)
+                                if (phonesChanged != null && phonesChanged.Count > 0)
                                 {
                                     foreach (Phone phone in phonesChanged)
                                     {
@@ -381,24 +393,27 @@ namespace IceCreamSystem.Controllers
                                         oldPhones[index].Number = phone.Number;
                                         oldPhones[index].TypePhone = phone.TypePhone;
                                     }
-                                } 
-                                if(phonesNew != null && phonesNew.Count > 0)
+                                }
+                                if (phonesNew != null && phonesNew.Count > 0)
                                 {
                                     foreach (Phone p in phonesNew)
                                         p.EmployeeId = oldEmployee.IdEmployee;
 
                                     db.Phone.AddRange(phonesNew);
-                                    
+
                                 }
 
                                 db.SaveChanges();
 
-                                db.Log.Add(log);
-                                db.SaveChanges();
-
-                                trans.Commit();
-                                return RedirectToAction("Index");
+                                if (!log.New.Equals(""))
+                                {
+                                    db.Log.Add(log);
+                                    db.SaveChanges();
+                                }  
                             }
+                            trans.Commit();
+                            TempData["confirm"] = "Successful Changes";
+                            return RedirectToAction("Index");
                         }
                         catch
                         {
@@ -410,7 +425,7 @@ namespace IceCreamSystem.Controllers
                 }
                 else
                 {
-                    TempData["error"] = "No changes were recorded";
+                    TempData["message"] = "No changes were recorded";
                     return RedirectToAction("Index");
                 }
             }
@@ -429,6 +444,7 @@ namespace IceCreamSystem.Controllers
         }
         #endregion
 
+        #region DELETE AND ACTIVE ACTIONS
         public ActionResult Delete(int? id)
         {
             if (id == null)
@@ -440,6 +456,9 @@ namespace IceCreamSystem.Controllers
             {
                 return HttpNotFound();
             }
+            List<Phone> phones = db.Phone.Where(p => p.EmployeeId == id).ToList();
+            if (phones != null && phones.Count > 0)
+                ViewBag.Phones = phones;
             return View(employee);
         }
 
@@ -448,9 +467,37 @@ namespace IceCreamSystem.Controllers
         public ActionResult DeleteConfirmed(int id)
         {
             Employee employee = db.Employee.Find(id);
-            employee.DeactivateEmployee();
-            db.SaveChanges();
-            return RedirectToAction("Index");
+            int idUser = (int)Session["idUser"];
+
+            using (var trans = db.Database.BeginTransaction())
+            {
+                try
+                {
+                    Log log = new Log
+                    {
+                        Who = idUser,
+                        EmployeeId = id,
+                        New = "DISABLED",
+                        Old = "ACTIVATED"
+                    };
+
+                    employee.DeactivateEmployee();
+                    db.SaveChanges();
+
+                    db.Log.Add(log);
+                    db.SaveChanges();
+
+                    trans.Commit();
+                    TempData["confirm"] = "Employee successfully deactivated";
+                    return RedirectToAction("Index");
+                }
+                catch
+                {
+                    trans.Rollback();
+                    TempData["error"] = "An error happened. Please try again";
+                    return RedirectToAction("Index");
+                }
+            }
         }
 
         public ActionResult Active(int? id)
@@ -464,6 +511,9 @@ namespace IceCreamSystem.Controllers
             {
                 return HttpNotFound();
             }
+            List<Phone> phones = db.Phone.Where(p => p.EmployeeId == id).ToList();
+            if (phones != null && phones.Count > 0)
+                ViewBag.Phones = phones;
             return View(employee);
         }
 
@@ -472,10 +522,39 @@ namespace IceCreamSystem.Controllers
         public ActionResult ActiveConfirmed(int id)
         {
             Employee employee = db.Employee.Find(id);
-            employee.ReactivateEmployee();
-            db.SaveChanges();
-            return RedirectToAction("Index");
+            int idUser = (int)Session["idUser"];
+
+            using (var trans = db.Database.BeginTransaction())
+            {
+                try
+                {
+                    Log log = new Log
+                    {
+                        Who = idUser,
+                        EmployeeId = id,
+                        New = "ACTIVATED",
+                        Old = "DISABLED"
+                    };
+
+                    employee.ReactivateEmployee();
+                    db.SaveChanges();
+
+                    db.Log.Add(log);
+                    db.SaveChanges();
+
+                    trans.Commit();
+                    TempData["confirm"] = "Employee successfully reactivated";
+                    return RedirectToAction("Index");
+                }
+                catch
+                {
+                    trans.Rollback();
+                    TempData["error"] = "An error happened. Please try again";
+                    return RedirectToAction("Index");
+                }
+            }
         }
+        #endregion
         #endregion
 
         protected override void Dispose(bool disposing)

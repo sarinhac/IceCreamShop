@@ -7,145 +7,227 @@
 }
 
 
-<dl class="dl-horizontal">
+<div class="form-horizontal">
 
-    <dt>
-        @Html.DisplayNameFor(model => model.NameEmployee)
-    </dt>
+    <div class="input-group">
+        <div class="form-group col-md-10">
+            <div class="font-weight-bold">
+                @Html.DisplayNameFor(model => model.NameEmployee)
+            </div>
 
-    <dd>
-        @Html.DisplayFor(model => model.NameEmployee)
-    </dd>
+            <div>
+                @Html.DisplayFor(model => model.NameEmployee)
+            </div>
+        </div>
+        <div class="form-group col-md-2">
+            <div class="font-weight-bold">
+                @Html.DisplayNameFor(model => model.Birth)
+            </div>
 
-    <dt>
-        @Html.DisplayNameFor(model => model.Address.Cep)
-    </dt>
+            <div>
+                @Html.DisplayFor(model => model.Birth)
+            </div>
+        </div>
+    </div>
 
-    <dd>
-        @Html.DisplayFor(model => model.Address.Cep)
-    </dd>
-
-    <dt>
-        @Html.DisplayNameFor(model => model.Birth)
-    </dt>
-
-    <dd>
-        @Html.DisplayFor(model => model.Birth)
-    </dd>
-
-    @if (@Session["permission"] != null && @Session["permission"].ToString().Equals("1"))
+    @if (ViewBag.Phones != null)
     {
-        <dt>
-            @Html.DisplayNameFor(model => model.Company.NameCompany)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.Company.NameCompany)
-        </dd>
-    }
-
-    <dt>
-        @Html.DisplayNameFor(model => model.Admission)
-    </dt>
-
-    <dd>
-        @Html.DisplayFor(model => model.Admission)
-    </dd>
-
-    <dt>
-        @Html.DisplayNameFor(model => model.Office.NameOffice)
-    </dt>
-
-    <dd>
-        @Html.DisplayFor(model => model.Office.NameOffice)
-    </dd>
-
-    <dt>
-        @Html.DisplayNameFor(model => model.Salary)
-    </dt>
-
-    <dd>
-        @Html.DisplayFor(model => model.Salary)
-    </dd>
-
-    <dt>
-        @Html.DisplayNameFor(model => model.Status)
-    </dt>
-
-    <dd>
-        @Html.DisplayFor(model => model.Status)
-    </dd>
-
-    <dt>
-        @Html.DisplayNameFor(model => model.Created)
-    </dt>
-
-    <dd>
-        @Html.DisplayFor(model => model.Created)
-    </dd>
-
-    @using (Html.BeginForm())
-    {
-        if (Model.HaveLogin == true)
+        foreach (IceCreamSystem.Models.Phone phone in ViewBag.Phones)
         {
-            <dt>
-                --INFORMATION USER--
-            </dt>
-
-            <dd>
-            </dd>
-
-            <dt>
-                @Html.DisplayNameFor(model => model.LoginUser)
-            </dt>
-
-            <dd>
-                @Html.DisplayFor(model => model.LoginUser)
-            </dd>
-
-            <dt>
-                @Html.DisplayNameFor(model => model.Permission)
-            </dt>
-
-            if (Model.Permission != null && Model.Permission.ToString().Equals("SuperAdmin"))
-            {
-                <dd class="badge badge-pill badge-dark">
-                    @Html.DisplayFor(model => model.Permission)
-                </dd>
-            }
-            else if (Model.Permission != null && Model.Permission.ToString().Equals("Admin"))
-            {
-                <dd class="badge badge-pill badge-danger">
-                    @Html.DisplayFor(model => model.Permission)
-                </dd>
-            }
-            else if (Model.Permission != null && Model.Permission.ToString().Equals("Supervisor"))
-            {
-                <dd class="badge badge-pill badge-warning">
-                    @Html.DisplayFor(model => model.Permission)
-                </dd>
-            }
-            else if (Model.Permission != null && Model.Permission.ToString().Equals("Stockist"))
-            {
-                <dd class="badge badge-pill badge-secondary">
-                    @Html.DisplayFor(model => model.Permission)
-                </dd>
-            }
-            else if (Model.Permission != null && Model.Permission.ToString().Equals("Seller"))
-            {
-                <dd class="badge badge-pill badge-info">
-                    @Html.DisplayFor(model => model.Permission)
-                </dd>
-            }
-            else
-            {
-                <dd class="badge badge-pill badge-light">
-                    <i class="fas fa-ban"></i>
-                </dd>
-            }
-
+            @Html.Partial("_PhoneDetails", phone)
         }
     }
 
+    <p class="font-weight-bold">
+        --EMPLOYEE'S ADDRESS--
+    </p>
 
-</dl>
+    <div class="input-group">
+        <div class="form-group col-md-12">
+            <div class="font-weight-bold">
+                @Html.DisplayNameFor(model => model.Address.Cep)
+            </div>
+            <div>
+                @Html.DisplayFor(model => model.Address.Cep)
+            </div>
+        </div>
+
+        <div class="form-group col-md-10">
+            <div class="font-weight-bold">
+                @Html.DisplayNameFor(model => model.Address.Logradouro)
+            </div>
+            <div>
+                @Html.DisplayFor(model => model.Address.Logradouro)
+            </div>
+        </div>
+
+        <div class="form-group col-md-2">
+            <div class="font-weight-bold">
+                @Html.DisplayNameFor(model => model.Address.Numero)
+            </div>
+            <div>
+                @Html.DisplayFor(model => model.Address.Numero)
+            </div>
+        </div>
+
+        @if (Model.Address.Complemento != null)
+        {
+            <div class="form-group col-md-12">
+                <div class="font-weight-bold">
+                    @Html.DisplayNameFor(model => model.Address.Complemento)
+                </div>
+                <div>
+                    @Html.DisplayFor(model => model.Address.Complemento)
+                </div>
+            </div>
+        }
+
+        <div class="form-group col-md-5">
+            <div class="font-weight-bold">
+                @Html.DisplayNameFor(model => model.Address.Bairro)
+            </div>
+            <div>
+                @Html.DisplayFor(model => model.Address.Bairro)
+            </div>
+        </div>
+
+        <div class="form-group col-md-5">
+            <div class="font-weight-bold">
+                @Html.DisplayNameFor(model => model.Address.Cidade)
+            </div>
+            <div>
+                @Html.DisplayFor(model => model.Address.Cidade)
+            </div>
+        </div>
+        <div class="form-group col-md-2">
+            <div class="font-weight-bold">
+                @Html.DisplayNameFor(model => model.Address.Uf)
+            </div>
+            <div>
+                @Html.DisplayFor(model => model.Address.Uf)
+            </div>
+        </div>
+
+    </div>
+
+    <p class="font-weight-bold">
+        --OFFICE INFORMATION--
+    </p>
+
+    <div class="input-group">
+
+        @if (@Session["permission"] != null && @Session["permission"].ToString().Equals("1"))
+        {
+            <div class="form-group col-md-12">
+                <div class="font-weight-bold">
+                    @Html.DisplayNameFor(model => model.Company.NameCompany)
+                </div>
+                <div>
+                    @Html.DisplayFor(model => model.Company.NameCompany)
+                </div>
+            </div>
+        }
+
+        <div class="form-group col-md-4">
+            <div class="font-weight-bold">
+                @Html.DisplayNameFor(model => model.Admission)
+            </div>
+            <div>
+                @Html.DisplayFor(model => model.Admission)
+            </div>
+        </div>
+
+        <div class="form-group col-md-4">
+            <div class="font-weight-bold">
+                @Html.DisplayNameFor(model => model.Office.NameOffice)
+            </div>
+            <div>
+                @Html.DisplayFor(model => model.Office.NameOffice)
+            </div>
+        </div>
+        <div class="form-group col-md-4">
+            <div class="font-weight-bold">
+                @Html.DisplayNameFor(model => model.Salary)
+            </div>
+            <div>
+                @Html.DisplayFor(model => model.Salary)
+            </div>
+        </div>
+        <div class="form-group col-md-4">
+            <div class="font-weight-bold">
+                @Html.DisplayNameFor(model => model.Status)
+            </div>
+            <div>
+                @Html.DisplayFor(model => model.Status)
+            </div>
+        </div>
+        <div class="form-group col-md-8">
+            <div class="font-weight-bold">
+                @Html.DisplayNameFor(model => model.Created)
+            </div>
+            <div>
+                @Html.DisplayFor(model => model.Created)
+            </div>
+        </div>
+    </div>
+
+    @if (Model.HaveLogin == true)
+    {
+        <p class="font-weight-bold">
+            --INFORMATION USER--
+        </p>
+
+        <div class="input-group">
+            <div class="form-group col-md-6">
+                <div class="font-weight-bold">
+                    @Html.DisplayNameFor(model => model.LoginUser)
+                </div>
+                <div>
+                    @Html.DisplayFor(model => model.LoginUser)
+                </div>
+            </div>
+            <div class="form-group col-md-6">
+                <div class="font-weight-bold">
+                    @Html.DisplayNameFor(model => model.Permission)
+                </div>
+
+                @if (Model.Permission != null && Model.Permission.ToString().Equals("SuperAdmin"))
+                {
+                    <div class="badge badge-pill badge-dark">
+                        @Html.DisplayFor(model => model.Permission)
+                    </div>
+                }
+                else if (Model.Permission != null && Model.Permission.ToString().Equals("Admin"))
+                {
+                    <div class="badge badge-pill badge-danger">
+                        @Html.DisplayFor(model => model.Permission)
+                    </div>
+                }
+                else if (Model.Permission != null && Model.Permission.ToString().Equals("Supervisor"))
+                {
+                    <div class="badge badge-pill badge-warning">
+                        @Html.DisplayFor(model => model.Permission)
+                    </div>
+                }
+                else if (Model.Permission != null && Model.Permission.ToString().Equals("Stockist"))
+                {
+                    <div class="badge badge-pill badge-secondary">
+                        @Html.DisplayFor(model => model.Permission)
+                    </div>
+                }
+                else if (Model.Permission != null && Model.Permission.ToString().Equals("Seller"))
+                {
+                    <div class="badge badge-pill badge-info">
+                        @Html.DisplayFor(model => model.Permission)
+                    </div>
+                }
+                else
+                {
+                    <div class="badge badge-pill badge-light">
+                        <i class="fas fa-ban"></i>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+</div>
