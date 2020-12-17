@@ -23,7 +23,7 @@ namespace IceCreamSystem.Models
             Sale = new HashSet<Sale>();
             EntryStock = new HashSet<EntryStock>();
             UnitMeasure = new HashSet<UnitMeasure>();
-            Status = 0;
+            Status = (StatusGeneral) 1;
             Created = DateTime.Now;
         }
 
@@ -77,12 +77,12 @@ namespace IceCreamSystem.Models
         #region METHODS
         public void ReactivateCompany()
         {
-            Status = 0;
+            Status = (StatusGeneral) 1;
         }
 
         public void DeactivateCompany()
         {
-            Status = (StatusGeneral)1;
+            Status = 0;
         }
 
         public override bool Equals(object obj)

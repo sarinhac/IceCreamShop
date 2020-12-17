@@ -322,6 +322,13 @@ namespace IceCreamSystem.Controllers
                 Employee oldEmployee = db.Employee.Find(editEmployee.IdEmployee);
                 Address oldAddress = db.Address.Find(editAddress.IdAddress);
                 List<Phone> oldPhones = db.Phone.Where(p => p.EmployeeId == editEmployee.IdEmployee).ToList();
+
+                if(oldEmployee == null || oldAddress == null || oldPhones == null)
+                {
+                    TempData["error"] = "Sorry, but an error happened, Please contact your system supplier";
+                    return RedirectToAction("Index");
+                }
+
                 int idUser = (int)Session["idUser"];
 
                 if (!oldEmployee.Equals(editEmployee) || !oldAddress.Equals(editAddress) || !oldPhones.SequenceEqual(editPhones, new Phone()))
