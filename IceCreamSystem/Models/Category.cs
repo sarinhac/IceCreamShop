@@ -14,6 +14,9 @@ namespace IceCreamSystem.Models
         {
             Log = new HashSet<Log>();
             Product = new HashSet<Product>();
+            
+            Status = (StatusGeneral)1;
+            Created = DateTime.Now;
         }
         #region ATTRIBUTES
         [Key]
@@ -40,5 +43,23 @@ namespace IceCreamSystem.Models
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Product> Product { get; set; }
         #endregion
+
+        #region METHODS
+        public void ReactivateCategory()
+        {
+            Status = (StatusGeneral)1;
+        }
+
+        public void DeactivateCategory()
+        {
+            Status = 0;
+        }
+
+        public override bool Equals(object obj)
+        {
+            Category category = (Category)obj;
+            return category.IdCategory == IdCategory && category.NameCategory.Equals(NameCategory) && category.DescriptionCategory.Equals(DescriptionCategory);
+        }
+        #endregion //METHODS
     }
 }

@@ -1,0 +1,53 @@
+﻿@model IceCreamSystem.Models.Category
+
+@{
+    Layout = "~/Views/Shared/_ModalView.cshtml";
+    ViewBag.Title = "Active";
+    ViewBag.Btn = "success";
+}
+
+<dl class="dl-horizontal">
+    <dt>
+        @Html.DisplayNameFor(model => model.Company.NameCompany)
+    </dt>
+
+    <dd>
+        @Html.DisplayFor(model => model.Company.NameCompany)
+    </dd>
+
+    <dt>
+        @Html.DisplayNameFor(model => model.NameCategory)
+    </dt>
+
+    <dd>
+        @Html.DisplayFor(model => model.NameCategory)
+    </dd>
+
+    @if (Model.DescriptionCategory != null)
+    {
+        <dt>
+            @Html.DisplayNameFor(model => model.DescriptionCategory)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.DescriptionCategory)
+        </dd>
+    }
+
+    <dt>
+        @Html.DisplayNameFor(model => model.Status)
+    </dt>
+
+    <dd>
+        @Html.DisplayFor(model => model.Status)
+    </dd>
+
+    <dt>
+        @Html.DisplayNameFor(model => model.Created)
+    </dt>
+
+    <dd>
+        @Html.DisplayFor(model => model.Created)
+    </dd>
+
+</dl>

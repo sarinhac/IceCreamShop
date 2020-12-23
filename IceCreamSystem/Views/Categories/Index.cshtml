@@ -1,0 +1,67 @@
+﻿@model IEnumerable<IceCreamSystem.Models.Category>
+
+@{
+    Layout = "~/Views/Shared/_IndexsView.cshtml";
+    ViewBag.Title = "Categories";
+}
+
+<table class="table table-bordered table-striped dataTable dtr-inline" style="width:100%" role="grid">
+    <tr>
+        @if (@Session["permission"] != null && @Session["permission"].ToString().Equals("1"))
+        {
+            <th>
+                @Html.DisplayNameFor(model => model.Company.NameCompany)
+            </th>
+        }
+        <th>
+            @Html.DisplayNameFor(model => model.NameCategory)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Status)
+        </th>
+        <th></th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            @if (@Session["permission"] != null && @Session["permission"].ToString().Equals("1"))
+            {
+                <th>
+                    @Html.DisplayNameFor(model => model.Company.NameCompany)
+                </th>
+            }
+            <td>
+                @Html.DisplayFor(modelItem => item.NameCategory)
+            </td>
+            <td>
+                @if (item.Status != 0)
+                {
+                    <div class="badge badge-success">@Html.DisplayFor(modelItem => item.Status)</div> //green when actived
+                }
+                else
+                {
+                    <div class="badge badge-danger">@Html.DisplayFor(modelItem => item.Status)</div>//red when desactived
+                }
+            </td>
+            <td>
+                <div class="btn-group pull-center d-lg-inline">
+                    <a class="btn btn-block bg-gradient-info d-lg-inline details" data-toggle="modal" data-target="#modal" data-url="@Url.Action("Details", "Categories", new { id = item.IdCategory })"> <i class="fas fa-info-circle"></i> Details </a>
+                    <a class="btn btn-block bg-gradient-warning d-lg-inline" href="@Url.Action("Edit", "Categories", new { id = item.IdCategory })"> <i class="fas fa-edit"></i> Edit </a>
+
+                    @if (item.Status != 0)
+                    {
+                        //Red for delete btn
+                        <a class="btn btn-block bg-gradient-danger d-lg-inline delete" data-toggle="modal" data-target="#modal" data-url="@Url.Action("Delete", "Categories", new { id = item.IdCategory })"> <i class="fas fa-trash-alt"></i> Delete </a>
+                    }
+                    else
+                    {
+                        //Green for active btn
+                        <a class="btn btn-block bg-gradient-success d-lg-inline active" data-toggle="modal" data-target="#modal" data-url="@Url.Action("Active", "Categories", new { id = item.IdCategory })"> <i class="fas fa-history"></i> Active </a>
+                    }
+                </div>
+            </td>
+        </tr>
+    }
+
+</table>
