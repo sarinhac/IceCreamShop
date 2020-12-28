@@ -7,7 +7,7 @@ using IceCreamSystem.Models;
 
 namespace IceCreamSystem.Controllers
 {
-    public class CategoriesController : Controller
+    public class OfficesController : Controller
     {
         private Context db = new Context();
 
@@ -17,8 +17,8 @@ namespace IceCreamSystem.Controllers
             ViewBag.confirm = TempData["confirm"] != null ? TempData["confirm"].ToString() : null;
             ViewBag.error = TempData["error"] != null ? TempData["error"].ToString() : null;
 
-            var category = db.Category.Include(c => c.Company);
-            return View(category.ToList());
+            var office = db.Office.Include(o => o.Company);
+            return View(office.ToList());
         }
 
         public ActionResult Details(int? id)
@@ -27,12 +27,12 @@ namespace IceCreamSystem.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Category category = db.Category.Find(id);
-            if (category == null)
+            Office office = db.Office.Find(id);
+            if (office == null)
             {
                 return HttpNotFound();
             }
-            return View(category);
+            return View(office);
         }
 
         public ActionResult Create()
@@ -43,35 +43,36 @@ namespace IceCreamSystem.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "NameCategory,DescriptionCategory,CompanyId")] Category category)
+        public ActionResult Create([Bind(Include = "NameOffice,DescriptionOffice,Discount,CompanyId")] Office office)
         {
             if (ModelState.IsValid)
             {
-                Category categoryDb = db.Category.Where(c => c.NameCategory.Equals(category.NameCategory) && c.CompanyId == category.CompanyId).FirstOrDefault();
-                if (categoryDb == null)
+                Office officeDb = db.Office.Where(c => c.NameOffice.Equals(office.NameOffice) && c.CompanyId == office.CompanyId).FirstOrDefault();
+
+                if (officeDb == null)
                 {
                     using (var trans = db.Database.BeginTransaction())
                     {
                         try
                         {
-                            int idUser = (int)Session["idUser"]; //who is login
-                            db.Category.Add(category);
+                            int idUser = 1;//(int)Session["idUser"]; //who is login
+                            db.Office.Add(office);
                             db.SaveChanges();
 
                             #region Register Log
                             Log log = new Log
                             {
                                 //[C] in DB refers to an Create
-                                New = "[C]" + category.NameCategory + " " + category.DescriptionCategory,
+                                New = "[C]" + office.NameOffice + " " + office.DescriptionOffice,
                                 Who = idUser,
-                                CategoryId = category.IdCategory
+                                OfficeId = office.IdOffice
                             };
                             db.Log.Add(log);
                             db.SaveChanges();
                             #endregion
 
                             trans.Commit();
-                            TempData["confirm"] = "New Category Created";
+                            TempData["confirm"] = "New Office Created";
                         }
                         catch
                         {
@@ -83,16 +84,16 @@ namespace IceCreamSystem.Controllers
 
                 }
                 else
-                    TempData["message"] = "This Category already exists, try another name";
-                               
+                    TempData["message"] = "This Office already exists, try another name";
+
                 return RedirectToAction("Index");
             }
 
         ReturnIfError:
-            ViewBag.CompanyId = new SelectList(db.Company, "IdCompany", "NameCompany", category.CompanyId);
-            return View(category);
-
+            ViewBag.CompanyId = new SelectList(db.Company, "IdCompany", "NameCompany", office.CompanyId);
+            return View(office);
         }
+
 
         public ActionResult Edit(int? id)
         {
@@ -100,46 +101,46 @@ namespace IceCreamSystem.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Category category = db.Category.Find(id);
-            if (category == null)
+            Office office = db.Office.Find(id);
+            if (office == null)
             {
                 return HttpNotFound();
             }
-            ViewBag.CompanyId = new SelectList(db.Company, "IdCompany", "NameCompany", category.CompanyId);
-            return View(category);
+            ViewBag.CompanyId = new SelectList(db.Company, "IdCompany", "NameCompany", office.CompanyId);
+            return View(office);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "IdCategory,NameCategory,DescriptionCategory,CompanyId")] Category category)
+        public ActionResult Edit([Bind(Include = "IdOffice,NameOffice,DescriptionOffice,Discount,CompanyId")] Office office)
         {
             if (ModelState.IsValid)
             {
-                Category oldCategory = db.Category.Find(category.IdCategory);
+                Office oldOffice = db.Office.Find(office.IdOffice);
 
-                if (oldCategory == null)
+                if (oldOffice == null)
                 {
                     TempData["error"] = "Sorry, but an error happened, Please contact your system supplier";
                     return RedirectToAction("Index");
                 }
-                else if (!oldCategory.Equals(category))
+                else if (!oldOffice.Equals(office))
                 {
                     using (var trans = db.Database.BeginTransaction())
                     {
-                        int idUser = (int)Session["idUser"]; //who is login
+                        int idUser = 1;// (int)Session["idUser"]; //who is login
                         try
                         {
                             Log log = new Log
                             {
                                 //[U] in DB refers to an Update
-                                New = "[U]" + category.NameCategory + " " + category.DescriptionCategory,
-                                Old = oldCategory.NameCategory + " " + oldCategory.DescriptionCategory,
+                                New = "[U]" + office.NameOffice + " " + office.DescriptionOffice,
+                                Old = oldOffice.NameOffice + " " + oldOffice.DescriptionOffice,
                                 Who = idUser,
-                                CategoryId = oldCategory.IdCategory
+                                OfficeId = oldOffice.IdOffice
                             };
 
-                            oldCategory.NameCategory = category.NameCategory;
-                            oldCategory.DescriptionCategory = category.DescriptionCategory;
+                            oldOffice.NameOffice = office.NameOffice;
+                            oldOffice.DescriptionOffice = office.DescriptionOffice;
                             db.SaveChanges();
 
                             db.Log.Add(log);
@@ -162,11 +163,10 @@ namespace IceCreamSystem.Controllers
 
                 return RedirectToAction("Index");
             }
-        
-            ReturnIfError:
-            ViewBag.CompanyId = new SelectList(db.Company, "IdCompany", "NameCompany", category.CompanyId);
-            return View(category);
 
+        ReturnIfError:
+            ViewBag.CompanyId = new SelectList(db.Company, "IdCompany", "NameCompany", office.CompanyId);
+            return View(office);
         }
 
         public ActionResult Delete(int? id)
@@ -175,32 +175,32 @@ namespace IceCreamSystem.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Category category = db.Category.Find(id);
-            if (category == null)
+            Office office = db.Office.Find(id);
+            if (office == null)
             {
                 return HttpNotFound();
             }
-            return View(category);
+            return View(office);
         }
 
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)
         {
-            Category category = db.Category.Find(id);
-            int idUser = (int)Session["idUser"];
+            Office office = db.Office.Find(id);
+            int idUser = 1;// (int)Session["idUser"];
 
             using (var trans = db.Database.BeginTransaction())
             {
                 try
                 {
-                    category.DeactivateCategory();
+                    office.DeactivateOffice();
                     db.SaveChanges();
 
                     Log log = new Log
                     {
                         Who = idUser,
-                        CategoryId = id,
+                        OfficeId = id,
                         New = "DISABLED",
                         Old = "ACTIVATED"
                     };
@@ -217,6 +217,7 @@ namespace IceCreamSystem.Controllers
                     TempData["error"] = "An error happened. Please try again";
                     return RedirectToAction("Index");
                 }
+
             }
         }
 
@@ -226,32 +227,32 @@ namespace IceCreamSystem.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Category category = db.Category.Find(id);
-            if (category == null)
+            Office office = db.Office.Find(id);
+            if (office == null)
             {
                 return HttpNotFound();
             }
-            return View(category);
+            return View(office);
         }
 
         [HttpPost, ActionName("Active")]
         [ValidateAntiForgeryToken]
         public ActionResult ActiveConfirmed(int id)
         {
-            Category category = db.Category.Find(id);
-            int idUser = (int)Session["idUser"];
+            Office office = db.Office.Find(id);
+            int idUser = 1;// (int)Session["idUser"];
 
             using (var trans = db.Database.BeginTransaction())
             {
                 try
                 {
-                    category.ReactivateCategory();
+                    office.ReactivateOffice();
                     db.SaveChanges();
 
                     Log log = new Log
                     {
                         Who = idUser,
-                        CategoryId = id,
+                        OfficeId = id,
                         New = "ACTIVATED",
                         Old = "DISABLED"
                     };

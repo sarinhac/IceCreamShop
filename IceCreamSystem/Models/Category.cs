@@ -58,7 +58,8 @@ namespace IceCreamSystem.Models
         public override bool Equals(object obj)
         {
             Category category = (Category)obj;
-            return category.IdCategory == IdCategory && category.NameCategory.Equals(NameCategory) && category.DescriptionCategory.Equals(DescriptionCategory);
+            return category.IdCategory == IdCategory && category.NameCategory.Equals(NameCategory) && category.DescriptionCategory.Equals(DescriptionCategory)
+                && category.CompanyId == CompanyId;
         }
         #endregion //METHODS
     }

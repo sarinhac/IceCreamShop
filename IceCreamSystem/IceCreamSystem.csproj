@@ -134,6 +134,7 @@
     <Compile Include="Controllers\CompaniesController.cs" />
     <Compile Include="Controllers\EmployeesController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\OfficesController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -218,6 +219,12 @@
     <Content Include="Views\Categories\Edit.cshtml" />
     <Content Include="Views\Categories\Index.cshtml" />
     <Content Include="Views\Categories\Active.cshtml" />
+    <Content Include="Views\Offices\Create.cshtml" />
+    <Content Include="Views\Offices\Delete.cshtml" />
+    <Content Include="Views\Offices\Details.cshtml" />
+    <Content Include="Views\Offices\Edit.cshtml" />
+    <Content Include="Views\Offices\Index.cshtml" />
+    <Content Include="Views\Offices\Active.cshtml" />
     <None Include="Views\Shared\_AdminLite.cshtml" />
     <Content Include="Images\sorvetelogo.png" />
     <Content Include="Images\user.png" />
