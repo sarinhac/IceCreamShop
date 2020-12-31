@@ -1,5 +1,6 @@
 namespace IceCreamSystem.Models
 {
+    using IceCreamSystem.Models.Enum;
     using System;
     using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations;
@@ -14,8 +15,12 @@ namespace IceCreamSystem.Models
         {
             Log = new HashSet<Log>();
             Product = new HashSet<Product>();
+
+            Status = (StatusGeneral)1;
+            Created = DateTime.Now;
         }
 
+        #region ATTRIBUTES
         [Key]
         public int IdUnitMeasure { get; set; }
 
@@ -28,7 +33,7 @@ namespace IceCreamSystem.Models
 
         public int CompanyId { get; set; }
 
-        public int Status { get; set; }
+        public StatusGeneral Status { get; set; }
 
         public DateTime Created { get; set; }
 
@@ -39,5 +44,25 @@ namespace IceCreamSystem.Models
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Product> Product { get; set; }
+        #endregion
+
+        #region METHODS
+        public void ReactivateUnitMeasure()
+        {
+            Status = (StatusGeneral)1;
+        }
+
+        public void DeactivateUnitMeasure()
+        {
+            Status = 0;
+        }
+
+        public override bool Equals(object obj)
+        {
+            UnitMeasure uM = (UnitMeasure)obj;
+            return uM.IdUnitMeasure == IdUnitMeasure && uM.NameUnitMeasure.Equals(NameUnitMeasure) && uM.DescriptionUnitMeasure.Equals(DescriptionUnitMeasure)
+                && uM.CompanyId == CompanyId;
+        }
+        #endregion //METHODS
     }
 }

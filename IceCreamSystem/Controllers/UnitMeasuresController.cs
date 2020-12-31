@@ -7,7 +7,7 @@ using IceCreamSystem.Models;
 
 namespace IceCreamSystem.Controllers
 {
-    public class OfficesController : Controller
+    public class UnitMeasuresController : Controller
     {
         private Context db = new Context();
 
@@ -17,8 +17,8 @@ namespace IceCreamSystem.Controllers
             ViewBag.confirm = TempData["confirm"] != null ? TempData["confirm"].ToString() : null;
             ViewBag.error = TempData["error"] != null ? TempData["error"].ToString() : null;
 
-            var office = db.Office.Include(o => o.Company);
-            return View(office.ToList());
+            var unitMeasure = db.UnitMeasure.Include(u => u.Company);
+            return View(unitMeasure.ToList());
         }
 
         public ActionResult Details(int? id)
@@ -27,12 +27,12 @@ namespace IceCreamSystem.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Office office = db.Office.Find(id);
-            if (office == null)
+            UnitMeasure unitMeasure = db.UnitMeasure.Find(id);
+            if (unitMeasure == null)
             {
                 return HttpNotFound();
             }
-            return View(office);
+            return View(unitMeasure);
         }
 
         public ActionResult Create()
@@ -43,36 +43,36 @@ namespace IceCreamSystem.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "NameOffice,DescriptionOffice,Discount,CompanyId")] Office office)
+        public ActionResult Create([Bind(Include = "NameUnitMeasure,DescriptionUnitMeasure,CompanyId")] UnitMeasure unitMeasure)
         {
             if (ModelState.IsValid)
             {
-                Office officeDb = db.Office.Where(c => c.NameOffice.Equals(office.NameOffice) && c.CompanyId == office.CompanyId).FirstOrDefault();
+                UnitMeasure unitMeasureDb = db.UnitMeasure.Where(c => c.NameUnitMeasure.Equals(unitMeasure.NameUnitMeasure) && c.CompanyId == unitMeasure.CompanyId).FirstOrDefault();
 
-                if (officeDb == null)
+                if (unitMeasureDb == null)
                 {
                     using (var trans = db.Database.BeginTransaction())
                     {
                         try
                         {
-                            int idUser = (int)Session["idUser"]; //who is login
-                            db.Office.Add(office);
+                            int idUser = 1;// (int)Session["idUser"]; //who is login
+                            db.UnitMeasure.Add(unitMeasure);
                             db.SaveChanges();
 
                             #region Register Log
                             Log log = new Log
                             {
                                 //[C] in DB refers to an Create
-                                New = "[C]" + office.NameOffice + " " + office.DescriptionOffice,
+                                New = "[C]" + unitMeasure.NameUnitMeasure + " " + unitMeasure.DescriptionUnitMeasure,
                                 Who = idUser,
-                                OfficeId = office.IdOffice
+                                UnitMeasureId = unitMeasure.IdUnitMeasure
                             };
                             db.Log.Add(log);
                             db.SaveChanges();
                             #endregion
 
                             trans.Commit();
-                            TempData["confirm"] = "New Office Created";
+                            TempData["confirm"] = "New Unit Measure Created";
                         }
                         catch
                         {
@@ -84,16 +84,15 @@ namespace IceCreamSystem.Controllers
 
                 }
                 else
-                    TempData["message"] = "This Office already exists, try another name";
+                    TempData["message"] = "This Unit Measure already exists, try another name";
 
                 return RedirectToAction("Index");
             }
 
         ReturnIfError:
-            ViewBag.CompanyId = new SelectList(db.Company, "IdCompany", "NameCompany", office.CompanyId);
-            return View(office);
+            ViewBag.CompanyId = new SelectList(db.Company, "IdCompany", "NameCompany", unitMeasure.CompanyId);
+            return View(unitMeasure);
         }
-
 
         public ActionResult Edit(int? id)
         {
@@ -101,46 +100,46 @@ namespace IceCreamSystem.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Office office = db.Office.Find(id);
-            if (office == null)
+            UnitMeasure unitMeasure = db.UnitMeasure.Find(id);
+            if (unitMeasure == null)
             {
                 return HttpNotFound();
             }
-            ViewBag.CompanyId = new SelectList(db.Company, "IdCompany", "NameCompany", office.CompanyId);
-            return View(office);
+            ViewBag.CompanyId = new SelectList(db.Company, "IdCompany", "NameCompany", unitMeasure.CompanyId);
+            return View(unitMeasure);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "IdOffice,NameOffice,DescriptionOffice,Discount,CompanyId")] Office office)
+        public ActionResult Edit([Bind(Include = "IdUnitMeasure,NameUnitMeasure,DescriptionUnitMeasure,CompanyId")] UnitMeasure unitMeasure)
         {
             if (ModelState.IsValid)
             {
-                Office oldOffice = db.Office.Find(office.IdOffice);
+                UnitMeasure oldUnit = db.UnitMeasure.Find(unitMeasure.IdUnitMeasure);
 
-                if (oldOffice == null)
+                if (oldUnit == null)
                 {
                     TempData["error"] = "Sorry, but an error happened, Please contact your system supplier";
                     return RedirectToAction("Index");
                 }
-                else if (!oldOffice.Equals(office))
+                else if (!oldUnit.Equals(unitMeasure))
                 {
                     using (var trans = db.Database.BeginTransaction())
                     {
-                        int idUser = (int)Session["idUser"]; //who is login
+                        int idUser = 1;// (int)Session["idUser"]; //who is login
                         try
                         {
                             Log log = new Log
                             {
                                 //[U] in DB refers to an Update
-                                New = "[U]" + office.NameOffice + " " + office.DescriptionOffice,
-                                Old = oldOffice.NameOffice + " " + oldOffice.DescriptionOffice,
+                                New = "[U]" + unitMeasure.NameUnitMeasure + " " + unitMeasure.DescriptionUnitMeasure,
+                                Old = oldUnit.NameUnitMeasure + " " + oldUnit.DescriptionUnitMeasure,
                                 Who = idUser,
-                                OfficeId = oldOffice.IdOffice
+                                UnitMeasureId = oldUnit.IdUnitMeasure
                             };
 
-                            oldOffice.NameOffice = office.NameOffice;
-                            oldOffice.DescriptionOffice = office.DescriptionOffice;
+                            oldUnit.NameUnitMeasure = unitMeasure.NameUnitMeasure;
+                            oldUnit.DescriptionUnitMeasure = unitMeasure.DescriptionUnitMeasure;
                             db.SaveChanges();
 
                             db.Log.Add(log);
@@ -165,8 +164,8 @@ namespace IceCreamSystem.Controllers
             }
 
         ReturnIfError:
-            ViewBag.CompanyId = new SelectList(db.Company, "IdCompany", "NameCompany", office.CompanyId);
-            return View(office);
+            ViewBag.CompanyId = new SelectList(db.Company, "IdCompany", "NameCompany", unitMeasure.CompanyId);
+            return View(unitMeasure);
         }
 
         public ActionResult Delete(int? id)
@@ -175,32 +174,32 @@ namespace IceCreamSystem.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Office office = db.Office.Find(id);
-            if (office == null)
+            UnitMeasure unitMeasure = db.UnitMeasure.Find(id);
+            if (unitMeasure == null)
             {
                 return HttpNotFound();
             }
-            return View(office);
+            return View(unitMeasure);
         }
 
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)
         {
-            Office office = db.Office.Find(id);
-            int idUser = (int)Session["idUser"];
+            UnitMeasure unitMeasure = db.UnitMeasure.Find(id);
+            int idUser = 1;// (int)Session["idUser"];
 
             using (var trans = db.Database.BeginTransaction())
             {
                 try
                 {
-                    office.DeactivateOffice();
+                    unitMeasure.DeactivateUnitMeasure();
                     db.SaveChanges();
 
                     Log log = new Log
                     {
                         Who = idUser,
-                        OfficeId = id,
+                        UnitMeasureId = id,
                         New = "DISABLED",
                         Old = "ACTIVATED"
                     };
@@ -227,32 +226,32 @@ namespace IceCreamSystem.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Office office = db.Office.Find(id);
-            if (office == null)
+            UnitMeasure unitMeasure = db.UnitMeasure.Find(id);
+            if (unitMeasure == null)
             {
                 return HttpNotFound();
             }
-            return View(office);
+            return View(unitMeasure);
         }
 
         [HttpPost, ActionName("Active")]
         [ValidateAntiForgeryToken]
         public ActionResult ActiveConfirmed(int id)
         {
-            Office office = db.Office.Find(id);
-            int idUser = (int)Session["idUser"];
+            UnitMeasure unitMeasure = db.UnitMeasure.Find(id);
+            int idUser = 1;// (int)Session["idUser"];
 
             using (var trans = db.Database.BeginTransaction())
             {
                 try
                 {
-                    office.ReactivateOffice();
+                    unitMeasure.ReactivateUnitMeasure();
                     db.SaveChanges();
 
                     Log log = new Log
                     {
                         Who = idUser,
-                        OfficeId = id,
+                        UnitMeasureId = id,
                         New = "ACTIVATED",
                         Old = "DISABLED"
                     };
