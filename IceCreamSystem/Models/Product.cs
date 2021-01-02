@@ -1,5 +1,6 @@
 namespace IceCreamSystem.Models
 {
+    using IceCreamSystem.Models.Enum;
     using System;
     using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations;
@@ -15,8 +16,13 @@ namespace IceCreamSystem.Models
             EntryStock = new HashSet<EntryStock>();
             Log = new HashSet<Log>();
             SaleProduct = new HashSet<SaleProduct>();
+
+            Status = (StatusGeneral)1;
+            Created = DateTime.Now;
+            AmountStock = 0;
         }
 
+        #region ATTRIBUTES
         [Key]
         public int IdProduct { get; set; }
 
@@ -43,7 +49,7 @@ namespace IceCreamSystem.Models
 
         public int CompanyId { get; set; }
 
-        public int Status { get; set; }
+        public StatusGeneral Status { get; set; }
 
         public DateTime Created { get; set; }
 
@@ -61,5 +67,26 @@ namespace IceCreamSystem.Models
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<SaleProduct> SaleProduct { get; set; }
+        #endregion
+
+        #region METHODS
+        public void ReactivateProduct()
+        {
+            Status = (StatusGeneral)1;
+        }
+
+        public void DeactivateProduct()
+        {
+            Status = 0;
+        }
+
+        public override bool Equals(object obj)
+        {
+            Product product = (Product)obj;
+            return product.IdProduct == IdProduct && product.NameProduct.Equals(NameProduct) && product.DescriptionProduct.Equals(DescriptionProduct)
+                && product.CostPrice == CostPrice && product.SalePrice == SalePrice && product.MinStock == MinStock && product.UnitMeasureId == UnitMeasureId
+                && product.CategoryId == CategoryId && product.SellNegative == SellNegative && product.CompanyId == CompanyId;
+        }
+        #endregion //METHODS
     }
 }

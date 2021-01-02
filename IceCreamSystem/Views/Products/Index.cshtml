@@ -1,0 +1,92 @@
+﻿@model IEnumerable<IceCreamSystem.Models.Product>
+
+@{
+    Layout = "~/Views/Shared/_IndexsView.cshtml";
+    ViewBag.Title = "Products";
+}
+
+<table class="table table-bordered table-striped dataTable dtr-inline" style="width:100%" role="grid">
+    <tr>
+        @if (@Session["permission"] != null && @Session["permission"].ToString().Equals("1"))
+        {
+            <th>
+                @Html.DisplayNameFor(model => model.Company.NameCompany)
+            </th>
+        }
+        <th>
+            @Html.DisplayNameFor(model => model.NameProduct)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.CostPrice)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.SalePrice)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.UnitMeasure.NameUnitMeasure)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Category.NameCategory)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Status)
+        </th>
+        <th></th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            @if (@Session["permission"] != null && @Session["permission"].ToString().Equals("1"))
+            {
+                <td>
+                    @Html.DisplayFor(modelItem => item.Company.NameCompany)
+                </td>
+            }
+            <td>
+                @Html.DisplayFor(modelItem => item.NameProduct)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CostPrice)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.SalePrice)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Category.NameCategory)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.UnitMeasure.NameUnitMeasure)
+            </td>
+            <td>
+                @if (item.Status != 0)
+                {
+                    <div class="badge badge-success">@Html.DisplayFor(modelItem => item.Status)</div> //green when actived
+                }
+                else
+                {
+                    <div class="badge badge-danger">@Html.DisplayFor(modelItem => item.Status)</div>//red when desactived
+                }
+            </td>
+            <td>
+                <div class="btn-group pull-center d-lg-inline">
+                    <a class="btn btn-block bg-gradient-info d-lg-inline details" data-toggle="modal" data-target="#modal" data-url="@Url.Action("Details", "Products", new { id = item.IdProduct })"> <i class="fas fa-info-circle"></i> Details </a>
+                    <a class="btn btn-block bg-gradient-warning d-lg-inline" href="@Url.Action("Edit", "Products", new { id = item.IdProduct })"> <i class="fas fa-edit"></i> Edit </a>
+
+                    @if (item.Status != 0)
+                    {
+                        //Red for delete btn
+                        <a class="btn btn-block bg-gradient-danger d-lg-inline delete" data-toggle="modal" data-target="#modal" data-url="@Url.Action("Delete", "Products", new { id = item.IdProduct })"> <i class="fas fa-trash-alt"></i> Delete </a>
+                    }
+                    else
+                    {
+                        //Green for active btn
+                        <a class="btn btn-block bg-gradient-success d-lg-inline active" data-toggle="modal" data-target="#modal" data-url="@Url.Action("Active", "Products", new { id = item.IdProduct })"> <i class="fas fa-history"></i> Active </a>
+                    }
+                </div>
+            </td>
+        </tr>
+    }
+
+</table>
+

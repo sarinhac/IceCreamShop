@@ -27,9 +27,9 @@
         <tr>
             @if (@Session["permission"] != null && @Session["permission"].ToString().Equals("1"))
             {
-                <th>
-                    @Html.DisplayNameFor(model => model.Company.NameCompany)
-                </th>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Company.NameCompany)
+                </td>
             }
             <td>
                 @Html.DisplayFor(modelItem => item.NameUnitMeasure)

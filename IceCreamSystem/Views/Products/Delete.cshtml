@@ -1,0 +1,108 @@
+﻿@model IceCreamSystem.Models.Product
+
+@{
+    Layout = "~/Views/Shared/_ModalView.cshtml";
+    ViewBag.Title = "Delete";
+    ViewBag.Btn = "danger";
+}
+
+<dl class="dl-horizontal">
+    <dt>
+        @Html.DisplayNameFor(model => model.Category.NameCategory)
+    </dt>
+
+    <dd>
+        @Html.DisplayFor(model => model.Category.NameCategory)
+    </dd>
+
+    <dt>
+        @Html.DisplayNameFor(model => model.Company.NameCompany)
+    </dt>
+
+    <dd>
+        @Html.DisplayFor(model => model.Company.NameCompany)
+    </dd>
+
+    <dt>
+        @Html.DisplayNameFor(model => model.UnitMeasure.NameUnitMeasure)
+    </dt>
+
+    <dd>
+        @Html.DisplayFor(model => model.UnitMeasure.NameUnitMeasure)
+    </dd>
+
+    <dt>
+        @Html.DisplayNameFor(model => model.NameProduct)
+    </dt>
+
+    <dd>
+        @Html.DisplayFor(model => model.NameProduct)
+    </dd>
+
+    <dt>
+        @Html.DisplayNameFor(model => model.DescriptionProduct)
+    </dt>
+
+    <dd>
+        @Html.DisplayFor(model => model.DescriptionProduct)
+    </dd>
+
+    <dt>
+        @Html.DisplayNameFor(model => model.CostPrice)
+    </dt>
+
+    <dd>
+        @Html.DisplayFor(model => model.CostPrice)
+    </dd>
+
+    <dt>
+        @Html.DisplayNameFor(model => model.SalePrice)
+    </dt>
+
+    <dd>
+        @Html.DisplayFor(model => model.SalePrice)
+    </dd>
+
+    <dt>
+        @Html.DisplayNameFor(model => model.MinStock)
+    </dt>
+
+    <dd>
+        @Html.DisplayFor(model => model.MinStock)
+    </dd>
+
+    <dt>
+        @Html.DisplayNameFor(model => model.SellNegative)
+    </dt>
+
+    <dd>
+        @Html.DisplayFor(model => model.SellNegative)
+    </dd>
+
+    <dt>
+        @Html.DisplayNameFor(model => model.AmountStock)
+    </dt>
+
+    <dd>
+        @Html.DisplayFor(model => model.AmountStock)
+    </dd>
+
+    <dt>
+        @Html.DisplayNameFor(model => model.Status)
+    </dt>
+
+    <dd>
+        @Html.DisplayFor(model => model.Status)
+    </dd>
+
+    <dt>
+        @Html.DisplayNameFor(model => model.Created)
+    </dt>
+
+    <dd>
+        @Html.DisplayFor(model => model.Created)
+    </dd>
+
+</dl>
+
+

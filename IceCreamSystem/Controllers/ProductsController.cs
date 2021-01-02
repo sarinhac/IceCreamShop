@@ -1,13 +1,17 @@
-﻿using System.Data.Entity;
+﻿using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Data.Entity;
 using System.Linq;
 using System.Net;
+using System.Web;
 using System.Web.Mvc;
 using IceCreamSystem.DBContext;
 using IceCreamSystem.Models;
 
 namespace IceCreamSystem.Controllers
 {
-    public class UnitMeasuresController : Controller
+    public class ProductsController : Controller
     {
         private Context db = new Context();
 
@@ -17,8 +21,8 @@ namespace IceCreamSystem.Controllers
             ViewBag.confirm = TempData["confirm"] != null ? TempData["confirm"].ToString() : null;
             ViewBag.error = TempData["error"] != null ? TempData["error"].ToString() : null;
 
-            var unitMeasure = db.UnitMeasure.Include(u => u.Company);
-            return View(unitMeasure.ToList());
+            var product = db.Product.Include(p => p.Category).Include(p => p.Company).Include(p => p.UnitMeasure);
+            return View(product.ToList());
         }
 
         public ActionResult Details(int? id)
@@ -27,52 +31,58 @@ namespace IceCreamSystem.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            UnitMeasure unitMeasure = db.UnitMeasure.Find(id);
-            if (unitMeasure == null)
+            Product product = db.Product.Find(id);
+            if (product == null)
             {
                 return HttpNotFound();
             }
-            return View(unitMeasure);
+            return View(product);
         }
 
         public ActionResult Create()
         {
+            ViewBag.CategoryId = new SelectList(db.Category, "IdCategory", "NameCategory");
             ViewBag.CompanyId = new SelectList(db.Company, "IdCompany", "NameCompany");
+            ViewBag.UnitMeasureId = new SelectList(db.UnitMeasure, "IdUnitMeasure", "NameUnitMeasure");
+
             return View();
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "NameUnitMeasure,DescriptionUnitMeasure,CompanyId")] UnitMeasure unitMeasure)
+        public ActionResult Create([Bind(Include = "NameProduct,DescriptionProduct,CostPrice,SalePrice,MinStock,SellNegative,AmountStock,CategoryId,UnitMeasureId,CompanyId")] Product product)
         {
             if (ModelState.IsValid)
             {
-                UnitMeasure unitMeasureDb = db.UnitMeasure.Where(c => c.NameUnitMeasure.Equals(unitMeasure.NameUnitMeasure) && c.CompanyId == unitMeasure.CompanyId).FirstOrDefault();
+                Product productDB = db.Product.Where(p => p.NameProduct.Equals(product.NameProduct) && p.CompanyId == product.CompanyId).FirstOrDefault();
 
-                if (unitMeasureDb == null)
+                if (productDB == null)
                 {
                     using (var trans = db.Database.BeginTransaction())
                     {
                         try
                         {
-                            int idUser =  (int)Session["idUser"]; //who is login
-                            db.UnitMeasure.Add(unitMeasure);
+                            int idUser = (int)Session["idUser"]; //who is login
+
+                            db.Product.Add(product);
                             db.SaveChanges();
 
                             #region Register Log
                             Log log = new Log
                             {
                                 //[C] in DB refers to an Create
-                                New = "[C]" + unitMeasure.NameUnitMeasure + " " + unitMeasure.DescriptionUnitMeasure,
+                                New = "[C]" + product.NameProduct + " " + product.DescriptionProduct + " " + product.CostPrice + " " + product.SalePrice +
+                                 " " + product.MinStock + " " + product.SellNegative + " " + product.CategoryId + " " + product.UnitMeasureId,
                                 Who = idUser,
-                                UnitMeasureId = unitMeasure.IdUnitMeasure
+                                ProductId = product.IdProduct,
+                                CompanyId = product.CompanyId
                             };
                             db.Log.Add(log);
                             db.SaveChanges();
                             #endregion
 
                             trans.Commit();
-                            TempData["confirm"] = "New Unit Measure Created";
+                            TempData["confirm"] = "New Product Created";
                         }
                         catch
                         {
@@ -81,17 +91,19 @@ namespace IceCreamSystem.Controllers
                             goto ReturnIfError;
                         }
                     }
-
                 }
                 else
-                    TempData["message"] = "This Unit Measure already exists, try another name";
+                    TempData["message"] = "This Product already exists, try another name";
 
                 return RedirectToAction("Index");
+
             }
 
         ReturnIfError:
-            ViewBag.CompanyId = new SelectList(db.Company, "IdCompany", "NameCompany", unitMeasure.CompanyId);
-            return View(unitMeasure);
+            ViewBag.CategoryId = new SelectList(db.Category, "IdCategory", "NameCategory", product.CategoryId);
+            ViewBag.CompanyId = new SelectList(db.Company, "IdCompany", "NameCompany", product.CompanyId);
+            ViewBag.UnitMeasureId = new SelectList(db.UnitMeasure, "IdUnitMeasure", "NameUnitMeasure", product.UnitMeasureId);
+            return View(product);
         }
 
         public ActionResult Edit(int? id)
@@ -100,29 +112,31 @@ namespace IceCreamSystem.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            UnitMeasure unitMeasure = db.UnitMeasure.Find(id);
-            if (unitMeasure == null)
+            Product product = db.Product.Find(id);
+            if (product == null)
             {
                 return HttpNotFound();
             }
-            ViewBag.CompanyId = new SelectList(db.Company, "IdCompany", "NameCompany", unitMeasure.CompanyId);
-            return View(unitMeasure);
+            ViewBag.CategoryId = new SelectList(db.Category, "IdCategory", "NameCategory", product.CategoryId);
+            ViewBag.CompanyId = new SelectList(db.Company, "IdCompany", "NameCompany", product.CompanyId);
+            ViewBag.UnitMeasureId = new SelectList(db.UnitMeasure, "IdUnitMeasure", "NameUnitMeasure", product.UnitMeasureId);
+            return View(product);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "IdUnitMeasure,NameUnitMeasure,DescriptionUnitMeasure,CompanyId")] UnitMeasure unitMeasure)
+        public ActionResult Edit([Bind(Include = "IdProduct,NameProduct,DescriptionProduct,CostPrice,SalePrice,MinStock,SellNegative,AmountStock,CategoryId,UnitMeasureId,CompanyId")] Product product)
         {
             if (ModelState.IsValid)
             {
-                UnitMeasure oldUnit = db.UnitMeasure.Find(unitMeasure.IdUnitMeasure);
+                Product oldProduct = db.Product.Find(product.IdProduct);
 
-                if (oldUnit == null)
+                if (oldProduct == null)
                 {
                     TempData["error"] = "Sorry, but an error happened, Please contact your system supplier";
                     return RedirectToAction("Index");
                 }
-                else if (!oldUnit.Equals(unitMeasure))
+                else if (!oldProduct.Equals(product))
                 {
                     using (var trans = db.Database.BeginTransaction())
                     {
@@ -132,14 +146,24 @@ namespace IceCreamSystem.Controllers
                             Log log = new Log
                             {
                                 //[U] in DB refers to an Update
-                                New = "[U]" + unitMeasure.NameUnitMeasure + " " + unitMeasure.DescriptionUnitMeasure,
-                                Old = oldUnit.NameUnitMeasure + " " + oldUnit.DescriptionUnitMeasure,
+                                New = "[U]" + oldProduct.NameProduct + " " + oldProduct.DescriptionProduct + " " + oldProduct.CostPrice + " " + oldProduct.SalePrice +
+                                 " " + oldProduct.MinStock + " " + oldProduct.SellNegative + " " + oldProduct.CategoryId + " " + oldProduct.UnitMeasureId,
+                                Old = product.NameProduct + " " + product.DescriptionProduct + " " + product.CostPrice + " " + product.SalePrice +
+                                 " " + product.MinStock + " " + product.SellNegative + " " + product.CategoryId + " " + product.UnitMeasureId,
                                 Who = idUser,
-                                UnitMeasureId = oldUnit.IdUnitMeasure
+                                ProductId = oldProduct.IdProduct,
+                                CompanyId = oldProduct.CompanyId
                             };
 
-                            oldUnit.NameUnitMeasure = unitMeasure.NameUnitMeasure;
-                            oldUnit.DescriptionUnitMeasure = unitMeasure.DescriptionUnitMeasure;
+                            oldProduct.NameProduct = product.NameProduct;
+                            oldProduct.DescriptionProduct = product.DescriptionProduct;
+                            oldProduct.CostPrice = product.CostPrice;
+                            oldProduct.SalePrice = product.SalePrice;
+                            oldProduct.MinStock = product.MinStock;
+                            oldProduct.SellNegative = product.SellNegative;
+                            oldProduct.CategoryId = product.CategoryId;
+                            oldProduct.UnitMeasureId = product.UnitMeasureId;
+
                             db.SaveChanges();
 
                             db.Log.Add(log);
@@ -147,7 +171,6 @@ namespace IceCreamSystem.Controllers
 
                             trans.Commit();
                             TempData["confirm"] = "Successful Changes";
-
                         }
                         catch
                         {
@@ -164,8 +187,10 @@ namespace IceCreamSystem.Controllers
             }
 
         ReturnIfError:
-            ViewBag.CompanyId = new SelectList(db.Company, "IdCompany", "NameCompany", unitMeasure.CompanyId);
-            return View(unitMeasure);
+            ViewBag.CategoryId = new SelectList(db.Category, "IdCategory", "NameCategory", product.CategoryId);
+            ViewBag.CompanyId = new SelectList(db.Company, "IdCompany", "NameCompany", product.CompanyId);
+            ViewBag.UnitMeasureId = new SelectList(db.UnitMeasure, "IdUnitMeasure", "NameUnitMeasure", product.UnitMeasureId);
+            return View(product);
         }
 
         public ActionResult Delete(int? id)
@@ -174,32 +199,33 @@ namespace IceCreamSystem.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            UnitMeasure unitMeasure = db.UnitMeasure.Find(id);
-            if (unitMeasure == null)
+            Product product = db.Product.Find(id);
+            if (product == null)
             {
                 return HttpNotFound();
             }
-            return View(unitMeasure);
+            return View(product);
         }
 
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)
         {
-            UnitMeasure unitMeasure = db.UnitMeasure.Find(id);
             int idUser = (int)Session["idUser"];
+            Product product = db.Product.Find(id);
 
             using (var trans = db.Database.BeginTransaction())
             {
                 try
                 {
-                    unitMeasure.DeactivateUnitMeasure();
+                    product.DeactivateProduct();
                     db.SaveChanges();
 
                     Log log = new Log
                     {
                         Who = idUser,
-                        UnitMeasureId = id,
+                        ProductId = id,
+                        CompanyId = product.CompanyId,
                         New = "DISABLED",
                         Old = "ACTIVATED"
                     };
@@ -212,10 +238,10 @@ namespace IceCreamSystem.Controllers
                 catch
                 {
                     trans.Rollback();
-                    TempData["error"] = "An error happened. Please try again";                   
+                    TempData["error"] = "An error happened. Please try again";
                 }
-                return RedirectToAction("Index");
             }
+            return RedirectToAction("Index");
         }
 
         public ActionResult Active(int? id)
@@ -224,32 +250,33 @@ namespace IceCreamSystem.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            UnitMeasure unitMeasure = db.UnitMeasure.Find(id);
-            if (unitMeasure == null)
+            Product product = db.Product.Find(id);
+            if (product == null)
             {
                 return HttpNotFound();
             }
-            return View(unitMeasure);
+            return View(product);
         }
 
         [HttpPost, ActionName("Active")]
         [ValidateAntiForgeryToken]
         public ActionResult ActiveConfirmed(int id)
         {
-            UnitMeasure unitMeasure = db.UnitMeasure.Find(id);
             int idUser = (int)Session["idUser"];
+            Product product = db.Product.Find(id);
 
             using (var trans = db.Database.BeginTransaction())
             {
                 try
                 {
-                    unitMeasure.ReactivateUnitMeasure();
+                    product.ReactivateProduct();
                     db.SaveChanges();
 
                     Log log = new Log
                     {
                         Who = idUser,
-                        UnitMeasureId = id,
+                        ProductId = id,
+                        CompanyId = product.CompanyId,
                         New = "ACTIVATED",
                         Old = "DISABLED"
                     };
@@ -257,16 +284,15 @@ namespace IceCreamSystem.Controllers
                     db.SaveChanges();
 
                     trans.Commit();
-                    TempData["confirm"] = "Successful Reactivation";
-                    return RedirectToAction("Index");
+                    TempData["confirm"] = "Successful Delete";
                 }
                 catch
                 {
                     trans.Rollback();
                     TempData["error"] = "An error happened. Please try again";
-                    return RedirectToAction("Index");
                 }
             }
+            return RedirectToAction("Index");
         }
 
         protected override void Dispose(bool disposing)
