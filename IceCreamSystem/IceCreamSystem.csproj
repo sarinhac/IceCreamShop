@@ -132,6 +132,7 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="Controllers\CategoriesController.cs" />
     <Compile Include="Controllers\CompaniesController.cs" />
+    <Compile Include="Controllers\CreditCardsController.cs" />
     <Compile Include="Controllers\EmployeesController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\OfficesController.cs" />
@@ -233,6 +234,11 @@
     <Content Include="Views\Products\Edit.cshtml" />
     <Content Include="Views\Products\Index.cshtml" />
     <Content Include="Views\Products\Active.cshtml" />
+    <Content Include="Views\CreditCards\Create.cshtml" />
+    <Content Include="Views\CreditCards\Delete.cshtml" />
+    <Content Include="Views\CreditCards\Details.cshtml" />
+    <Content Include="Views\CreditCards\Edit.cshtml" />
+    <Content Include="Views\CreditCards\Index.cshtml" />
     <None Include="Views\Shared\_AdminLite.cshtml" />
     <Content Include="Images\sorvetelogo.png" />
     <Content Include="Images\user.png" />
