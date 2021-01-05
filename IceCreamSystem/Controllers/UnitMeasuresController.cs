@@ -47,7 +47,7 @@ namespace IceCreamSystem.Controllers
         {
             if (ModelState.IsValid)
             {
-                UnitMeasure unitMeasureDb = db.UnitMeasure.Where(c => c.NameUnitMeasure.Equals(unitMeasure.NameUnitMeasure) && c.CompanyId == unitMeasure.CompanyId).FirstOrDefault();
+                UnitMeasure unitMeasureDb = db.UnitMeasure.Where(c => c.CompanyId == unitMeasure.CompanyId && c.NameUnitMeasure.Equals(unitMeasure.NameUnitMeasure)).FirstOrDefault();
 
                 if (unitMeasureDb == null)
                 {

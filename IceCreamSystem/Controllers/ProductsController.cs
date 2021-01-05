@@ -54,7 +54,7 @@ namespace IceCreamSystem.Controllers
         {
             if (ModelState.IsValid)
             {
-                Product productDB = db.Product.Where(p => p.NameProduct.Equals(product.NameProduct) && p.CompanyId == product.CompanyId).FirstOrDefault();
+                Product productDB = db.Product.Where(p => p.CompanyId == product.CompanyId && p.NameProduct.Equals(product.NameProduct)).FirstOrDefault();
 
                 if (productDB == null)
                 {

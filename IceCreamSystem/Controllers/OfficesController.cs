@@ -47,7 +47,7 @@ namespace IceCreamSystem.Controllers
         {
             if (ModelState.IsValid)
             {
-                Office officeDb = db.Office.Where(c => c.NameOffice.Equals(office.NameOffice) && c.CompanyId == office.CompanyId).FirstOrDefault();
+                Office officeDb = db.Office.Where(c => c.CompanyId == office.CompanyId && c.NameOffice.Equals(office.NameOffice)).FirstOrDefault();
 
                 if (officeDb == null)
                 {

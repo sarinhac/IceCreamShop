@@ -47,7 +47,7 @@ namespace IceCreamSystem.Controllers
         {
             if (ModelState.IsValid)
             {
-                Category categoryDb = db.Category.Where(c => c.NameCategory.Equals(category.NameCategory) && c.CompanyId == category.CompanyId).FirstOrDefault();
+                Category categoryDb = db.Category.Where(c => c.CompanyId == category.CompanyId && c.NameCategory.Equals(category.NameCategory)).FirstOrDefault();
                 if (categoryDb == null)
                 {
                     using (var trans = db.Database.BeginTransaction())
