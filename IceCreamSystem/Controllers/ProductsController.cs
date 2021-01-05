@@ -284,7 +284,7 @@ namespace IceCreamSystem.Controllers
                     db.SaveChanges();
 
                     trans.Commit();
-                    TempData["confirm"] = "Successful Delete";
+                    TempData["confirm"] = "Successful Reactivation";
                 }
                 catch
                 {
