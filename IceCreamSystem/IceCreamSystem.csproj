@@ -133,6 +133,7 @@
     <Compile Include="Controllers\CategoriesController.cs" />
     <Compile Include="Controllers\CompaniesController.cs" />
     <Compile Include="Controllers\CreditCardsController.cs" />
+    <Compile Include="Controllers\DebitCardsController.cs" />
     <Compile Include="Controllers\EmployeesController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\OfficesController.cs" />
@@ -240,6 +241,12 @@
     <Content Include="Views\CreditCards\Edit.cshtml" />
     <Content Include="Views\CreditCards\Index.cshtml" />
     <Content Include="Views\CreditCards\Active.cshtml" />
+    <Content Include="Views\DebitCards\Create.cshtml" />
+    <Content Include="Views\DebitCards\Delete.cshtml" />
+    <Content Include="Views\DebitCards\Details.cshtml" />
+    <Content Include="Views\DebitCards\Edit.cshtml" />
+    <Content Include="Views\DebitCards\Index.cshtml" />
+    <Content Include="Views\DebitCards\Active.cshtml" />
     <None Include="Views\Shared\_AdminLite.cshtml" />
     <Content Include="Images\sorvetelogo.png" />
     <Content Include="Images\user.png" />

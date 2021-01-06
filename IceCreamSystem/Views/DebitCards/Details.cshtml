@@ -1,10 +1,13 @@
-﻿@model IceCreamSystem.Models.CreditCard
+﻿@model IceCreamSystem.Models.DebitCard
+
 
 @{
     Layout = "~/Views/Shared/_ModalView.cshtml";
-    ViewBag.Title = "Active";
-    ViewBag.Btn = "sucess";
+    ViewBag.Title = "Details";
+    ViewBag.Controller = "DebitCards";
+    ViewBag.Id = Model.IdDebitCard;
 }
+
 
 <dl class="dl-horizontal">
     <dt>
@@ -16,27 +19,27 @@
     </dd>
 
     <dt>
-        @Html.DisplayNameFor(model => model.NameCreditCard)
+        @Html.DisplayNameFor(model => model.NameDebitCard)
     </dt>
 
     <dd>
-        @Html.DisplayFor(model => model.NameCreditCard)
+        @Html.DisplayFor(model => model.NameDebitCard)
     </dd>
 
     <dt>
-        @Html.DisplayNameFor(model => model.DescriptionCreditCard)
+        @Html.DisplayNameFor(model => model.DescriptionDebitCard)
     </dt>
 
     <dd>
-        @Html.DisplayFor(model => model.DescriptionCreditCard)
+        @Html.DisplayFor(model => model.DescriptionDebitCard)
     </dd>
 
     <dt>
-        @Html.DisplayNameFor(model => model.RateCreditCard)
+        @Html.DisplayNameFor(model => model.Rate)
     </dt>
 
     <dd>
-        @Html.DisplayFor(model => model.RateCreditCard)
+        @Html.DisplayFor(model => model.Rate)
     </dd>
 
     <dt>
