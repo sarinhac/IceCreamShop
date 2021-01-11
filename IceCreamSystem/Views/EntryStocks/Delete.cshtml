@@ -1,0 +1,68 @@
+﻿@model IceCreamSystem.Models.EntryStock
+
+@{
+    Layout = "~/Views/Shared/_ModalView.cshtml";
+    ViewBag.Title = "Delete";
+    ViewBag.Btn = "danger";
+}
+
+
+<dl class="dl-horizontal">
+    <dt>
+        @Html.DisplayNameFor(model => model.Company.NameCompany)
+    </dt>
+
+    <dd>
+        @Html.DisplayFor(model => model.Company.NameCompany)
+    </dd>
+
+    <dt>
+        @Html.DisplayNameFor(model => model.Product.NameProduct)
+    </dt>
+
+    <dd>
+        @Html.DisplayFor(model => model.Product.NameProduct)
+    </dd>
+
+    <dt>
+        @Html.DisplayNameFor(model => model.FabicationDate)
+    </dt>
+
+    <dd>
+        @Html.DisplayFor(model => model.FabicationDate)
+    </dd>
+
+    <dt>
+        @Html.DisplayNameFor(model => model.ExpirationDate)
+    </dt>
+
+    <dd>
+        @Html.DisplayFor(model => model.ExpirationDate)
+    </dd>
+
+    <dt>
+        @Html.DisplayNameFor(model => model.ProductBatch)
+    </dt>
+
+    <dd>
+        @Html.DisplayFor(model => model.ProductBatch)
+    </dd>
+
+    <dt>
+        @Html.DisplayNameFor(model => model.Amount)
+    </dt>
+
+    <dd>
+        @Html.DisplayFor(model => model.Amount)
+    </dd>
+
+    <dt>
+        @Html.DisplayNameFor(model => model.Created)
+    </dt>
+
+    <dd>
+        @Html.DisplayFor(model => model.Created)
+    </dd>
+
+</dl>
+

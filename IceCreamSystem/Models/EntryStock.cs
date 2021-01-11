@@ -1,10 +1,10 @@
 namespace IceCreamSystem.Models
 {
+    using IceCreamSystem.Models.Enum;
     using System;
     using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations;
     using System.ComponentModel.DataAnnotations.Schema;
-    using System.Data.Entity.Spatial;
 
     [Table("EntryStock")]
     public partial class EntryStock
@@ -13,19 +13,27 @@ namespace IceCreamSystem.Models
         public EntryStock()
         {
             Log = new HashSet<Log>();
+            Status = (StatusGeneral)1;
+            Created = DateTime.Now;
         }
 
+        #region ATTRIBUTES
         [Key]
         public int IdStock { get; set; }
 
         [Column(TypeName = "date")]
+        [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:d}")]
+        [Display(Name = "Fabication")]
         public DateTime FabicationDate { get; set; }
 
         [Column(TypeName = "date")]
+        [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:d}")]
+        [Display(Name = "Expiration")]
         public DateTime ExpirationDate { get; set; }
 
         [Required]
         [StringLength(10)]
+        [Display(Name = "Batch")]
         public string ProductBatch { get; set; }
 
         public int Amount { get; set; }
@@ -33,6 +41,8 @@ namespace IceCreamSystem.Models
         public int ProductId { get; set; }
 
         public int CompanyId { get; set; }
+
+        public StatusGeneral Status { get; set; }
 
         public DateTime Created { get; set; }
 
@@ -42,5 +52,23 @@ namespace IceCreamSystem.Models
         public virtual ICollection<Log> Log { get; set; }
 
         public virtual Product Product { get; set; }
+        #endregion
+
+        #region METHODS
+
+        public void DeactivateStock()
+        {
+            Status = 0;
+        }
+
+        public override bool Equals(object obj)
+        {
+            EntryStock eS = (EntryStock)obj;
+            return eS.IdStock == IdStock  && eS.CompanyId == CompanyId && eS.ProductId == ProductId
+                 && eS.Amount == Amount
+                && eS.ExpirationDate == ExpirationDate &&  eS.FabicationDate == FabicationDate 
+                && eS.ProductBatch.Equals(ProductBatch);
+        }
+        #endregion //METHODS
     }
 }
