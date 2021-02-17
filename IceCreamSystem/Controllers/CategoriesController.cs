@@ -54,7 +54,7 @@ namespace IceCreamSystem.Controllers
                     {
                         try
                         {
-                            int idUser = (int)Session["idUser"]; //who is login
+                            int idUser = 1;// (int)Session["idUser"]; //who is login
                             db.Category.Add(category);
                             db.SaveChanges();
 
@@ -126,7 +126,7 @@ namespace IceCreamSystem.Controllers
                 {
                     using (var trans = db.Database.BeginTransaction())
                     {
-                        int idUser = (int)Session["idUser"]; //who is login
+                        int idUser = 1;// (int)Session["idUser"]; //who is login
                         try
                         {
                             Log log = new Log

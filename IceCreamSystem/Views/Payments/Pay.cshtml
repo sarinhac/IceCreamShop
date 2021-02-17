@@ -1,0 +1,122 @@
+﻿@model IceCreamSystem.Models.Payment
+
+@{
+    Layout = "~/Views/Shared/_ModalView.cshtml";
+    ViewBag.Title = "Pay";
+    ViewBag.Btn = "success";
+}
+
+<dl class="dl-horizontal">
+
+    <dt>
+        @Html.DisplayNameFor(model => model.Company.NameCompany)
+    </dt>
+
+    <dd>
+        @Html.DisplayFor(model => model.Company.NameCompany)
+    </dd>
+
+    <dt>
+        @Html.DisplayNameFor(model => model.Sale.IdSale)
+    </dt>
+
+    <dd>
+        @Html.DisplayFor(model => model.Sale.IdSale)
+    </dd>
+
+    <dt>
+        @Html.DisplayNameFor(model => model.CodePaymentCard)
+    </dt>
+
+    <dd>
+        @Html.DisplayFor(model => model.CodePaymentCard)
+    </dd>
+
+
+    @if (Model.CreditCardId != null)
+    {
+        <dt>
+            @Html.DisplayNameFor(model => model.CreditCard.NameCreditCard)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.CreditCard.NameCreditCard)
+        </dd>
+
+    }
+
+    @if (Model.DebitCardId != null)
+    {
+        <dt>
+            @Html.DisplayNameFor(model => model.DebitCard.NameDebitCard)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.DebitCard.NameDebitCard)
+        </dd>
+
+    }
+
+    <dt>
+        @Html.DisplayNameFor(model => model.TypePayment)
+    </dt>
+
+    <dd>
+        @Html.DisplayFor(model => model.TypePayment)
+    </dd>
+
+    @if (Model.CreditCardId != null)
+    {
+        <dt>
+            @Html.DisplayNameFor(model => model.InstallmentNumber)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.InstallmentNumber)
+        </dd>
+
+    }
+
+    <dt>
+        @Html.DisplayNameFor(model => model.forecastDatePayment)
+    </dt>
+
+    <dd>
+        @Html.DisplayFor(model => model.forecastDatePayment)
+    </dd>
+
+    <dt>
+        @Html.DisplayNameFor(model => model.Status)
+    </dt>
+
+    <dd>
+        @if (Model.Status.Equals("Payable"))
+        {
+
+            <div class="badge badge-pill badge-warning">
+                @Html.DisplayFor(model => model.Status)
+            </div>
+
+        }
+        else if (Model.Status.Equals("Expired"))
+        {
+            <div class="badge badge-pill badge-danger">
+                @Html.DisplayFor(model => model.Status)
+            </div>
+        }
+        else
+        {
+            <div class="badge badge-pill badge-light"> <i class="fas fa-ban"></i></div>
+        }
+    </dd>
+
+    <dt>
+        @Html.DisplayNameFor(model => model.Created)
+    </dt>
+
+    <dd>
+        @Html.DisplayFor(model => model.Created)
+    </dd>
+
+</dl>
+

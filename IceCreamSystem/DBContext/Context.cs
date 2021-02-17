@@ -218,6 +218,12 @@ namespace IceCreamSystem.DBContext
                 .HasForeignKey(e => e.EmployeeId);
 
             modelBuilder.Entity<Employee>()
+                .HasMany(e => e.Payment)
+                .WithRequired(e => e.Employee)
+                .HasForeignKey(e => e.EmployeeId)
+                .WillCascadeOnDelete(false);
+
+            modelBuilder.Entity<Employee>()
                 .HasMany(e => e.Phone)
                 .WithRequired(e => e.Employee)
                 .HasForeignKey(e => e.EmployeeId)
@@ -268,6 +274,10 @@ namespace IceCreamSystem.DBContext
                 .HasMany(e => e.Log)
                 .WithOptional(e => e.Office)
                 .HasForeignKey(e => e.OfficeId);
+
+            modelBuilder.Entity<Payment>()
+                .Property(e => e.CodePaymentCard)
+                .IsUnicode(false);
 
             modelBuilder.Entity<Payment>()
                 .HasMany(e => e.Log)

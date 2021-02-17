@@ -1,5 +1,6 @@
 namespace IceCreamSystem.Models
 {
+    using IceCreamSystem.Models.Enum;
     using System;
     using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations;
@@ -15,6 +16,9 @@ namespace IceCreamSystem.Models
             Log = new HashSet<Log>();
             Payment = new HashSet<Payment>();
             SaleProduct = new HashSet<SaleProduct>();
+
+            Status = (SaleStatus) 1;
+            Created = DateTime.Now;
         }
 
         [Key]
@@ -24,7 +28,7 @@ namespace IceCreamSystem.Models
 
         public int EmployeeId { get; set; }
 
-        public int Status { get; set; }
+        public SaleStatus Status { get; set; }
 
         public DateTime Created { get; set; }
 

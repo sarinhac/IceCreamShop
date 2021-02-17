@@ -64,44 +64,32 @@
                 <td>
                     @Html.DisplayFor(modelItem => item.Office.NameOffice)
                 </td>
-
-                @if (item.Permission != null && item.Permission.ToString().Equals("SuperAdmin"))
-                {
-                    <td>
+                <td>
+                    @if (item.Permission != null && item.Permission.ToString().Equals("SuperAdmin"))
+                    {
                         <div class="badge badge-pill badge-dark"> @Html.DisplayFor(modelItem => item.Permission)</div>
-                    </td>
-                }
-                else if (item.Permission != null && item.Permission.ToString().Equals("Admin"))
-                {
-                    <td>
+                    }
+                    else if (item.Permission != null && item.Permission.ToString().Equals("Admin"))
+                    {
                         <div class="badge badge-pill badge-danger"> @Html.DisplayFor(modelItem => item.Permission)</div>
-                    </td>
-                }
-                else if (item.Permission != null && item.Permission.ToString().Equals("Supervisor"))
-                {
-                    <td>
+                    }
+                    else if (item.Permission != null && item.Permission.ToString().Equals("Supervisor"))
+                    {
                         <div class="badge badge-pill badge-warning"> @Html.DisplayFor(modelItem => item.Permission)</div>
-                    </td>
-                }
-                else if (item.Permission != null && item.Permission.ToString().Equals("Stockist"))
-                {
-                    <td>
+                    }
+                    else if (item.Permission != null && item.Permission.ToString().Equals("Stockist"))
+                    {
                         <div class="badge badge-pill badge-secondary"> @Html.DisplayFor(modelItem => item.Permission)</div>
-                    </td>
-                }
-                else if (item.Permission != null && item.Permission.ToString().Equals("Seller"))
-                {
-                    <td>
+                    }
+                    else if (item.Permission != null && item.Permission.ToString().Equals("Seller"))
+                    {
                         <div class="badge badge-pill badge-info"> @Html.DisplayFor(modelItem => item.Permission)</div>
-                    </td>
-                }
-                else
-                {
-                    <td>
+                    }
+                    else
+                    {
                         <div class="badge badge-pill badge-light"> <i class="fas fa-ban"></i></div>
-                    </td>
-                }
-
+                    }
+                </td>
                 <td>
                     @if (item.Status != 0)
                     {

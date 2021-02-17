@@ -1,0 +1,81 @@
+﻿@model IEnumerable<IceCreamSystem.Models.Sale>
+
+@{
+    Layout = "~/Views/Shared/_IndexsView.cshtml";
+    ViewBag.Title = "Sales";
+}
+
+<table class="table table-bordered table-striped dataTable dtr-inline" style="width:100%" role="grid">
+    <tr>
+        @if (@Session["permission"] != null && @Session["permission"].ToString().Equals("1"))
+        {
+            <th>
+                @Html.DisplayNameFor(model => model.Company.NameCompany)
+            </th>
+        }
+        <th>
+            @Html.DisplayNameFor(model => model.Employee.NameEmployee)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Status)
+        </th>
+        <th>
+            Valor Total
+        </th>
+        <th></th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+<tr>
+    @if (@Session["permission"] != null && @Session["permission"].ToString().Equals("1"))
+    {
+        <td>
+            @Html.DisplayFor(modelItem => item.Company.NameCompany)
+        </td>
+    }
+    <td>
+        @Html.DisplayFor(modelItem => item.Employee.NameEmployee)
+    </td>
+    <td>
+        @if (item.Status != 0 && item.Status.ToString().Equals("PENDING"))
+        {
+            <div class="badge badge-pill badge-warning"> @Html.DisplayFor(modelItem => item.Status)</div>
+        }
+        else if (item.Status != 0 && item.Status.ToString().Equals("FINISHED"))
+        {
+            <div class="badge badge-pill badge-success"> @Html.DisplayFor(modelItem => item.Status)</div>
+        }
+        else if (item.Status != 0 && item.Status.ToString().Equals("CANCELED"))
+        {
+            <div class="badge badge-pill badge-danger"> @Html.DisplayFor(modelItem => item.Status)</div>
+        }
+        else if (item.Status != 0 && item.Status.ToString().Equals("EXPIRED"))
+        {
+            <div class="badge badge-pill badge-secondary"> @Html.DisplayFor(modelItem => item.Status)</div>
+        }
+        else
+        {
+            <div class="badge badge-pill badge-light"> <i class="fas fa-ban"></i></div>
+        }
+
+    </td>
+    <td>
+    </td>
+    <td>
+        <div class="btn-group pull-center d-lg-inline">
+            <a class="btn btn-block bg-gradient-info d-lg-inline details" data-toggle="modal" data-target="#modal" data-url="@Url.Action("Details", "Sales", new { id = item.IdSale })"> <i class="fas fa-info-circle"></i> Details </a>
+            @if (item.Status != 0 && item.Status.ToString().Equals("PENDING"))
+            {
+                <a class="btn btn-block bg-gradient-warning d-lg-inline" href="@Url.Action("Edit", "Sales", new { id = item.IdSale })"> <i class="fas fa-edit"></i> Continue </a>
+            }
+
+            @if (item.Status != 0 && item.Status.ToString().Equals("FINISHED"))
+            {
+                <a class="btn btn-block bg-gradient-danger d-lg-inline details" data-toggle="modal" data-target="#modal" data-url="@Url.Action("Delete", "Sales", new { id = item.IdSale })"> <i class="fas fa-info-circle"></i> Cancel </a>
+            }
+        </div>
+    </td>
+</tr>
+    }
+</table>

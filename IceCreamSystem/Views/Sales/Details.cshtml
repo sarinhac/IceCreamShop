@@ -1,0 +1,58 @@
+﻿@model IceCreamSystem.Models.Sale
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Details</title>
+</head>
+<body>
+    <div>
+        <h4>Sale</h4>
+        <hr />
+        <dl class="dl-horizontal">
+            <dt>
+                @Html.DisplayNameFor(model => model.Company.NameCompany)
+            </dt>
+    
+            <dd>
+                @Html.DisplayFor(model => model.Company.NameCompany)
+            </dd>
+    
+            <dt>
+                @Html.DisplayNameFor(model => model.Employee.NameEmployee)
+            </dt>
+    
+            <dd>
+                @Html.DisplayFor(model => model.Employee.NameEmployee)
+            </dd>
+    
+            <dt>
+                @Html.DisplayNameFor(model => model.Status)
+            </dt>
+    
+            <dd>
+                @Html.DisplayFor(model => model.Status)
+            </dd>
+    
+            <dt>
+                @Html.DisplayNameFor(model => model.Created)
+            </dt>
+    
+            <dd>
+                @Html.DisplayFor(model => model.Created)
+            </dd>
+    
+        </dl>
+    </div>
+    <p>
+        @Html.ActionLink("Edit", "Edit", new { id = Model.IdSale }) |
+        @Html.ActionLink("Back to List", "Index")
+    </p>
+</body>
+</html>

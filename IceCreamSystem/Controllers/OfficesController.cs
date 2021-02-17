@@ -240,7 +240,7 @@ namespace IceCreamSystem.Controllers
         public ActionResult ActiveConfirmed(int id)
         {
             Office office = db.Office.Find(id);
-            int idUser = (int)Session["idUser"];
+            int idUser = 1;// (int)Session["idUser"];
 
             using (var trans = db.Database.BeginTransaction())
             {

@@ -1,0 +1,82 @@
+﻿@model IceCreamSystem.Models.Payment
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Details</title>
+</head>
+<body>
+    <div>
+        <h4>Payment</h4>
+        <hr />
+        <dl class="dl-horizontal">
+            <dt>
+                @Html.DisplayNameFor(model => model.Company.NameCompany)
+            </dt>
+    
+            <dd>
+                @Html.DisplayFor(model => model.Company.NameCompany)
+            </dd>
+    
+            <dt>
+                @Html.DisplayNameFor(model => model.CreditCard.NameCreditCard)
+            </dt>
+    
+            <dd>
+                @Html.DisplayFor(model => model.CreditCard.NameCreditCard)
+            </dd>
+    
+            <dt>
+                @Html.DisplayNameFor(model => model.DebitCard.NameDebitCard)
+            </dt>
+    
+            <dd>
+                @Html.DisplayFor(model => model.DebitCard.NameDebitCard)
+            </dd>
+    
+            <dt>
+                @Html.DisplayNameFor(model => model.Sale.IdSale)
+            </dt>
+    
+            <dd>
+                @Html.DisplayFor(model => model.Sale.IdSale)
+            </dd>
+    
+            <dt>
+                @Html.DisplayNameFor(model => model.TypePayment)
+            </dt>
+    
+            <dd>
+                @Html.DisplayFor(model => model.TypePayment)
+            </dd>
+    
+            <dt>
+                @Html.DisplayNameFor(model => model.Status)
+            </dt>
+    
+            <dd>
+                @Html.DisplayFor(model => model.Status)
+            </dd>
+    
+            <dt>
+                @Html.DisplayNameFor(model => model.Created)
+            </dt>
+    
+            <dd>
+                @Html.DisplayFor(model => model.Created)
+            </dd>
+    
+        </dl>
+    </div>
+    <p>
+        @Html.ActionLink("Edit", "Edit", new { id = Model.IdPayment }) |
+        @Html.ActionLink("Back to List", "Index")
+    </p>
+</body>
+</html>

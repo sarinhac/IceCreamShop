@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
+﻿using System.Data;
 using System.Data.Entity;
 using System.Linq;
 using System.Net;
-using System.Web;
 using System.Web.Mvc;
 using IceCreamSystem.DBContext;
 using IceCreamSystem.Models;
@@ -62,7 +59,7 @@ namespace IceCreamSystem.Controllers
                     {
                         try
                         {
-                            int idUser = (int)Session["idUser"]; //who is login
+                            int idUser = 1;// (int)Session["idUser"]; //who is login
 
                             db.Product.Add(product);
                             db.SaveChanges();
