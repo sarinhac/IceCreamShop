@@ -33,14 +33,19 @@ namespace IceCreamSystem.Models
         [StringLength(255)]
         public string DescriptionProduct { get; set; }
 
+        [Display(Name = "Cost Price")]
         public decimal CostPrice { get; set; }
 
+        [Display(Name = "Sale Price")]
         public decimal SalePrice { get; set; }
 
+        [Display(Name = "Min Stock")]
         public int MinStock { get; set; }
 
+        [Display(Name = "Sell Negative")]
         public bool SellNegative { get; set; }
 
+        [Display(Name = "Amount Stock")]
         public int AmountStock { get; set; }
 
         public int CategoryId { get; set; }
