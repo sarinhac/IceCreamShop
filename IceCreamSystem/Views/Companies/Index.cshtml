@@ -12,6 +12,9 @@
                 @Html.DisplayNameFor(model => model.NameCompany)
             </th>
             <th>
+                @Html.DisplayNameFor(model => model.FlAuthoritativeReceipt)
+            </th>
+            <th>
                 @Html.DisplayNameFor(model => model.Status)
             </th>
             <th class="sorting"></th>
@@ -24,6 +27,16 @@
             <tr role="row">
                 <td>
                     @Html.DisplayFor(modelItem => item.NameCompany)
+                </td>
+                <td>
+                    @if (item.FlAuthoritativeReceipt == true)
+                    {
+                        <div class="badge badge-success">Yes</div>
+                    }
+                    else
+                    {
+                        <div class="badge badge-danger">No</div>
+                    }
                 </td>
                 <td>
                     @if (item.Status != 0)

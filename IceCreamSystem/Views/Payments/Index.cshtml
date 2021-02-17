@@ -95,7 +95,7 @@
                     <a class="btn btn-block bg-gradient-info d-lg-inline details" data-toggle="modal" data-target="#modal" data-url="@Url.Action("Details", "Payments", new { id = item.IdPayment })"> <i class="fas fa-info-circle"></i> Details </a>
                     @if (item.Status != 0 && !item.Status.ToString().Equals("Pay"))
                     {
-                        <a class="btn btn-block bg-gradient-success d-lg-inline" data-toggle="modal" data-target="#modal" data-url="@Url.Action("Pay", "Payments", new { id = item.IdPayment })"> <i class="fas fa-info-circle"></i> Pay </a>
+                        <a class="btn btn-block bg-gradient-success d-lg-inline pay" data-toggle="modal" data-target="#modal" data-url="@Url.Action("Pay", "Payments", new { id = item.IdPayment })"> <i class="fas fa-info-circle"></i> Pay </a>
                     }
                 </div>
             </td>

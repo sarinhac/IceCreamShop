@@ -38,6 +38,9 @@ namespace IceCreamSystem.Models
 
         public StatusGeneral Status { get; set; }
 
+        [Display(Name = "Auto Receipt")]
+        public bool FlAuthoritativeReceipt { get; set; }
+
         public DateTime Created { get; set; }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
@@ -88,7 +91,7 @@ namespace IceCreamSystem.Models
         public override bool Equals(object obj)
         {
             Company company = (Company)obj;
-            return company.IdCompany == IdCompany && company.NameCompany.Equals(NameCompany);
+            return company.IdCompany == IdCompany && company.NameCompany.Equals(NameCompany) && FlAuthoritativeReceipt == company.FlAuthoritativeReceipt;
         }
         #endregion //METHODS
     }

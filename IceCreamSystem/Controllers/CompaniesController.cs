@@ -40,7 +40,7 @@ namespace IceCreamSystem.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "NameCompany")] Company company)
+        public ActionResult Create([Bind(Include = "NameCompany,FlAuthoritativeReceipt")] Company company)
         {
             if (ModelState.IsValid)
             {
@@ -59,7 +59,7 @@ namespace IceCreamSystem.Controllers
                             Log log = new Log
                             {
                                 //[C] in DB refers to an Create
-                                New = "[C]" + company.NameCompany,
+                                New = "[C]" + company.NameCompany + " "+ company.FlAuthoritativeReceipt,
                                 Who = idUser,
                                 CompanyId = company.IdCompany
                             };
@@ -105,7 +105,7 @@ namespace IceCreamSystem.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "IdCompany,NameCompany")] Company company)
+        public ActionResult Edit([Bind(Include = "IdCompany,NameCompany,FlAuthoritativeReceipt")] Company company)
         {
             if (ModelState.IsValid)
             {
@@ -126,13 +126,14 @@ namespace IceCreamSystem.Controllers
                             Log log = new Log
                             {
                                 //[U] in DB refers to an Update
-                                New = "[U]" + company.NameCompany,
-                                Old = oldCompany.NameCompany,
+                                New = "[U]" + company.NameCompany + " " + company.FlAuthoritativeReceipt,
+                                Old = oldCompany.NameCompany +" " + oldCompany.FlAuthoritativeReceipt,
                                 Who = idUser,
                                 CompanyId = oldCompany.IdCompany
                             };
 
                             oldCompany.NameCompany = company.NameCompany;
+                            oldCompany.FlAuthoritativeReceipt = company.FlAuthoritativeReceipt;
                             db.SaveChanges();
 
                             db.Log.Add(log);
