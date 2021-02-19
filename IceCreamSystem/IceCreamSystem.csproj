@@ -167,6 +167,7 @@
     <Compile Include="Models\SaleProduct.cs" />
     <Compile Include="Models\UnitMeasure.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Services\SalesProductsService.cs" />
     <Compile Include="Services\HashService.cs" />
     <Compile Include="Models\Payment.cs" />
   </ItemGroup>

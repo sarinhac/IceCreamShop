@@ -71,7 +71,7 @@
 
         <div id="payment" style="display: none"></div>
 
-    </div>
+        </div>
 </div>
 
 
@@ -261,19 +261,21 @@
             var nameProducts = document.getElementsByClassName('nameProduct')
             var priceProducts = document.getElementsByClassName('price')
             var amountProducts = document.getElementsByClassName('amount')
-            document.cookie = "";
+            document.cookie = "products=";
 
             if (nameProducts.length > 0) {
                 for (var i = 0; i < nameProducts.length; i++) {
                     document.cookie += idProducts[i].innerText + "," + nameProducts[i].innerText + "," + priceProducts[i].innerText + "," + amountProducts[i].value + "/"
                 }
-            }
+                document.cookie += ";path=/";
+            };
+
 
             $('#debitCard').hide();
             $('#creditCard').hide();
             $('#codePayment').hide();
             $('#installment').hide();
-            $("#payment").show(); //installment
+            $("#payment").show();
         })
     </script>
 
@@ -284,13 +286,15 @@
             var nameProducts = document.getElementsByClassName('nameProduct')
             var priceProducts = document.getElementsByClassName('price')
             var amountProducts = document.getElementsByClassName('amount')
-            document.cookie = "";
+            document.cookie = "products=";
 
             if (nameProducts.length > 0) {
                 for (var i = 0; i < nameProducts.length; i++) {
                     document.cookie += idProducts[i].innerText + "," + nameProducts[i].innerText + "," + priceProducts[i].innerText + "," + amountProducts[i].value + "/"
                 }
-            }
+                document.cookie += ";";
+            };
+
         })
     </script>
 

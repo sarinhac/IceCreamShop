@@ -17,10 +17,10 @@
             @Html.DisplayNameFor(model => model.Employee.NameEmployee)
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.Status)
+            @Html.DisplayNameFor(model => model.TotalPrice)
         </th>
         <th>
-            Valor Total
+            @Html.DisplayNameFor(model => model.Status)
         </th>
         <th></th>
     </tr>
@@ -36,6 +36,9 @@
     }
     <td>
         @Html.DisplayFor(modelItem => item.Employee.NameEmployee)
+    </td>
+    <td>
+        @Html.DisplayFor(modelItem => item.TotalPrice)
     </td>
     <td>
         @if (item.Status != 0 && item.Status.ToString().Equals("PENDING"))
@@ -59,8 +62,6 @@
             <div class="badge badge-pill badge-light"> <i class="fas fa-ban"></i></div>
         }
 
-    </td>
-    <td>
     </td>
     <td>
         <div class="btn-group pull-center d-lg-inline">

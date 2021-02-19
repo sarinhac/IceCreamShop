@@ -18,13 +18,13 @@
 
                 <div class="form-actions no-color">
                     <button type="button" class="btn btn-default close" data-dismiss="modal" aria-hidden="true">Cancelar</button>
-                    @if (@ViewBag.Title != "Details")
-                    {
-                        <input type="submit" value="@ViewBag.Title" class="btn btn-@ViewBag.Btn" />
-                    }
-                    else
+                    @if (@ViewBag.Title == "Details")
                     {
                         <a class="btn btn-block bg-gradient-warning d-lg-inline" href="@Url.Action("Edit", @ViewBag.Controller, new { id = @ViewBag.Id })"> Edit </a>
+                    }
+                    else if (@ViewBag.Title != "Payment" && @ViewBag.Title != "Sale")
+                    {
+                        <input type="submit" value="@ViewBag.Title" class="btn btn-@ViewBag.Btn" />
                     }
                 </div>
             }

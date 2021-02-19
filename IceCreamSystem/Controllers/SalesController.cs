@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using System.Net;
-using System.Reflection.Emit;
 using System.Web.Mvc;
 using IceCreamSystem.DBContext;
 using IceCreamSystem.Models;
@@ -38,22 +37,6 @@ namespace IceCreamSystem.Controllers
             return View(sale);
         }
 
-        public ActionResult Create()
-        {
-            int companyId = 1;// (int)Session["companyId"];
-            int employeeId = 1; //(int)Session["idUser"];
-            Sale sale = new Sale() { CompanyId = companyId, EmployeeId = employeeId };
-            db.Sale.Add(sale);
-            db.SaveChanges();
-
-            //Payment pay = new Payment { SaleId = sale.IdSale, CompanyId = companyId };
-            //db.Payment.Add(pay);
-            //db.SaveChanges();
-
-            return View(sale);
-        }
-
-        //[HttpPost]
         public JsonResult GetProducts(string search)
         {
             int companyId = 1;// (int)Session["companyId"];
@@ -63,15 +46,28 @@ namespace IceCreamSystem.Controllers
 
         }
 
+        public ActionResult Create()
+        {
+            int companyId = 1;// (int)Session["companyId"];
+            int employeeId = 1; //(int)Session["idUser"];
+            Sale sale = new Sale() { CompanyId = companyId, EmployeeId = employeeId };
+            db.Sale.Add(sale);
+            db.SaveChanges();
+
+            return View(sale);
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Create(Sale sale)
         {
             if (sale.IdSale > 0)
             {
+                Sale currentSale = db.Sale.Find(sale.IdSale);
                 int companyId = 1;// (int)Session["companyId"];
                 string[] productsInCookie = Request.Cookies.AllKeys[0].Split('/');
                 List<SaleProduct> saleProducts = new List<SaleProduct>();
+                decimal TotalPrice = 0M;
                 if(productsInCookie.Length == 0 || (productsInCookie.Length == 1 && productsInCookie[0].Equals("__RequestVerificationToken")))
                 {
                     //this sale has no product, so it will be deleted
@@ -91,13 +87,19 @@ namespace IceCreamSystem.Controllers
                             Product prod = db.Product.Where(x => x.CompanyId == companyId && x.IdProduct == idProd).FirstOrDefault();
 
                             SaleProduct saleProduct = new SaleProduct { ProductId = prod.IdProduct, SaleId = sale.IdSale, Amount = Convert.ToInt32(products[3]) };
+                            decimal price = prod.SalePrice * saleProduct.Amount;
+
                             saleProducts.Add(saleProduct);
+
+                            TotalPrice += price;
                             
                         }
 
                     }
 
                     db.SaleProduct.AddRange(saleProducts);
+                    db.SaveChanges();
+                    currentSale.TotalPrice = TotalPrice;
                     db.SaveChanges();
                     TempData["message"] = "Sale Saved With Pending Status";
                 }

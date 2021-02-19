@@ -1,58 +1,83 @@
 ﻿@model IceCreamSystem.Models.Sale
 
 @{
-    Layout = null;
+    Layout = "~/Views/Shared/_ModalView.cshtml";
+    ViewBag.Title = "Sale";
+    ViewBag.Controller = "Sales";
 }
 
-<!DOCTYPE html>
+<dl class="dl-horizontal">
+    <div class="form-group col-md-6">
+        <dt>
+            @Html.DisplayNameFor(model => model.Company.NameCompany)
+        </dt>
 
-<html>
-<head>
-    <meta name="viewport" content="width=device-width" />
-    <title>Details</title>
-</head>
-<body>
-    <div>
-        <h4>Sale</h4>
-        <hr />
-        <dl class="dl-horizontal">
-            <dt>
-                @Html.DisplayNameFor(model => model.Company.NameCompany)
-            </dt>
-    
-            <dd>
-                @Html.DisplayFor(model => model.Company.NameCompany)
-            </dd>
-    
-            <dt>
-                @Html.DisplayNameFor(model => model.Employee.NameEmployee)
-            </dt>
-    
-            <dd>
-                @Html.DisplayFor(model => model.Employee.NameEmployee)
-            </dd>
-    
-            <dt>
-                @Html.DisplayNameFor(model => model.Status)
-            </dt>
-    
-            <dd>
-                @Html.DisplayFor(model => model.Status)
-            </dd>
-    
-            <dt>
-                @Html.DisplayNameFor(model => model.Created)
-            </dt>
-    
-            <dd>
-                @Html.DisplayFor(model => model.Created)
-            </dd>
-    
-        </dl>
+        <dd>
+            @Html.DisplayFor(model => model.Company.NameCompany)
+        </dd>
     </div>
-    <p>
-        @Html.ActionLink("Edit", "Edit", new { id = Model.IdSale }) |
-        @Html.ActionLink("Back to List", "Index")
-    </p>
-</body>
-</html>
+
+    <div class="form-group col-md-12">
+        <dt>
+            @Html.DisplayNameFor(model => model.Employee.NameEmployee)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Employee.NameEmployee)
+        </dd>
+    </div>
+
+    <div class="form-group col-md-12">
+        <dt>
+            @Html.DisplayNameFor(model => model.TotalPrice)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.TotalPrice)
+        </dd>
+    </div>
+
+    <div class="form-group col-md-6">
+        <dt>
+            @Html.DisplayNameFor(model => model.Status)
+        </dt>
+
+        <dd>
+            @if (Model.Status.ToString().Equals("PENDING"))
+            {
+                <div class="badge badge-pill badge-warning">  @Html.DisplayFor(model => model.Status)</div>
+            }
+            else if (Model.Status.ToString().Equals("FINISHED"))
+            {
+                <div class="badge badge-pill badge-success">  @Html.DisplayFor(model => model.Status)</div>
+            }
+            else if (Model.Status.ToString().Equals("CANCELED"))
+            {
+                <div class="badge badge-pill badge-danger">  @Html.DisplayFor(model => model.Status)</div>
+            }
+            else if (Model.Status.ToString().Equals("EXPIRED"))
+            {
+                <div class="badge badge-pill badge-secondary">  @Html.DisplayFor(model => model.Status)</div>
+            }
+            else
+            {
+                <div class="badge badge-pill badge-light"> <i class="fas fa-ban"></i></div>
+            }
+
+        </dd>
+    </div>
+
+    <div class="form-group col-md-6">
+        <dt>
+            @Html.DisplayNameFor(model => model.Created)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Created)
+        </dd>
+    </div>
+
+
+</dl>
+
+

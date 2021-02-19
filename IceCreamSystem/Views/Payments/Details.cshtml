@@ -1,82 +1,198 @@
 ﻿@model IceCreamSystem.Models.Payment
 
 @{
-    Layout = null;
+    Layout = "~/Views/Shared/_ModalView.cshtml";
+    ViewBag.Title = "Payment";
+    ViewBag.Controller = "Payments";
 }
 
-<!DOCTYPE html>
-
-<html>
-<head>
-    <meta name="viewport" content="width=device-width" />
-    <title>Details</title>
-</head>
-<body>
-    <div>
-        <h4>Payment</h4>
-        <hr />
-        <dl class="dl-horizontal">
+<div class="form-horizontal">
+    <dl class="dl-horizontal">
+        <div class="form-group col-md-6">
             <dt>
                 @Html.DisplayNameFor(model => model.Company.NameCompany)
             </dt>
-    
+
             <dd>
                 @Html.DisplayFor(model => model.Company.NameCompany)
             </dd>
-    
-            <dt>
-                @Html.DisplayNameFor(model => model.CreditCard.NameCreditCard)
-            </dt>
-    
-            <dd>
-                @Html.DisplayFor(model => model.CreditCard.NameCreditCard)
-            </dd>
-    
-            <dt>
-                @Html.DisplayNameFor(model => model.DebitCard.NameDebitCard)
-            </dt>
-    
-            <dd>
-                @Html.DisplayFor(model => model.DebitCard.NameDebitCard)
-            </dd>
-    
+        </div>
+
+        <div class="form-group col-md-6">
             <dt>
                 @Html.DisplayNameFor(model => model.Sale.IdSale)
             </dt>
-    
+
             <dd>
                 @Html.DisplayFor(model => model.Sale.IdSale)
             </dd>
-    
+        </div>
+
+        @if (!Model.TypePayment.ToString().Equals("Cash"))
+        {
+            <div class="form-group col-md-6">
+                <dt>
+                    @Html.DisplayNameFor(model => model.CodePaymentCard)
+                </dt>
+
+                <dd>
+                    @Html.DisplayFor(model => model.CodePaymentCard)
+                </dd>
+            </div>
+        }
+
+        <div class="input-group">
+            <div class="form-group col-md-6">
+                <div class="font-weight-bold">
+                    @Html.DisplayNameFor(model => model.TotalPrice)
+                </div>
+                <div>
+                    @Html.DisplayFor(model => model.TotalPrice)
+                </div>
+            </div>
+
+            <div class="form-group col-md-6">
+                <div class="font-weight-bold">
+                    Total Net Value
+                </div>
+
+                <div>
+                    @ViewBag.TotalNetValue
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group col-md-6">
             <dt>
                 @Html.DisplayNameFor(model => model.TypePayment)
             </dt>
-    
+
             <dd>
                 @Html.DisplayFor(model => model.TypePayment)
             </dd>
-    
+        </div>
+
+        @if (!Model.TypePayment.ToString().Equals("Cash"))
+        {
+            <div class="input-group">
+                @if (Model.CreditCardId != null)
+                {
+                    <div class="form-group col-md-6">
+                        <div class="font-weight-bold">
+                            @Html.DisplayNameFor(model => model.CreditCard.NameCreditCard)
+                        </div>
+
+                        <div>
+                            @Html.DisplayFor(model => model.CreditCard.NameCreditCard)
+                        </div>
+                    </div>
+                }
+                else if (Model.DebitCardId != null)
+                {
+                    <div class="form-group col-md-6">
+                        <div class="font-weight-bold">
+                            @Html.DisplayNameFor(model => model.DebitCard.NameDebitCard)
+                        </div>
+
+                        <div>
+                            @Html.DisplayFor(model => model.DebitCard.NameDebitCard)
+                        </div>
+                    </div>
+                }
+                <div class="form-group col-md-6">
+                    <div class="font-weight-bold">
+                        Rate
+                    </div>
+
+                    <div>
+                        @ViewBag.Rate
+                    </div>
+                </div>
+            </div>
+        }
+
+        @if (Model.CreditCardId != null)
+        {
+            <div class="form-group col-md-6">
+                <dt>
+                    @Html.DisplayNameFor(model => model.InstallmentNumber)
+                </dt>
+
+                <dd>
+                    @Html.DisplayFor(model => model.InstallmentNumber)
+                </dd>
+            </div>
+        }
+
+        <div class="input-group">
+            <div class="form-group col-md-6">
+                <div class="font-weight-bold">
+                    Installment Gross Value
+                </div>
+
+                <div>
+                    @ViewBag.InstallmentGross
+                </div>
+            </div>
+            <div class="form-group col-md-6">
+                <div class="font-weight-bold">
+                    @Html.DisplayNameFor(model => model.InstallmentPrice)
+                </div>
+
+                <div>
+                    @Html.DisplayFor(model => model.InstallmentPrice)
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group col-md-6">
+            <dt>
+                @Html.DisplayNameFor(model => model.forecastDatePayment)
+            </dt>
+
+            <dd>
+                @Html.DisplayFor(model => model.forecastDatePayment)
+            </dd>
+        </div>
+
+        <div class="form-group col-md-6">
             <dt>
                 @Html.DisplayNameFor(model => model.Status)
             </dt>
-    
+
             <dd>
-                @Html.DisplayFor(model => model.Status)
+                @if (Model.Status.ToString().Equals("Payable"))
+                {
+                    <div class="badge badge-pill badge-warning">
+                        @Html.DisplayFor(model => model.Status)
+                    </div>
+                }
+                else if (Model.Status.ToString().Equals("Expired"))
+                {
+                    <div class="badge badge-pill badge-danger">
+                        @Html.DisplayFor(model => model.Status)
+                    </div>
+                }
+                else if (Model.Status.ToString().Equals("Pay"))
+                {
+                    <div class="badge badge-pill badge-success">
+                        @Html.DisplayFor(model => model.Status)
+                    </div>
+                }
+                else
+                {
+                    <div class="badge badge-pill badge-light"> <i class="fas fa-ban"></i></div>
+                }
             </dd>
-    
+        </div>
+        <div class="form-group col-md-6">
             <dt>
                 @Html.DisplayNameFor(model => model.Created)
             </dt>
-    
+
             <dd>
                 @Html.DisplayFor(model => model.Created)
             </dd>
-    
-        </dl>
-    </div>
-    <p>
-        @Html.ActionLink("Edit", "Edit", new { id = Model.IdPayment }) |
-        @Html.ActionLink("Back to List", "Index")
-    </p>
-</body>
-</html>
+        </div>
+    </dl>
+</div>

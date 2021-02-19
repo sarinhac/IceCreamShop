@@ -26,6 +26,12 @@ namespace IceCreamSystem.Models
         [Display(Name = "Type Payment")]
         public TypePayment TypePayment { get; set; }
 
+        [Display(Name = "Total Price")]
+        public decimal TotalPrice { get; set; }
+
+        [Display(Name = "Installment Price")]
+        public decimal InstallmentPrice { get; set; }
+
         public int? DebitCardId { get; set; }
 
         public int? CreditCardId { get; set; }

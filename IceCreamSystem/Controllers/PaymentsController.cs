@@ -7,6 +7,7 @@ using System.Web.Mvc;
 using IceCreamSystem.DBContext;
 using IceCreamSystem.Models;
 using IceCreamSystem.Models.Enum;
+using IceCreamSystem.Services;
 
 namespace IceCreamSystem.Controllers
 {
@@ -29,11 +30,39 @@ namespace IceCreamSystem.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
+            
             Payment payment = db.Payment.Find(id);
+            
             if (payment == null)
             {
                 return HttpNotFound();
             }
+
+            #region VIEWBAGS
+            ViewBag.Rate = payment.TypePayment == (TypePayment)1 ? null : payment.TypePayment == (TypePayment)2 ? payment.CreditCard.RateCreditCard.ToString() : payment.DebitCard.Rate.ToString();
+
+            if(payment.TypePayment == (TypePayment)2) //credit
+            {
+                decimal installmentGross = Math.Round((payment.TotalPrice / payment.InstallmentNumber), 2);
+                ViewBag.InstallmentGross = installmentGross.ToString();
+            }
+            else
+                ViewBag.InstallmentGross = payment.TotalPrice.ToString();
+
+            if (payment.TypePayment == (TypePayment)2) //credit
+            {
+                decimal TotalNetValue = Math.Round(payment.TotalPrice - ((payment.TotalPrice * payment.CreditCard.RateCreditCard) / 100), 2);
+                ViewBag.TotalNetValue  = TotalNetValue.ToString();
+            }
+            else if (payment.TypePayment == (TypePayment)3) //debit
+            {
+                decimal TotalNetValue = Math.Round(payment.TotalPrice - ((payment.TotalPrice * payment.DebitCard.Rate) / 100), 2);
+                ViewBag.TotalNetValue = TotalNetValue.ToString();
+            }
+            else
+                ViewBag.TotalNetValue = payment.TotalPrice.ToString();
+            #endregion
+
             return View(payment);
         }
 
@@ -56,6 +85,11 @@ namespace IceCreamSystem.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Create([Bind(Include = "SaleId,TypePayment,DebitCardId,CreditCardId,CompanyId,forecastDatePayment,InstallmentNumber,CodePaymentCard")] Payment payment)
         {
+            string[] productsInCookie = Request.Cookies["products"].Value.Split('/');
+            int companyId = 1;// (int)Session["companyId"];
+            List<SaleProduct> saleProducts = SalesProductsService.ReturnSaleProducts(productsInCookie, companyId, payment.SaleId);
+            decimal TotalPrice = SalesProductsService.GetTotalPrice(saleProducts);
+
             if (payment.SaleId > 0)
             {
                 int idUser = 1;// (int)Session["idUser"]; //who is login
@@ -66,22 +100,28 @@ namespace IceCreamSystem.Controllers
                     {
                         try
                         {
-                            if (payment.CreditCardId > 0 || payment.DebitCardId > 0)
+                            if (payment.TypePayment == (TypePayment) 2 || payment.TypePayment == (TypePayment) 3)
                             {
                                 #region SALE ON CARD
                                 if (payment.CreditCardId > 0)
                                 {
                                     #region CREDIT SALE
-
+                                    CreditCard card = db.CreditCard.Find(payment.CreditCardId);
                                     List<Payment> installmentSale = new List<Payment>();
                                     List<Log> logs = new List<Log>();
 
                                     if (payment.InstallmentNumber == 0)
                                         payment.InstallmentNumber = 1;
-
+                                    
+                                    decimal tax = ((TotalPrice / payment.InstallmentNumber) * card.RateCreditCard) / 100;
+                                    decimal installment = Math.Round((TotalPrice / payment.InstallmentNumber) - tax, 2);
+                                    
                                     #region CREATE CREATE PAYMENT FOR EACH INSTALLMENT
                                     for (int i = 1; i <= payment.InstallmentNumber; i++)
                                     {
+                                        int days = 30 * i;
+                                        int status = card.Company.FlAuthoritativeReceipt ? 1 : 2; //Pay or Payable
+
                                         Payment pay = new Payment
                                         {
                                             SaleId = payment.SaleId,
@@ -90,10 +130,12 @@ namespace IceCreamSystem.Controllers
                                             CreditCardId = payment.CreditCardId,
                                             CompanyId = payment.CompanyId,
                                             TypePayment = payment.TypePayment,
-                                            Status = (StatusPayment)2, //Payable
+                                            Status = (StatusPayment)status, 
                                             InstallmentNumber = i,
                                             CodePaymentCard = payment.CodePaymentCard,
-                                            forecastDatePayment = DateTime.Now.AddDays(30 * i)
+                                            TotalPrice = TotalPrice,
+                                            InstallmentPrice = installment,
+                                            forecastDatePayment = DateTime.Now.AddDays(days)
                                         };
 
                                         installmentSale.Add(pay);
@@ -109,7 +151,7 @@ namespace IceCreamSystem.Controllers
                                         Log log = new Log
                                         {
                                             //[C] in DB refers to an Create
-                                            New = "[C]" + installmentSale[i].TypePayment + " " + installmentSale[i].CreditCardId + " " + installmentSale[i].InstallmentNumber + " " + installmentSale[i].Status,
+                                            New = "[C]" + installmentSale[i].TypePayment + " " + installmentSale[i].CreditCardId + " " + installmentSale[i].InstallmentNumber + " " + installmentSale[i].forecastDatePayment + " " + installmentSale[i].InstallmentPrice + " " + installmentSale[i].TotalPrice + " " + installmentSale[i].Status,
                                             Who = idUser,
                                             PaymentId = installmentSale[i].IdPayment,
                                             SaleId = installmentSale[i].SaleId,
@@ -123,15 +165,22 @@ namespace IceCreamSystem.Controllers
                                     db.SaveChanges();
                                     #endregion
                                     #endregion //CREDIT SALE
-                                    #endregion //SALE ON CARD
+                                    
                                 }
-                                else
+                                else if(payment.DebitCardId > 0)
                                 {
                                     #region DEBIT SALE
+                                    DebitCard card = db.DebitCard.Find(payment.DebitCardId);
+
                                     payment.EmployeeId = idUser;
-                                    payment.Status = (StatusPayment)2; //Payable
+                                    payment.Status = card.Company.FlAuthoritativeReceipt ? (StatusPayment) 1 : (StatusPayment) 2; //Pay or Payable
                                     payment.InstallmentNumber = 0;
                                     payment.forecastDatePayment = payment.Created.Date.AddDays(1);
+                                    payment.TotalPrice = TotalPrice;
+                                    
+                                    decimal tax = (TotalPrice * card.Rate) / 100;
+                                    decimal installment = Math.Round(TotalPrice - tax, 2);
+                                    payment.InstallmentPrice = installment;
 
                                     db.Payment.Add(payment);
                                     db.SaveChanges();
@@ -150,14 +199,23 @@ namespace IceCreamSystem.Controllers
                                     db.SaveChanges();
                                     #endregion
                                 }
+                                else
+                                {
+                                    trans.Rollback();
+                                    ViewBag.error = "Sorry, but an error happened, try again, if the error continues please contact your system supplier";
+                                    goto ReturnIfError;
+                                }
+                                #endregion //SALE ON CARD
                             }
                             else
                             {
                                 #region CASH SALE
                                 payment.EmployeeId = idUser;
-                                payment.Status = (StatusPayment) 1; //Pay
+                                payment.Status = (StatusPayment)1; //Pay
                                 payment.InstallmentNumber = 0;
                                 payment.forecastDatePayment = payment.Created.Date;
+                                payment.TotalPrice = TotalPrice;
+                                payment.InstallmentPrice = TotalPrice;
 
                                 db.Payment.Add(payment);
                                 db.SaveChanges();
@@ -177,6 +235,7 @@ namespace IceCreamSystem.Controllers
                                 #endregion
                             }
 
+                            sale.TotalPrice = TotalPrice;
                             sale.Status = (SaleStatus)2; //FINISHED
                             db.SaveChanges();
 
@@ -196,7 +255,7 @@ namespace IceCreamSystem.Controllers
                 }
             }
 
-            ReturnIfError:
+        ReturnIfError:
 
             ViewBag.CompanyId = new SelectList(db.Company, "IdCompany", "NameCompany", payment.CompanyId);
             ViewBag.CreditCardId = new SelectList(db.CreditCard, "IdCreditCard", "NameCreditCard", payment.CreditCardId);
@@ -216,6 +275,32 @@ namespace IceCreamSystem.Controllers
             {
                 return HttpNotFound();
             }
+
+            #region VIEWBAGS
+            ViewBag.Rate = payment.TypePayment == (TypePayment)1 ? null : payment.TypePayment == (TypePayment)2 ? payment.CreditCard.RateCreditCard.ToString() : payment.DebitCard.Rate.ToString();
+
+            if (payment.TypePayment == (TypePayment)2) //credit
+            {
+                decimal installmentGross = Math.Round((payment.TotalPrice / payment.InstallmentNumber), 2);
+                ViewBag.InstallmentGross = installmentGross.ToString();
+            }
+            else
+                ViewBag.InstallmentGross = payment.TotalPrice.ToString();
+
+            if (payment.TypePayment == (TypePayment)2) //credit
+            {
+                decimal TotalNetValue = Math.Round(payment.TotalPrice - ((payment.TotalPrice * payment.CreditCard.RateCreditCard) / 100), 2);
+                ViewBag.TotalNetValue = TotalNetValue.ToString();
+            }
+            else if (payment.TypePayment == (TypePayment)3) //debit
+            {
+                decimal TotalNetValue = Math.Round(payment.TotalPrice - ((payment.TotalPrice * payment.DebitCard.Rate) / 100), 2);
+                ViewBag.TotalNetValue = TotalNetValue.ToString();
+            }
+            else
+                ViewBag.TotalNetValue = payment.TotalPrice.ToString();
+            #endregion
+
             return View(payment);
         }
 
@@ -256,7 +341,7 @@ namespace IceCreamSystem.Controllers
                     TempData["error"] = "An error happened. Please try again";
                     return RedirectToAction("Index");
                 }
-            }        
+            }
         }
 
         protected override void Dispose(bool disposing)

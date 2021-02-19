@@ -14,16 +14,19 @@
             </th>
         }
         <th>
-            @Html.DisplayNameFor(model => model.CodePaymentCard)
+            @Html.DisplayNameFor(model => model.TotalPrice)
         </th>
         <th>
-            Valor
+            @Html.DisplayNameFor(model => model.CodePaymentCard)
         </th>
         <th>
             @Html.DisplayNameFor(model => model.TypePayment)
         </th>
         <th>
             @Html.DisplayNameFor(model => model.InstallmentNumber)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.InstallmentPrice)
         </th>
         <th>
             @Html.DisplayNameFor(model => model.forecastDatePayment)
@@ -36,70 +39,74 @@
 
     @foreach (var item in Model)
     {
-        <tr>
-            @if (@Session["permission"] != null && @Session["permission"].ToString().Equals("1"))
-            {
-                <td>
-                    @Html.DisplayFor(modelItem => item.Company.NameCompany)
-                </td>
-            }
-            <td>
-                @if (item.CodePaymentCard != null)
-                {
-                    @Html.DisplayFor(modelItem => item.CodePaymentCard)
-                }
-                else
-                {
-                    <div class="badge badge-pill badge-light"> <i class="fas fa-ban"></i></div>
-                }
-            </td>
-            <td>
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.TypePayment)
-            </td>
-            <td>
-                @if (item.TypePayment.ToString().Equals("Credit"))
-                {
-                    @Html.DisplayFor(modelItem => item.InstallmentNumber)
+<tr>
+    @if (@Session["permission"] != null && @Session["permission"].ToString().Equals("1"))
+    {
+        <td>
+            @Html.DisplayFor(modelItem => item.Company.NameCompany)
+        </td>
+    }
+    <td>
+        @Html.DisplayFor(modelItem => item.TotalPrice)
+    </td>
+    <td>
+        @if (item.CodePaymentCard != null)
+        {
+            @Html.DisplayFor(modelItem => item.CodePaymentCard)
+        }
+        else
+        {
+            <div class="badge badge-pill badge-light"> <i class="fas fa-ban"></i></div>
+        }
+    </td>
+    <td>
+        @Html.DisplayFor(modelItem => item.TypePayment)
+    </td>
+    <td>
+        @if (item.TypePayment.ToString().Equals("Credit"))
+        {
+            @Html.DisplayFor(modelItem => item.InstallmentNumber)
 
-                }
-                else
-                {
-                    <div class="badge badge-pill badge-light"> <i class="fas fa-ban"></i></div>
-                }
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.forecastDatePayment)
-            </td>
-            <td>
-                @if (item.Status != 0 && item.Status.ToString().Equals("Payable"))
-                {
-                    <div class="badge badge-pill badge-warning"> @Html.DisplayFor(modelItem => item.Status)</div>
-                }
-                else if (item.Status != 0 && item.Status.ToString().Equals("Pay"))
-                {
-                    <div class="badge badge-pill badge-success"> @Html.DisplayFor(modelItem => item.Status)</div>
-                }
-                else if (item.Status.ToString().Equals("Expired"))
-                {
-                    <div class="badge badge-pill badge-danger"> @Html.DisplayFor(modelItem => item.Status)</div>
-                }
-                else
-                {
-                    <div class="badge badge-pill badge-light"> <i class="fas fa-ban"></i></div>
-                }
-            </td>
-            <td>
-                <div class="btn-group pull-center d-lg-inline">
-                    <a class="btn btn-block bg-gradient-info d-lg-inline details" data-toggle="modal" data-target="#modal" data-url="@Url.Action("Details", "Payments", new { id = item.IdPayment })"> <i class="fas fa-info-circle"></i> Details </a>
-                    @if (item.Status != 0 && !item.Status.ToString().Equals("Pay"))
-                    {
-                        <a class="btn btn-block bg-gradient-success d-lg-inline pay" data-toggle="modal" data-target="#modal" data-url="@Url.Action("Pay", "Payments", new { id = item.IdPayment })"> <i class="fas fa-info-circle"></i> Pay </a>
-                    }
-                </div>
-            </td>
-        </tr>
+        }
+        else
+        {
+            <div class="badge badge-pill badge-light"> <i class="fas fa-ban"></i></div>
+        }
+    </td>
+    <td>
+        @Html.DisplayFor(modelItem => item.InstallmentPrice)
+    </td>
+    <td>
+        @Html.DisplayFor(modelItem => item.forecastDatePayment)
+    </td>
+    <td>
+        @if (item.Status != 0 && item.Status.ToString().Equals("Payable"))
+        {
+            <div class="badge badge-pill badge-warning"> @Html.DisplayFor(modelItem => item.Status)</div>
+        }
+        else if (item.Status != 0 && item.Status.ToString().Equals("Pay"))
+        {
+            <div class="badge badge-pill badge-success"> @Html.DisplayFor(modelItem => item.Status)</div>
+        }
+        else if (item.Status.ToString().Equals("Expired"))
+        {
+            <div class="badge badge-pill badge-danger"> @Html.DisplayFor(modelItem => item.Status)</div>
+        }
+        else
+        {
+            <div class="badge badge-pill badge-light"> <i class="fas fa-ban"></i></div>
+        }
+    </td>
+    <td>
+        <div class="btn-group pull-center d-lg-inline">
+            <a class="btn btn-block bg-gradient-info d-lg-inline details" data-toggle="modal" data-target="#modal" data-url="@Url.Action("Details", "Payments", new { id = item.IdPayment })"> <i class="fas fa-info-circle"></i> Details </a>
+            @if (item.Status != 0 && !item.Status.ToString().Equals("Pay"))
+            {
+                <a class="btn btn-block bg-gradient-success d-lg-inline pay" data-toggle="modal" data-target="#modal" data-url="@Url.Action("Pay", "Payments", new { id = item.IdPayment })"> <i class="fas fa-info-circle"></i> Pay </a>
+            }
+        </div>
+    </td>
+</tr>
     }
 
 </table>

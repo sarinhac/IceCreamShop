@@ -280,6 +280,14 @@ namespace IceCreamSystem.DBContext
                 .IsUnicode(false);
 
             modelBuilder.Entity<Payment>()
+                .Property(e => e.TotalPrice)
+                .HasPrecision(7, 2);
+
+            modelBuilder.Entity<Payment>()
+               .Property(e => e.InstallmentPrice)
+               .HasPrecision(7, 2);
+
+            modelBuilder.Entity<Payment>()
                 .HasMany(e => e.Log)
                 .WithOptional(e => e.Payment)
                 .HasForeignKey(e => e.PaymentId);
@@ -342,6 +350,10 @@ namespace IceCreamSystem.DBContext
                 .WithRequired(e => e.Sale)
                 .HasForeignKey(e => e.SaleId)
                 .WillCascadeOnDelete(false);
+
+            modelBuilder.Entity<Sale>()
+               .Property(e => e.TotalPrice)
+               .HasPrecision(7, 2);
 
             modelBuilder.Entity<UnitMeasure>()
                 .Property(e => e.NameUnitMeasure)

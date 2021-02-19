@@ -27,6 +27,7 @@ namespace IceCreamSystem.Models
         public int CompanyId { get; set; }
 
         public int EmployeeId { get; set; }
+        public decimal TotalPrice { get; set; }
 
         public SaleStatus Status { get; set; }
 
