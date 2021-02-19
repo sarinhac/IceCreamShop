@@ -6,6 +6,7 @@ using System.Net;
 using System.Web.Mvc;
 using IceCreamSystem.DBContext;
 using IceCreamSystem.Models;
+using IceCreamSystem.Services;
 
 namespace IceCreamSystem.Controllers
 {
@@ -65,10 +66,9 @@ namespace IceCreamSystem.Controllers
             {
                 Sale currentSale = db.Sale.Find(sale.IdSale);
                 int companyId = 1;// (int)Session["companyId"];
-                string[] productsInCookie = Request.Cookies.AllKeys[0].Split('/');
-                List<SaleProduct> saleProducts = new List<SaleProduct>();
-                decimal TotalPrice = 0M;
-                if(productsInCookie.Length == 0 || (productsInCookie.Length == 1 && productsInCookie[0].Equals("__RequestVerificationToken")))
+                string[] productsInCookie = Request.Cookies["products"].Value.Split('/');
+                
+                if (productsInCookie.Length == 0 || (productsInCookie.Length == 1 && productsInCookie[0].Equals("__RequestVerificationToken")))
                 {
                     //this sale has no product, so it will be deleted
                     Sale saleNoProducts = db.Sale.Find(sale.IdSale);
@@ -78,24 +78,8 @@ namespace IceCreamSystem.Controllers
                 }
                 else
                 {
-                    for (int i = 0; i < productsInCookie.Length; i++)
-                    {
-                        if (!String.IsNullOrEmpty(productsInCookie[i]) && !productsInCookie[i].Equals("__RequestVerificationToken"))
-                        {
-                            string[] products = productsInCookie[i].Split(',');
-                            int idProd = Convert.ToInt32(products[0]);
-                            Product prod = db.Product.Where(x => x.CompanyId == companyId && x.IdProduct == idProd).FirstOrDefault();
-
-                            SaleProduct saleProduct = new SaleProduct { ProductId = prod.IdProduct, SaleId = sale.IdSale, Amount = Convert.ToInt32(products[3]) };
-                            decimal price = prod.SalePrice * saleProduct.Amount;
-
-                            saleProducts.Add(saleProduct);
-
-                            TotalPrice += price;
-                            
-                        }
-
-                    }
+                    List<SaleProduct> saleProducts = SalesProductsService.ReturnSaleProducts(productsInCookie, companyId, sale.IdSale);
+                    decimal TotalPrice = SalesProductsService.GetTotalPrice(saleProducts);
 
                     db.SaleProduct.AddRange(saleProducts);
                     db.SaveChanges();
@@ -103,10 +87,10 @@ namespace IceCreamSystem.Controllers
                     db.SaveChanges();
                     TempData["message"] = "Sale Saved With Pending Status";
                 }
+
                 return RedirectToAction("Index");
             }
 
-            ViewBag.ProductId = new SelectList(db.Product, "IdProduct", "NameProduct");
             ViewBag.CompanyId = new SelectList(db.Company, "IdCompany", "NameCompany", sale.CompanyId);
             ViewBag.EmployeeId = new SelectList(db.Employee, "IdEmployee", "NameEmployee", sale.EmployeeId);
             return View(sale);
