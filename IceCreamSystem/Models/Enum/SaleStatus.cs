@@ -5,8 +5,8 @@ namespace IceCreamSystem.Models.Enum
     {
         PENDING = 1,
         FINISHED = 2,
-        CANCELED = 3,
-        EXPIRED = 4
+        EXPIRED = 3,
+        CANCELED = 4
 
     }
 }

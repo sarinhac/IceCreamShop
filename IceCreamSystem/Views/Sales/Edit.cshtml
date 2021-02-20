@@ -1,69 +1,361 @@
 ﻿@model IceCreamSystem.Models.Sale
 
 @{
-    Layout = null;
+    ViewBag.Title = "Continue Sale";
 }
 
-<!DOCTYPE html>
 
-<html>
-<head>
-    <meta name="viewport" content="width=device-width" />
-    <title>Edit</title>
-</head>
-<body>
-    @using (Html.BeginForm())
-    {
-        @Html.AntiForgeryToken()
-        
-        <div class="form-horizontal">
-            <h4>Sale</h4>
-            <hr />
-            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
-            @Html.HiddenFor(model => model.IdSale)
-    
-            <div class="form-group">
-                @Html.LabelFor(model => model.CompanyId, "CompanyId", htmlAttributes: new { @class = "control-label col-md-2" })
-                <div class="col-md-10">
-                    @Html.DropDownList("CompanyId", null, htmlAttributes: new { @class = "form-control" })
-                    @Html.ValidationMessageFor(model => model.CompanyId, "", new { @class = "text-danger" })
-                </div>
-            </div>
-    
-            <div class="form-group">
-                @Html.LabelFor(model => model.EmployeeId, "EmployeeId", htmlAttributes: new { @class = "control-label col-md-2" })
-                <div class="col-md-10">
-                    @Html.DropDownList("EmployeeId", null, htmlAttributes: new { @class = "form-control" })
-                    @Html.ValidationMessageFor(model => model.EmployeeId, "", new { @class = "text-danger" })
-                </div>
-            </div>
-    
-            <div class="form-group">
-                @Html.LabelFor(model => model.Status, htmlAttributes: new { @class = "control-label col-md-2" })
-                <div class="col-md-10">
-                    @Html.EditorFor(model => model.Status, new { htmlAttributes = new { @class = "form-control" } })
-                    @Html.ValidationMessageFor(model => model.Status, "", new { @class = "text-danger" })
-                </div>
-            </div>
-    
-            <div class="form-group">
-                @Html.LabelFor(model => model.Created, htmlAttributes: new { @class = "control-label col-md-2" })
-                <div class="col-md-10">
-                    @Html.EditorFor(model => model.Created, new { htmlAttributes = new { @class = "form-control" } })
-                    @Html.ValidationMessageFor(model => model.Created, "", new { @class = "text-danger" })
-                </div>
-            </div>
-    
-            <div class="form-group">
-                <div class="col-md-offset-2 col-md-10">
-                    <input type="submit" value="Save" class="btn btn-default" />
-                </div>
+<div class="container">
+    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+        <div class="input-group">
+            <input class="form-control" list="products" id="searchProducts" placeholder="Insert a Product in the Sale" />
+            <datalist id="products">
+            </datalist>
+            <div class="input-group-append">
+                <button class="btn btn-outline-success" id="addInSale">
+                    Add
+                </button>
             </div>
         </div>
-    }
-    
-    <div>
-        @Html.ActionLink("Back to List", "Index")
     </div>
-</body>
-</html>
+</div>
+
+
+<div class="container">
+    <div class="input-group">
+        <div class="form-group col-md-9">
+            <table class="table table-hover table-bordered table-striped dataTable dtr-inline" style="width:100%" role="grid" id="tableProducts">
+                <thead class="thead-dark">
+                    <tr>
+                        <th style="display: none">
+
+                        </th>
+                        <th>
+                            Product
+                        </th>
+                        <th>
+                            Unit Price
+                        </th>
+                        <th>
+                            Amount
+                        </th>
+                        <th>
+                            Total Price
+                        </th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (ViewBag.Products != null)
+                    {
+                        foreach (IceCreamSystem.Models.SaleProduct sp in ViewBag.Products)
+                        {
+                            <tr class="table-warning">
+                                <td class="idProd" style='display: none'>@sp.Product.IdProduct</td>
+                                <td class="nameProduct">@sp.Product.NameProduct</td>
+                                <td class="price">R$ @sp.Product.SalePrice</td>
+                                <td><input class="form-control amount" type="number" value="@sp.Amount" /></td>
+                                <td class="totalPrice"></td>
+                                <td><button class="btn btn-outline-danger remove">X</button></td>
+                               
+                            </tr>
+                        } 
+                    }
+                    </tbody>
+                </table>
+            </div>
+            <div class="form-group col-md-3 rounded" style=" float: right; height: 150px; width: 150px; border: 1px solid white; font-size: 30px; font-family:'Courier New'; font-weight:bold; text-align:center; padding-top: 20px; background-color: lightpink" ;>
+                Total:
+                <div id="total">R$ 0,0</div>
+            </div>
+        </div>
+
+
+        <div class="form-group col-md-12">
+            <div class="input-group">
+                <input type="button" value="Pay" class="btn btn-success btn-lg" id="finish" />
+
+                @using (Html.BeginForm())
+                {
+                    @Html.AntiForgeryToken()
+                    @Html.HiddenFor(model => model.IdSale)
+                    <input type="submit" value="Exit" class="btn btn-default btn-lg" id="exit" />
+                }
+            </div>
+
+            <div id="payment" style="display: none"></div>
+
+        </div>
+    </div>
+
+
+
+    @section Scripts {
+        <script src="~/Scripts/select2.min.js"></script>
+        <script src="~/Scripts/jquery-3.4.1.js"></script>
+        <script src="https://ajax.aspnetcdn.com/ajax/jquery/1.8.0.js"></script>
+        <script src="https://ajax.aspnetcdn.com/ajax/jquery.ui/1.8.22/jquery-ui.js"></script>
+
+        <script type="text/javascript">
+        //Get Product and put on dataList
+        $("#searchProducts").autocomplete({
+                    source: function (request, response) {
+                        $.ajax({
+                            url: '@Url.Action("GetProducts", "Sales")',
+                            dataType: "json",
+                            type: "GET",
+                            contentType: "application/json; charset=utf-8",
+                            data: { search: $("#searchProducts").val() },
+
+                            success: function (data) {
+                                response($.map(data, function (item) {
+                                    return {
+                                        IdProduct: item.IdProduct,
+                                        NameProduct: item.NameProduct,
+                                    };
+                                }));
+                                var sel = document.getElementById('products')
+                                sel.innerHTML = "";
+                                if (data.length > 0) {
+                                    for (var i = 0; i < data.length; i++) {
+                                        sel.innerHTML = sel.innerHTML +
+                                            '<option>' + data[i].NameProduct + '</option>';
+                                    }
+                                }
+                            },
+                            error: function (xhr, status, error) {
+                                console.log(error)
+                            }
+                        });
+                    },
+                });
+        </script>
+
+        <script type="text/javascript">
+        //Get Product and put in table and call canlculate
+        $("#addInSale").click(function () {
+                $.ajax({
+                    url: '@Url.Action("GetProducts", "Sales")',
+                    dataType: "json",
+                    type: "GET",
+                    contentType: "application/json; charset=utf-8",
+                    data: { search: $("#searchProducts").val()},
+                    success: function (data) {
+                        var sel = document.getElementById('tableProducts').getElementsByTagName('tbody')[0];
+                        if (data.length > 0) {
+                            for (var i = 0; i < data.length; i++) {
+                                var tr = document.createElement("tr");
+                                tr.className = "table-warning";
+
+                                //Hide td id product
+                                var tdId = document.createElement("td");
+                                var inputHidden = document.createElement("input");
+                                var textTdId = document.createTextNode(data[i].IdProduct);
+                                inputHidden.type = "hidden";
+                                inputHidden.value = 1;
+                                inputHidden.className = "idProd";
+                                inputHidden.appendChild(textTdId);
+                                tdId.setAttribute('style', 'display: none')
+                                tdId.appendChild(inputHidden);
+                                tr.appendChild(tdId);
+
+                                //td Name product
+                                var tdName = document.createElement("td");
+                                var textTdName = document.createTextNode(data[i].NameProduct);
+                                tdName.className = "nameProduct";
+                                tdName.appendChild(textTdName);
+                                tr.appendChild(tdName);
+
+                                //td unit price
+                                var tdPrice = document.createElement("td");
+                                var textTdPrice = document.createTextNode("R$ " + data[i].SalePrice);
+                                tdPrice.className = "price";
+                                tdPrice.appendChild(textTdPrice);
+                                tr.appendChild(tdPrice);
+
+                                //td Amount
+                                var tdAmount = document.createElement("td");
+                                var input = document.createElement("input");
+                                input.type = "number";
+                                input.value = 1;
+                                input.className = "form-control amount";
+                                tdAmount.appendChild(input);
+                                tr.appendChild(tdAmount);
+
+                                 //td Total Price
+                                var tdTotalPrice = document.createElement("td");
+                                var textTdTotalPrice = document.createTextNode("R$ " + data[i].SalePrice);
+                                tdTotalPrice.className = "totalPrice";
+                                tdTotalPrice.appendChild(textTdTotalPrice);
+                                tr.appendChild(tdTotalPrice);
+
+                                //td Button remove
+                                var tdRemove = document.createElement("td");
+                                var button = document.createElement("button");
+                                button.className = "btn btn-outline-danger remove";
+                                var textButton = document.createTextNode("x");
+                                button.appendChild(textButton);
+                                tdRemove.appendChild(button);
+                                tr.appendChild(tdRemove);
+
+                                sel.appendChild(tr);
+                            };
+                            calculate();
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.log(error)
+                    }
+                });
+        })
+        </script>
+
+        <script type="text/javascript">
+            //Call calculate
+            $("#tableProducts").change(function () {
+                calculate();
+                calculateUnits();
+            });
+
+        </script>
+
+        <script type="text/javascript">
+            //Call calculate
+            $(document).ready(function () {
+                calculate();
+                calculateUnits();
+            });
+
+        </script>
+
+        <script type="text/javascript">
+            //Calculates total product price
+            function calculate() {
+                var priceProducts = document.getElementsByClassName('price')
+                var amountProducts = document.getElementsByClassName('amount')
+                var total = document.getElementById('total')
+                var priceTotal = 0.0;
+
+                if (amountProducts.length > 0) {
+                    for (var i = 0; i < amountProducts.length; i++) {
+                        priceTotal = priceTotal + (parseFloat(priceProducts[i].innerText.replace('R$ ', '')) * parseFloat(amountProducts[i].value));
+                    }
+                    total.innerHTML = "R$ " + priceTotal;
+                }
+            }
+        </script>
+
+        <script type="text/javascript">
+            //Calculates total by product
+            function calculateUnits() {
+                var priceProducts = document.getElementsByClassName('price')
+                var amountProducts = document.getElementsByClassName('amount')
+                var totalPricesProducts = document.getElementsByClassName('totalPrice')
+
+                if (amountProducts.length > 0) {
+                    for (var i = 0; i < amountProducts.length; i++) {
+                        var priceTotal = 0.0;
+                        priceTotal = parseFloat(priceProducts[i].innerText.replace('R$ ', '')) * parseFloat(amountProducts[i].value);
+                        totalPricesProducts[i].innerHTML = "R$ " + priceTotal
+
+                    }
+                }
+            }
+        </script>
+
+        <script type="text/javascript">
+        //Call payment create
+        $(document).ready(function () {
+          $.ajax({
+              url: '@Url.Content("~/Payments/Create")',
+              data: { id: $("#IdSale").val() },
+                success: function (view)
+                {
+                    $('#payment').append(view);
+                }
+          });
+        });
+        </script>
+
+        <script type="text/javascript">
+            //Put product in cookie and open Payment
+            $("#finish").click(function () {
+                var idProducts = document.getElementsByClassName('idProd')
+                var nameProducts = document.getElementsByClassName('nameProduct')
+                var priceProducts = document.getElementsByClassName('price')
+                var amountProducts = document.getElementsByClassName('amount')
+                document.cookie = "products=";
+
+                if (nameProducts.length > 0) {
+                    for (var i = 0; i < nameProducts.length; i++) {
+                        document.cookie += idProducts[i].innerText + "," + nameProducts[i].innerText + "," + priceProducts[i].innerText + "," + amountProducts[i].value + "/"
+                    }
+                    document.cookie += ";path=/";
+                };
+
+
+                $('#debitCard').hide();
+                $('#creditCard').hide();
+                $('#codePayment').hide();
+                $('#installment').hide();
+                $("#payment").show();
+            })
+        </script>
+
+        <script type="text/javascript">
+            //Put product in cookie but don't open payment
+            $("#exit").click(function () {
+                var idProducts = document.getElementsByClassName('idProd')
+                var nameProducts = document.getElementsByClassName('nameProduct')
+                var priceProducts = document.getElementsByClassName('price')
+                var amountProducts = document.getElementsByClassName('amount')
+                document.cookie = "products=";
+
+                if (nameProducts.length > 0) {
+                    for (var i = 0; i < nameProducts.length; i++) {
+                        document.cookie += idProducts[i].innerText + "," + nameProducts[i].innerText + "," + priceProducts[i].innerText + "," + amountProducts[i].value + "/"
+                    }
+                    document.cookie += ";";
+                };
+
+            })
+        </script>
+
+        <script type="text/javascript">
+            //Hide or show typePament
+            $('#payment').change(function () {
+
+                var typePayment = $('#TypePayment').val();
+                console.log(typePayment);
+
+                if (typePayment === 'Credit') {
+                    $('#creditCard').show();
+                    $('#codePayment').show();
+                    $('#installment').show();
+                    $('#debitCard').hide();
+
+                }
+                else if (typePayment === 'Debit') {
+                    $('#debitCard').show();
+                    $('#codePayment').show();
+                    $('#creditCard').hide();
+                    $('#installment').hide();
+                }
+                else {
+                    $('#debitCard').hide();
+                    $('#creditCard').hide();
+                    $('#codePayment').hide();
+                    $('#installment').hide();
+                }
+            });
+        </script>
+
+        <script type="text/javascript">
+            //Remove items
+            //$(document).ready(function () {
+            $(document).on("click", "button.remove", function () {
+                $(this).parent().parent().remove();
+            });
+                                           // });
+        </script>
+    }

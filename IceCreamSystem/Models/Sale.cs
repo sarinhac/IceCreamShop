@@ -21,12 +21,15 @@ namespace IceCreamSystem.Models
             Created = DateTime.Now;
         }
 
+        #region ATTRIBUTES
         [Key]
         public int IdSale { get; set; }
 
         public int CompanyId { get; set; }
 
         public int EmployeeId { get; set; }
+
+        [Display(Name = "Total")]
         public decimal TotalPrice { get; set; }
 
         public SaleStatus Status { get; set; }
@@ -45,5 +48,13 @@ namespace IceCreamSystem.Models
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<SaleProduct> SaleProduct { get; set; }
+        #endregion
+
+        #region METHODS
+        public void CancelSale()
+        {
+            Status = (SaleStatus) 4;
+        }
+        #endregion //METHODS
     }
 }

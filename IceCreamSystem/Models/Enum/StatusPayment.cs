@@ -5,6 +5,7 @@ namespace IceCreamSystem.Models.Enum
     {
         Pay = 1,
         Payable = 2,
-        Expired = 3
+        Expired= 3,
+        Canceled = 4
     }
 }

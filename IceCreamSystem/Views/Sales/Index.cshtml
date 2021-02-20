@@ -73,7 +73,7 @@
 
             @if (item.Status != 0 && item.Status.ToString().Equals("FINISHED"))
             {
-                <a class="btn btn-block bg-gradient-danger d-lg-inline details" data-toggle="modal" data-target="#modal" data-url="@Url.Action("Delete", "Sales", new { id = item.IdSale })"> <i class="fas fa-info-circle"></i> Cancel </a>
+                <a class="btn btn-block bg-gradient-danger d-lg-inline details" data-toggle="modal" data-target="#modal" data-url="@Url.Action("Cancel", "Sales", new { id = item.IdSale })"> <i class="fas fa-info-circle"></i> Cancel </a>
             }
         </div>
     </td>

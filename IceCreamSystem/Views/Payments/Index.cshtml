@@ -90,6 +90,10 @@
         }
         else if (item.Status.ToString().Equals("Expired"))
         {
+            <div class="badge badge-pill badge-secondary"> @Html.DisplayFor(modelItem => item.Status)</div>
+        }
+        else if (item.Status.ToString().Equals("Canceled"))
+        {
             <div class="badge badge-pill badge-danger"> @Html.DisplayFor(modelItem => item.Status)</div>
         }
         else

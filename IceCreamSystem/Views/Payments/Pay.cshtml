@@ -168,13 +168,19 @@
                 }
                 else if (Model.Status.ToString().Equals("Expired"))
                 {
-                    <div class="badge badge-pill badge-danger">
+                    <div class="badge badge-pill badge-secondary">
                         @Html.DisplayFor(model => model.Status)
                     </div>
                 }
                 else if (Model.Status.ToString().Equals("Pay"))
                 {
                     <div class="badge badge-pill badge-success">
+                        @Html.DisplayFor(model => model.Status)
+                    </div>
+                }
+                else if (Model.Status.ToString().Equals("Canceled"))
+                {
+                    <div class="badge badge-pill badge-danger">
                         @Html.DisplayFor(model => model.Status)
                     </div>
                 }

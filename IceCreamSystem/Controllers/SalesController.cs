@@ -6,6 +6,7 @@ using System.Net;
 using System.Web.Mvc;
 using IceCreamSystem.DBContext;
 using IceCreamSystem.Models;
+using IceCreamSystem.Models.Enum;
 using IceCreamSystem.Services;
 
 namespace IceCreamSystem.Controllers
@@ -68,7 +69,7 @@ namespace IceCreamSystem.Controllers
                 int companyId = 1;// (int)Session["companyId"];
                 string[] productsInCookie = Request.Cookies["products"].Value.Split('/');
                 
-                if (productsInCookie.Length == 0 || (productsInCookie.Length == 1 && productsInCookie[0].Equals("__RequestVerificationToken")))
+                if (productsInCookie == null || productsInCookie.Length == 0)
                 {
                     //this sale has no product, so it will be deleted
                     Sale saleNoProducts = db.Sale.Find(sale.IdSale);
@@ -103,10 +104,15 @@ namespace IceCreamSystem.Controllers
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
             Sale sale = db.Sale.Find(id);
+
             if (sale == null)
             {
                 return HttpNotFound();
             }
+
+            List<SaleProduct> saleProducts = db.SaleProduct.Where(s => s.SaleId == id).ToList();
+            ViewBag.Products = saleProducts;
+           
             ViewBag.CompanyId = new SelectList(db.Company, "IdCompany", "NameCompany", sale.CompanyId);
             ViewBag.EmployeeId = new SelectList(db.Employee, "IdEmployee", "NameEmployee", sale.EmployeeId);
             return View(sale);
@@ -127,7 +133,7 @@ namespace IceCreamSystem.Controllers
             return View(sale);
         }
 
-        /*public ActionResult Delete(int? id)
+        public ActionResult Cancel(int? id)
         {
             if (id == null)
             {
@@ -141,15 +147,77 @@ namespace IceCreamSystem.Controllers
             return View(sale);
         }
 
-        [HttpPost, ActionName("Delete")]
+        [HttpPost, ActionName("Cancel")]
         [ValidateAntiForgeryToken]
-        public ActionResult DeleteConfirmed(int id)
+        public ActionResult CancelConfirmed(int id)
         {
+            #region CANCEL
             Sale sale = db.Sale.Find(id);
-            db.Sale.Remove(sale);
-            db.SaveChanges();
-            return RedirectToAction("Index");
-        }*/
+            int idUser = 1;//(int)Session["idUser"];
+            int companyId = sale.CompanyId;
+
+            using (var trans = db.Database.BeginTransaction())
+            {
+                try
+                {
+                    sale.CancelSale();
+                    db.SaveChanges();
+
+                    Log log = new Log
+                    {
+                        Who = idUser,
+                        CompanyId = companyId,
+                        SaleId = sale.IdSale,
+                        New = "Canceled",
+                        Old = sale.Status.ToString().ToUpper()
+                    };
+
+                    db.Log.Add(log);
+                    db.SaveChanges();
+
+                    List<Payment> payments = db.Payment.Where(p => p.SaleId == sale.IdSale).ToList();
+                    List<Log> logs = new List<Log>();
+
+                    if (payments != null && payments.Count > 0)
+                    {
+                        for (int i = 0; i < payments.Count; i++)
+                        {
+                            payments[i].Status = (StatusPayment)4;
+                            int idPayment = payments[i].IdPayment;
+
+                            Log log1 = new Log
+                            {
+                                Who = idUser,
+                                PaymentId = idPayment,
+                                CompanyId = companyId,
+                                SaleId = id,
+                                New = "CANCELED",
+                                Old = payments[i].Status.ToString().ToUpper()
+                            };
+
+                            logs.Add(log1);
+                        }
+                        db.SaveChanges();
+                        db.Log.AddRange(logs);
+                        db.SaveChanges();
+                    }
+                    else
+                        throw new Exception();
+                   
+                    trans.Commit();
+                    TempData["confirm"] = "Cancellation completed";
+                    return RedirectToAction("Index");
+                }
+                catch
+                {
+                    trans.Rollback();
+                    TempData["error"] = "An error happened. Please try again";
+                    return RedirectToAction("Index");
+                }
+                
+            }
+            #endregion
+        }
 
         protected override void Dispose(bool disposing)
         {
