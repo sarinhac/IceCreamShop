@@ -61,7 +61,14 @@
                                 <div class="input-group-prepend">
                                     <span class="input-group-text"><i class="fas fa-building"></i></span>
                                 </div>
-                                @Html.DropDownList("CompanyId", null, htmlAttributes: new { @class = "form-control" })
+                                @if ((int)@Session["permission"] == 1)
+                                {
+                                    @Html.DropDownList("CompanyId", null, htmlAttributes: new { @class = "form-control"})
+                                }
+                                else
+                                {
+                                    @Html.DropDownList("CompanyId", null, htmlAttributes: new { @class = "form-control", @disabled = "true" })
+                                }
                                 @Html.ValidationMessageFor(model => model.CompanyId, "", new { @class = "text-danger" })
                             </div>
                         </div>

@@ -34,6 +34,9 @@ scratch. This page gets rid of all links and provides the needed markup only.
                 <li class="nav-item d-none d-sm-inline-block">
                     <a href="#" class="nav-link">Contact</a>
                 </li>
+                <li class="nav-item d-none d-sm-inline-block">
+                    <a class="nav-link" href="../Employees/Logout">Logout</a>
+                </li>
             </ul>
         </nav>
         <!-- /.navbar -->
@@ -54,7 +57,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
                         <img src="~/Images/user.png" alt="User" class="img-circle elevation-2">
                     </div>
                     <div class="info">
-                        <a href="../Employees/Details/@Session["idUser"]" class="d-block">@Session["username"]</a>
+                        <a class="details" data-toggle="modal" data-target="#modal" data-url="@Url.Action("Details", "Employees", new { id = (int)@Session["idUser"] })"> @Session["username"] </a>
                     </div>
                 </div>
 
@@ -89,6 +92,12 @@ scratch. This page gets rid of all links and provides the needed markup only.
                                     </a>
                                 </li>
                                 <li class="nav-item">
+                                    <a href="../Payments/Index" class="nav-link">
+                                        <i class="fas fa-cash-register"></i>
+                                        <p>Payments</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
                                     <a href="#" class="nav-link">
                                         <i class="fas fa-credit-card"></i>
                                         <p>
@@ -113,42 +122,45 @@ scratch. This page gets rid of all links and provides the needed markup only.
                                 </li>
                             </ul>
                         </li>
-                        <li class="nav-item has-treeview">
-                            <a href="#" class="nav-link">
-                                <i class="fas fa-tags"></i>
-                                <p>
-                                    Product Options
-                                    <i class="fas fa-angle-left right"></i>
-                                </p>
-                            </a>
-                            <ul class="nav nav-treeview">
-                                <li class="nav-item">
-                                    <a href="../Products/Index" class="nav-link">
-                                        <i class="fas fa-tags"></i>
-                                        <p>Products</p>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="../UnitMeasures/Index" class="nav-link">
-                                        <i class="fas fa-weight"></i>
-                                        <p>Unit Measures</p>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="../Categories/Index" class="nav-link">
-                                        <i class="fas fa-clipboard"></i>
-                                        <p>Categories</p>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="../Stocks/Index" class="nav-link">
-                                        <i class="fas fa-cubes"></i>
-                                        <p>Stock</p>
-                                    </a>
-                                </li>
+                        @if (@Session["permission"] != null && ((int)@Session["permission"] == 1 || (int)@Session["permission"] == 2 || (int)@Session["permission"] == 3 || (int)@Session["permission"] == 4))
+                        {
+            <li class="nav-item has-treeview">
+                <a href="#" class="nav-link">
+                    <i class="fas fa-tags"></i>
+                    <p>
+                        Product Options
+                        <i class="fas fa-angle-left right"></i>
+                    </p>
+                </a>
+                <ul class="nav nav-treeview">
+                    <li class="nav-item">
+                        <a href="../Products/Index" class="nav-link">
+                            <i class="fas fa-tags"></i>
+                            <p>Products</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="../UnitMeasures/Index" class="nav-link">
+                            <i class="fas fa-weight"></i>
+                            <p>Unit Measures</p>
+                        </a>
+                    </li>
 
-                            </ul>
-                        </li>
+                    <li class="nav-item">
+                        <a href="../Categories/Index" class="nav-link">
+                            <i class="fas fa-clipboard"></i>
+                            <p>Categories</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="../EntryStocks/Index" class="nav-link">
+                            <i class="fas fa-cubes"></i>
+                            <p>Stock</p>
+                        </a>
+                    </li>
+
+                </ul>
+            </li>}
                         <li class="nav-item has-treeview">
                             <a href="#" class="nav-link">
                                 <i class="fas fa-store"></i>
@@ -210,14 +222,30 @@ scratch. This page gets rid of all links and provides the needed markup only.
             <div class="content">
                 <div class="container-fluid">
                     <div class="row">
+                        @if (ViewBag.error != null)
+                        {
+            <div class="alert alert-default-danger" role="alert" style="width:100%">
+                @ViewBag.error
+            </div>}
+                        @if (ViewBag.confirm != null)
+                        {
+            <div class="alert alert-default-success" role="alert" style="width:100%">
+                @ViewBag.confirm
+            </div>}
+                        @if (ViewBag.message != null)
+                        {
+            <div class="alert alert-default-info" role="alert" style="width:100%">
+                @ViewBag.message
+            </div>}
                         @RenderBody()
+
+                        <div id="modal" class="modal fade" role="dialog"></div>
                     </div>
                 </div>
             </div><!-- /.container-fluid -->
         </div>
         <!-- /.content -->
         <!-- /.content-wrapper -->
-
         <!-- Main Footer -->
         <footer class="main-footer">
             <!-- Default to the left -->
@@ -237,6 +265,9 @@ scratch. This page gets rid of all links and provides the needed markup only.
     <script src="~/Scripts/dataTables.responsive.min.js"></script>
     <script src="~/Scripts/responsive.bootstrap4.min.js"></script>
     <script src="~/Scripts/demo.js"></script>
+    <script src="~/Scripts/Modal.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
     @Scripts.Render("~/bundles/jquery")
     @Scripts.Render("~/bundles/bootstrap")
     @Scripts.Render("~/bundles/modernizr")

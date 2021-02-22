@@ -269,6 +269,7 @@
     <Content Include="Views\Payments\Details.cshtml" />
     <Content Include="Views\Payments\Index.cshtml" />
     <Content Include="Views\Payments\_Create.cshtml" />
+    <Content Include="Views\Employees\ChangePassword.cshtml" />
     <None Include="Views\Shared\_AdminLite.cshtml" />
     <Content Include="Images\sorvetelogo.png" />
     <Content Include="Images\user.png" />

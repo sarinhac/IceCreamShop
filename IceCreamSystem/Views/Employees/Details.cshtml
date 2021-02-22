@@ -193,40 +193,45 @@
 
                 @if (Model.Permission != null && Model.Permission.ToString().Equals("SuperAdmin"))
                 {
-                <div class="badge badge-pill badge-dark">
-                    @Html.DisplayFor(model => model.Permission)
-                </div>
+                    <div class="badge badge-pill badge-dark">
+                        @Html.DisplayFor(model => model.Permission)
+                    </div>
                 }
                 else if (Model.Permission != null && Model.Permission.ToString().Equals("Admin"))
                 {
-                <div class="badge badge-pill badge-danger">
-                    @Html.DisplayFor(model => model.Permission)
-                </div>
+                    <div class="badge badge-pill badge-danger">
+                        @Html.DisplayFor(model => model.Permission)
+                    </div>
                 }
                 else if (Model.Permission != null && Model.Permission.ToString().Equals("Supervisor"))
                 {
-                <div class="badge badge-pill badge-warning">
-                    @Html.DisplayFor(model => model.Permission)
-                </div>
+                    <div class="badge badge-pill badge-warning">
+                        @Html.DisplayFor(model => model.Permission)
+                    </div>
                 }
                 else if (Model.Permission != null && Model.Permission.ToString().Equals("Stockist"))
                 {
-                <div class="badge badge-pill badge-secondary">
-                    @Html.DisplayFor(model => model.Permission)
-                </div>
+                    <div class="badge badge-pill badge-secondary">
+                        @Html.DisplayFor(model => model.Permission)
+                    </div>
                 }
                 else if (Model.Permission != null && Model.Permission.ToString().Equals("Seller"))
                 {
-                <div class="badge badge-pill badge-info">
-                    @Html.DisplayFor(model => model.Permission)
-                </div>
+                    <div class="badge badge-pill badge-info">
+                        @Html.DisplayFor(model => model.Permission)
+                    </div>
                 }
                 else
                 {
-                <div class="badge badge-pill badge-light">
-                    <i class="fas fa-ban"></i>
-                </div>
+                    <div class="badge badge-pill badge-light">
+                        <i class="fas fa-ban"></i>
+                    </div>
                 }
+            </div>
+            <div class="form-group col-md-6">
+                <div>
+                    <a class="btn btn-block bg-gradient-secondary d-lg-inline " href="@Url.Action("ChangePassword", @ViewBag.Controller, new { id = @ViewBag.Id })"> <i class="fas fa-lock"></i> Change Password </a>
+                </div>
             </div>
         </div>
     }

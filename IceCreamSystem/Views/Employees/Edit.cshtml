@@ -46,8 +46,8 @@
                                 <div class="input-group-prepend">
                                     <span class="input-group-text"><i class="far fa-calendar-alt"></i></span>
                                 </div>
-                                @Html.EditorFor(model => model.Birth, new { htmlAttributes = new { @class = "form-control" } })
-                                @Html.ValidationMessageFor(model => model.Birth, "", new { @class = "text-danger" })
+                                @Html.EditorFor(model => model.Birth, new { htmlAttributes = new { @class = "form-control", @type = "date" } })
+                                @Html.ValidationMessageFor(model => model.Birth, "", new { @class = "text-danger"})
                             </div>
                         </div>
                     </div>
@@ -59,7 +59,7 @@
                                 <div class="input-group-prepend">
                                     <span class="input-group-text"><i class="far fa-calendar-alt"></i></span>
                                 </div>
-                                @Html.EditorFor(model => model.Admission, new { htmlAttributes = new { @class = "form-control" } })
+                                @Html.EditorFor(model => model.Admission, new { htmlAttributes = new { @class = "form-control", @type = "date" } })
                                 @Html.ValidationMessageFor(model => model.Admission, "", new { @class = "text-danger" })
                             </div>
                         </div>

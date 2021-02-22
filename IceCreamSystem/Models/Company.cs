@@ -34,6 +34,7 @@ namespace IceCreamSystem.Models
 
         [Required]
         [StringLength(50)]
+        [Display(Name = "Company")]
         public string NameCompany { get; set; }
 
         public StatusGeneral Status { get; set; }

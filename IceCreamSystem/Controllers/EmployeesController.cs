@@ -30,12 +30,22 @@ namespace IceCreamSystem.Controllers
         #region Actions Login
         public ActionResult Home()
         {
+            ViewBag.message = TempData["message"] != null ? TempData["message"].ToString() : null;
+            ViewBag.confirm = TempData["confirm"] != null ? TempData["confirm"].ToString() : null;
+            ViewBag.error = TempData["error"] != null ? TempData["error"].ToString() : null;
             return View();
         }
 
         public ActionResult Login()
         {
+            ViewBag.error = TempData["error"] != null ? TempData["error"].ToString() : null;
             return View();
+        }
+
+        public ActionResult Logout()
+        {
+            Session.RemoveAll();
+            return RedirectToAction("Login");
         }
 
         [HttpPost]
@@ -137,7 +147,7 @@ namespace IceCreamSystem.Controllers
                     try
                     {
                         #region SAVE NEW EMPLOYEE
-                        int idUser = (int)Session["idUser"]; //who is login
+                        int idUser = 1;// (int)Session["idUser"]; //who is login
 
                         #region Insert new Address
                         //Using (System.Data.Entity) Add -> Adds the given entity to the context that it will be inserted into the database when SaveChanges is called.
@@ -204,6 +214,11 @@ namespace IceCreamSystem.Controllers
         }
         #endregion
 
+        public ActionResult AddOtherDetailsPhone()
+        {
+            return PartialView("_PhoneDetails");
+        }
+
         public ActionResult Details(int? id)
         {
             if (id == null)
@@ -224,9 +239,58 @@ namespace IceCreamSystem.Controllers
             return View(employee);
         }
 
-        public ActionResult AddOtherDetailsPhone()
+        public ActionResult ChangePassword(int? id)
         {
-            return PartialView("_PhoneDetails");
+            if (id == null)
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            }
+
+            Employee employee = db.Employee.Find(id);
+            if (employee == null)
+            {
+                return HttpNotFound();
+            }
+            employee.PasswordUser = string.Empty;
+
+            return View(employee);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult ChangePassword([Bind(Include = "IdEmployee,PasswordUser")] Employee employee)
+        {
+            Employee emp = db.Employee.Find(employee.IdEmployee);
+            int idUser = 1;// (int)Session["idUser"];
+           
+            using (var trans = db.Database.BeginTransaction())
+            {
+                try
+                {
+                    Log log = new Log
+                    {
+                        Who = idUser,
+                        EmployeeId = employee.IdEmployee,
+                        New = "[CP]"
+                    };
+
+                    emp.PasswordUser = HashService.HashPassword(employee.PasswordUser);
+                    db.SaveChanges();
+
+                    db.Log.Add(log);
+                    db.SaveChanges();
+
+                    trans.Commit();
+                    TempData["confirm"] = "Password updated successfully";
+                    return RedirectToAction("Index");
+                }
+                catch
+                {
+                    trans.Rollback();
+                    ViewBag.error = "An error happened. Please try again";
+                    return View(employee);
+                }
+            }  
         }
 
         #region EDIT ACTIONS
@@ -255,7 +319,7 @@ namespace IceCreamSystem.Controllers
                 return RedirectToAction("Index");
             }
 
-            IEnumerable<SelectListItem> permission = new SelectList(Enum.GetValues(typeof(Permission)));
+            IEnumerable<SelectListItem> permission = new SelectList(Enum.GetValues(typeof(Permission)), employee.Permission);
             ViewBag.Permission = permission;
 
             ViewBag.CompanyId = new SelectList(db.Company, "IdCompany", "NameCompany", employee.CompanyId);
@@ -329,7 +393,7 @@ namespace IceCreamSystem.Controllers
                     return RedirectToAction("Index");
                 }
 
-                int idUser = (int)Session["idUser"];
+                int idUser = 1;// (int)Session["idUser"];
 
                 if (!oldEmployee.Equals(editEmployee) || !oldAddress.Equals(editAddress) || !oldPhones.SequenceEqual(editPhones, new Phone()))
                 {

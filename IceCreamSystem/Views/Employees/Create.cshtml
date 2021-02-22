@@ -6,7 +6,7 @@
 
 <div class="container">
     <div class="col-xs-12 col-sm-8 col-md-7 col-lg-7">
-        
+
         @if (ViewBag.error != null)
         {
             <div class="alert alert-danger" role="alert">
@@ -43,7 +43,7 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="far fa-calendar-alt"></i></span>
                             </div>
-                            @Html.EditorFor(model => model.Birth, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.EditorFor(model => model.Birth, new { htmlAttributes = new { @class = "form-control", @type = "date" } })
                             @Html.ValidationMessageFor(model => model.Birth, "", new { @class = "text-danger" })
                         </div>
                     </div>
@@ -191,7 +191,7 @@
                                 <div class="input-group-prepend">
                                     <span class="input-group-text"><i class="far fa-calendar-alt"></i></span>
                                 </div>
-                                @Html.EditorFor(model => model.Admission, new { htmlAttributes = new { @class = "form-control" } })
+                                @Html.EditorFor(model => model.Admission, new { htmlAttributes = new { @class = "form-control", @type = "date" } })
                                 @Html.ValidationMessageFor(model => model.Admission, "", new { @class = "text-danger" })
                             </div>
                         </div>
@@ -272,7 +272,7 @@
                                 <div class="input-group-prepend">
                                     <span class="input-group-text"><i class="fas fa-lock"></i></span>
                                 </div>
-                                @Html.EditorFor(model => model.PasswordUser, new { htmlAttributes = new { @class = "form-control" } })
+                                @Html.EditorFor(model => model.PasswordUser, new { htmlAttributes = new { @class = "form-control", @type = "password" } })
                                 @Html.ValidationMessageFor(model => model.PasswordUser, "", new { @class = "text-danger" })
                             </div>
                         </div>
@@ -293,6 +293,10 @@
 
 
 @section Scripts {
+    <script src="~/Scripts/jquery-3.4.1.js"></script>
+    <script src="https://ajax.aspnetcdn.com/ajax/jquery/1.8.0.js"></script>
+    <script src="https://ajax.aspnetcdn.com/ajax/jquery.ui/1.8.22/jquery-ui.js"></script>
+
     <script type="text/javascript">
         //login information
 
@@ -319,6 +323,12 @@
                 $('#login').hide();
                 $('#password').hide();
             }
+        });
+    </script>
+
+    <script type="text/javascript">
+        $(function () {
+            $('.datetimepicker').datepicker();
         });
     </script>
 

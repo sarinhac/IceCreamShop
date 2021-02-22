@@ -24,9 +24,11 @@ namespace IceCreamSystem.Models
 
         [Required]
         [StringLength(50)]
+        [Display(Name = "Category")]
         public string NameCategory { get; set; }
 
         [StringLength(255)]
+        [Display(Name = "Description")]
         public string DescriptionCategory { get; set; }
 
         public int CompanyId { get; set; }
