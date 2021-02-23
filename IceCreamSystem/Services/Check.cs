@@ -36,9 +36,9 @@ namespace IceCreamSystem.Services
             return id != 0 && permission != 0 && permission != 0 && companyId != 0 && user != null;
         }
 
-        public static bool IsSameCompany(int idCompanyUser, int idCompanyEmployee)
+        public static bool IsSameCompany(int idCompanyUser, int idCompany)
         {
-            return idCompanyUser == idCompanyEmployee;
+            return idCompanyUser == idCompany;
         }
 
         public static bool IsMe(int idMe, int idEmployee)

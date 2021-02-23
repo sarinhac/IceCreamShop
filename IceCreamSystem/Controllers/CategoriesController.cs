@@ -29,8 +29,16 @@ namespace IceCreamSystem.Controllers
                 if (Check.IsLogOn(idUser, permission, idCompany, userName))
                 {
                     if (Check.IsSuperAdmin(permission))
+                    {
+                        ViewBag.permission = true;
                         return View(db.Category.Include(c => c.Company).ToList());
-                    else if(Check.IsStockist(permission))
+                    }
+                    else if (Check.IsSupervisor(permission))
+                    {
+                        ViewBag.permission = true;
+                        return View(db.Category.Where(c => c.CompanyId == idCompany).Include(c => c.Company).ToList());
+                    }
+                    else if (Check.IsStockist(permission))
                         return View(db.Category.Where(c => c.CompanyId == idCompany).Include(c => c.Company).ToList());
                     else
                     {
@@ -38,13 +46,14 @@ namespace IceCreamSystem.Controllers
                         return RedirectToAction("Home", "Employees");
                     }
                 }
+                else
+                    return RedirectToAction("LogIn", "Employees");
             }
             catch
             {
                 TempData["error"] = "You need to login";
                 return RedirectToAction("LogIn", "Employees");
             }
-            return RedirectToAction("Home", "Employees");
         }
 
         public ActionResult Details(int? id)
@@ -68,8 +77,7 @@ namespace IceCreamSystem.Controllers
                     {
                         return HttpNotFound();
                     }
-
-                    if (Check.IsSuperAdmin(permission) || (Check.IsStockist(permission) && idCompany == category.CompanyId))
+                    else if (Check.IsSuperAdmin(permission) || (Check.IsStockist(permission) && idCompany == category.CompanyId))
                         return View(category);
                     else
                     {
@@ -77,13 +85,14 @@ namespace IceCreamSystem.Controllers
                         return RedirectToAction("Index");
                     }
                 }
+                else
+                    return RedirectToAction("LogIn", "Employees");
             }
             catch
             {
                 TempData["error"] = "You need to login";
                 return RedirectToAction("LogIn", "Employees");
             }
-            return RedirectToAction("Home", "Employees");
         }
 
         public ActionResult Create()
@@ -113,13 +122,14 @@ namespace IceCreamSystem.Controllers
                     }
                     return View();
                 }
+                else
+                    return RedirectToAction("LogIn", "Employees");
             }
             catch
             {
                 TempData["error"] = "You need to login";
                 return RedirectToAction("LogIn", "Employees");
             }
-            return RedirectToAction("Home", "Employees");
         }
 
         [HttpPost]
@@ -212,13 +222,14 @@ namespace IceCreamSystem.Controllers
                     }
                     return View(category);
                 }
+                else
+                    return RedirectToAction("LogIn", "Employees");
             }
             catch
             {
                 TempData["error"] = "You need to login";
                 return RedirectToAction("LogIn", "Employees");
             }
-            return RedirectToAction("Home", "Employees");
         }
 
         [HttpPost]
@@ -311,13 +322,14 @@ namespace IceCreamSystem.Controllers
                         return RedirectToAction("Index");
                     }
                 }
+                else
+                    return RedirectToAction("LogIn", "Employees");
             }
             catch
             {
                 TempData["error"] = "You need to login";
                 return RedirectToAction("LogIn", "Employees");
             }
-            return RedirectToAction("Home", "Employees");
         }
 
         [HttpPost, ActionName("Delete")]
@@ -387,13 +399,14 @@ namespace IceCreamSystem.Controllers
                         return RedirectToAction("Index");
                     }
                 }
+                else
+                    return RedirectToAction("LogIn", "Employees");
             }
             catch
             {
                 TempData["error"] = "You need to login";
                 return RedirectToAction("LogIn", "Employees");
             }
-            return RedirectToAction("Home", "Employees");
         }
 
         [HttpPost, ActionName("Active")]

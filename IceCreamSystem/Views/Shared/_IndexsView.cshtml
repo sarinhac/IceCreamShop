@@ -48,7 +48,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
                      style="opacity: .8">
                 <span class="brand-text font-weight-light">IceCreamShop</span>
             </a>
-          
+
             <!-- Sidebar -->
             <div class="sidebar">
                 <!-- Sidebar user panel (optional) -->
@@ -124,7 +124,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
                         </li>
 
                         @if (@Session["permission"] != null && ((int)@Session["permission"] == 1 || (int)@Session["permission"] == 2 || (int)@Session["permission"] == 3 || (int)@Session["permission"] == 4))
-                        {
+                        {  //superadmin or admin or supervisor or stockist
                             <li class="nav-item has-treeview">
                                 <a href="#" class="nav-link">
                                     <i class="fas fa-tags"></i>
@@ -164,36 +164,39 @@ scratch. This page gets rid of all links and provides the needed markup only.
                             </li>
                         }
 
-                        <li class="nav-item has-treeview">
-                            <a href="#" class="nav-link">
-                                <i class="fas fa-store"></i>
-                                <p>
-                                    Company Options
-                                    <i class="fas fa-angle-left right"></i>
-                                </p>
-                            </a>
-                            <ul class="nav nav-treeview">
-                                <li class="nav-item">
-                                    <a href="../Companies/Index" class="nav-link">
-                                        <i class="fas fa-store"></i>
-                                        <p>Company</p>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="../Employees/Index" class="nav-link">
-                                        <i class="fas fa-users"></i>
-                                        <p>Employees</p>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="../Offices/Index" class="nav-link">
-                                        <i class="fas fa-paste"></i>
-                                        <p>Offices</p>
-                                    </a>
-                                </li>
+                        @if (@Session["permission"] != null && ((int)@Session["permission"] == 1 || (int)@Session["permission"] == 2 )) //superadmin or admin
+                        {
+                            <li class="nav-item has-treeview">
+                                <a href="#" class="nav-link">
+                                    <i class="fas fa-store"></i>
+                                    <p>
+                                        Company Options
+                                        <i class="fas fa-angle-left right"></i>
+                                    </p>
+                                </a>
+                                <ul class="nav nav-treeview">
+                                    <li class="nav-item">
+                                        <a href="../Companies/Index" class="nav-link">
+                                            <i class="fas fa-store"></i>
+                                            <p>Company</p>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a href="../Employees/Index" class="nav-link">
+                                            <i class="fas fa-users"></i>
+                                            <p>Employees</p>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a href="../Offices/Index" class="nav-link">
+                                            <i class="fas fa-paste"></i>
+                                            <p>Offices</p>
+                                        </a>
+                                    </li>
 
-                            </ul>
-                        </li>
+                                </ul>
+                            </li>
+                        }
                     </ul>
                 </nav>
                 <!-- /.sidebar-menu -->
@@ -204,7 +207,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
         <!-- Content Wrapper. Contains page content -->
         <div class="content-wrapper">
             <!-- Content Header (Page header) -->
-            <div class="content-header">
+            <section class="content-header">
                 <div class="container-fluid">
                     <div class="row mb-2">
                         <div class="col-sm-6">
@@ -215,49 +218,104 @@ scratch. This page gets rid of all links and provides the needed markup only.
                                 <li class="breadcrumb-item"><a href="../Employees/Home">Home</a></li>
                                 <li class="breadcrumb-item active">@ViewBag.Title</li>
                             </ol>
-                        </div><!-- /.col --> 
+                        </div><!-- /.col -->
                     </div><!-- /.row -->
                 </div><!-- /.container-fluid -->
-            </div>
+            </section>
             <!-- /.content-header -->
             <!-- Main content -->
-            <div class="content">
+            <section class="content">
                 <div class="container-fluid">
                     <div class="row">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <p class="col-2">
+                                        @if (ViewBag.permission != null && (bool)ViewBag.permission == true)
+                                        {
+                                            <a class="btn btn-block bg-gradient-success create" href="../@ViewBag.Title/Create"> <i class="fas fa-plus-circle"></i> New </a>
+                                        }
+                                        else
+                                        {
+                                            <a class="btn btn-block bg-gradient-success disabled create" href="../@ViewBag.Title/Create"> <i class="fas fa-plus-circle"></i> New </a>
+                                        }
+                                    </p>
 
-                        <div>
-                            <p>
-                                <a class="btn btn-block bg-gradient-success create" href="../@ViewBag.Title/Create"> <i class="fas fa-plus-circle"></i> New </a>
-                            </p>
+                                    @if (ViewBag.error != null)
+                                    {
+                                        <div class="alert alert-default-danger" role="alert" style="width:100%">
+                                            @ViewBag.error
+                                        </div>
+                                    }
+                                    @if (ViewBag.confirm != null)
+                                    {
+                                        <div class="alert alert-default-success" role="alert" style="width:100%">
+                                            @ViewBag.confirm
+                                        </div>
+                                    }
+                                    @if (ViewBag.message != null)
+                                    {
+                                        <div class="alert alert-default-info" role="alert" style="width:100%">
+                                            @ViewBag.message
+                                        </div>
+                                    }
+                                </div>
+
+                                <div class="card-body">
+                                    <div class="dataTables_wrapper dt-bootstrap4">
+                                        <div class="row">
+                                            <div class="col-sm-12 col-md-6">
+                                                <div class="dataTables_length" id="example1_length">
+                                                    <label>
+                                                        Show
+                                                        <select name="example1_length" aria-controls="example1" class="custom-select custom-select-sm form-control form-control-sm">
+                                                            <option value="10">10</option>
+                                                            <option value="25">25</option>
+                                                            <option value="50">50</option>
+                                                            <option value="100">100</option>
+                                                        </select>
+                                                        entries
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-12 col-md-6">
+                                                <div id="example1_filter" class="dataTables_filter">
+                                                    <label>
+                                                        Search:
+                                                        <input type="search" class="form-control form-control-sm" placeholder="" aria-controls="example1">
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            @RenderBody()
+                                            <div class="row">
+                                                <div class="col-sm-12 col-md-5">
+                                                    <div class="dataTables_info" id="example1_info" role="status" aria-live="polite">
+                                                        Showing 1 to 10 of 57 entries
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-12 col-md-7">
+                                                    <div class="dataTables_paginate paging_simple_numbers" id="example1_paginate">
+                                                        <ul class="pagination">
+                                                            <li class="paginate_button page-item previous disabled" id="example1_previous">
+                                                                <a href="#" aria-controls="example1" data-dt-idx="0" tabindex="0" class="page-link">Previous</a>
+                                                            </li>
+                                                            <li class="paginate_button page-item next" id="example1_next">
+                                                                <a href="#" aria-controls="example1" data-dt-idx="7" tabindex="0" class="page-link">Next</a>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div id="modal" class="modal fade" role="dialog"></div>
+                            </div>
                         </div>
-
-                        @if (ViewBag.error != null)
-                        {
-                            <div class="alert alert-default-danger" role="alert" style="width:100%">
-                                @ViewBag.error
-                            </div>
-                        }
-                        @if (ViewBag.confirm != null)
-                        {
-                            <div class="alert alert-default-success" role="alert" style="width:100%">
-                                @ViewBag.confirm
-                            </div>
-                        }
-                        @if (ViewBag.message != null)
-                        {
-                            <div class="alert alert-default-info" role="alert" style="width:100%">
-                                @ViewBag.message
-                            </div>
-                        }
-
-                        @RenderBody()
-
-                        <div id="modal" class="modal fade" role="dialog"></div>
-
                     </div>
                 </div>
-            </div><!-- /.container-fluid -->
-        </div>
+            </section>
+        </div><!-- /.container-fluid -->
         <!-- /.content -->
         <!-- /.content-wrapper -->
         <!-- Main Footer -->
@@ -270,6 +328,8 @@ scratch. This page gets rid of all links and provides the needed markup only.
     <!-- REQUIRED SCRIPTS -->
     <!-- jQuery -->
     <script src="~/Scripts/jquery-3.4.1.js"></script>
+    <script src="https://ajax.aspnetcdn.com/ajax/jquery/1.8.0.js"></script>
+    <script src="https://ajax.aspnetcdn.com/ajax/jquery.ui/1.8.22/jquery-ui.js"></script>
     <!-- Bootstrap 4 -->
     <script src="~/Scripts/bootstrap.bundle.min.js"></script>
     <!-- AdminLTE App -->
@@ -282,10 +342,28 @@ scratch. This page gets rid of all links and provides the needed markup only.
     <script src="~/Scripts/Modal.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
-    @Scripts.Render("~/bundles/jquery")
-    @Scripts.Render("~/bundles/bootstrap")
-    @Scripts.Render("~/bundles/modernizr")
-    @RenderSection("scripts", required: false)
+    @*@Scripts.Render("~/bundles/jquery")
+        @Scripts.Render("~/bundles/bootstrap")
+        @Scripts.Render("~/bundles/modernizr")
+        @RenderSection("scripts", required: false)*@
+    <script type="text/javascript">
+        $(function () {
+            $("#example1").DataTable({
+                "responsive": true,
+                "autoWidth": false,
+            });
+
+            $('#example2').DataTable({
+                "paging": true,
+                "lengthChange": false,
+                "searching": false,
+                "ordering": true,
+                "info": true,
+                "autoWidth": false,
+                "responsive": true,
+            });
+        });
+    </script>
 </body>
 </html>
 
