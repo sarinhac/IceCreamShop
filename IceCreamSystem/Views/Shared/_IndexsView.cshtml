@@ -64,64 +64,76 @@ scratch. This page gets rid of all links and provides the needed markup only.
                 <!-- Sidebar Menu -->
                 <nav class="mt-2">
                     <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
-                        <li class="nav-item has-treeview menu-open">
-                            <a href="../Sales/Create" class="nav-link active">
-                                <i class="fas fa-cart-plus"></i>
-                                <p> New Sale </p>
-                            </a>
-                        </li>
-                        <li class="nav-item has-treeview">
-                            <a href="#" class="nav-link">
-                                <i class="fas fa-chart-line"></i>
-                                <p> Reports </p>
-                            </a>
-                        </li>
-                        <li class="nav-item has-treeview">
-                            <a href="#" class="nav-link">
-                                <i class="fas fa-shopping-cart"></i>
-                                <p>
-                                    Sale Options
-                                    <i class="fas fa-angle-left right"></i>
-                                </p>
-                            </a>
-                            <ul class="nav nav-treeview">
-                                <li class="nav-item">
-                                    <a href="../Sales/Index" class="nav-link">
-                                        <i class="fas fa-shopping-cart"></i>
-                                        <p>Sales</p>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="../Payments/Index" class="nav-link">
-                                        <i class="fas fa-cash-register"></i>
-                                        <p>Payments</p>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="#" class="nav-link">
-                                        <i class="fas fa-credit-card"></i>
-                                        <p>
-                                            Card
-                                            <i class="fas fa-angle-left right"></i>
-                                        </p>
-                                    </a>
-                                    <ul class="nav nav-treeview">
+                        @if (@Session["permission"] != null && ((int)@Session["permission"] == 1 || (int)@Session["permission"] == 2 || (int)@Session["permission"] == 3 || (int)@Session["permission"] == 5))
+                        {//superadmin, admin, supervisor, seller
+                            <li class="nav-item has-treeview menu-open">
+                                <a href="../Sales/Create" class="nav-link active">
+                                    <i class="fas fa-cart-plus"></i>
+                                    <p> New Sale </p>
+                                </a>
+                            </li>
+                        }
+                        @if (@Session["permission"] != null && ((int)@Session["permission"] == 1 || (int)@Session["permission"] == 2))
+                        {//superadmin, admin
+                            <li class="nav-item has-treeview">
+                                <a href="#" class="nav-link">
+                                    <i class="fas fa-chart-line"></i>
+                                    <p> Reports </p>
+                                </a>
+                            </li>
+                        }
+                        @if (@Session["permission"] != null && ((int)@Session["permission"] == 1 || (int)@Session["permission"] == 2 || (int)@Session["permission"] == 3 || (int)@Session["permission"] == 5))
+                        {//superadmin, admin, supervisor, seller
+                            <li class="nav-item has-treeview">
+                                <a href="#" class="nav-link">
+                                    <i class="fas fa-shopping-cart"></i>
+                                    <p>
+                                        Sale Options
+                                        <i class="fas fa-angle-left right"></i>
+                                    </p>
+                                </a>
+                                <ul class="nav nav-treeview">
+                                    <li class="nav-item">
+                                        <a href="../Sales/Index" class="nav-link">
+                                            <i class="fas fa-shopping-cart"></i>
+                                            <p>Sales</p>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a href="../Payments/Index" class="nav-link">
+                                            <i class="fas fa-cash-register"></i>
+                                            <p>Payments</p>
+                                        </a>
+                                    </li>
+                                    @if (@Session["permission"] != null && ((int)@Session["permission"] == 1 || (int)@Session["permission"] == 2 || (int)@Session["permission"] == 3))
+                                    {//superadmin, admin, supervisor
                                         <li class="nav-item">
-                                            <a href="../DebitCards/Index" class="nav-link">
+                                            <a href="#" class="nav-link">
                                                 <i class="fas fa-credit-card"></i>
-                                                <p>Debit Cards</p>
+                                                <p>
+                                                    Card
+                                                    <i class="fas fa-angle-left right"></i>
+                                                </p>
                                             </a>
+                                            <ul class="nav nav-treeview">
+                                                <li class="nav-item">
+                                                    <a href="../DebitCards/Index" class="nav-link">
+                                                        <i class="fas fa-credit-card"></i>
+                                                        <p>Debit Cards</p>
+                                                    </a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a href="../CreditCards/Index" class="nav-link">
+                                                        <i class="fas fa-credit-card"></i>
+                                                        <p>Credit Cards</p>
+                                                    </a>
+                                                </li>
+                                            </ul>
                                         </li>
-                                        <li class="nav-item">
-                                            <a href="../CreditCards/Index" class="nav-link">
-                                                <i class="fas fa-credit-card"></i>
-                                                <p>Credit Cards</p>
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </li>
-                            </ul>
-                        </li>
+                                    }
+                                </ul>
+                            </li>
+                        }
 
                         @if (@Session["permission"] != null && ((int)@Session["permission"] == 1 || (int)@Session["permission"] == 2 || (int)@Session["permission"] == 3 || (int)@Session["permission"] == 4))
                         {  //superadmin or admin or supervisor or stockist
@@ -164,7 +176,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
                             </li>
                         }
 
-                        @if (@Session["permission"] != null && ((int)@Session["permission"] == 1 || (int)@Session["permission"] == 2 )) //superadmin or admin
+                        @if (@Session["permission"] != null && ((int)@Session["permission"] == 1 || (int)@Session["permission"] == 2)) //superadmin or admin
                         {
                             <li class="nav-item has-treeview">
                                 <a href="#" class="nav-link">

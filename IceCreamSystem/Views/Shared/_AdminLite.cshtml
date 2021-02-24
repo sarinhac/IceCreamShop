@@ -64,139 +64,149 @@ scratch. This page gets rid of all links and provides the needed markup only.
                 <!-- Sidebar Menu -->
                 <nav class="mt-2">
                     <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
-                        <li class="nav-item has-treeview menu-open">
-                            <a href="../Sales/Create" class="nav-link active">
-                                <i class="fas fa-cart-plus"></i>
-                                <p> New Sale </p>
-                            </a>
-                        </li>
-                        <li class="nav-item has-treeview">
-                            <a href="#" class="nav-link">
-                                <i class="fas fa-chart-line"></i>
-                                <p> Reports </p>
-                            </a>
-                        </li>
-                        <li class="nav-item has-treeview">
-                            <a href="#" class="nav-link">
-                                <i class="fas fa-shopping-cart"></i>
-                                <p>
-                                    Sale Options
-                                    <i class="fas fa-angle-left right"></i>
-                                </p>
-                            </a>
-                            <ul class="nav nav-treeview">
-                                <li class="nav-item">
-                                    <a href="../Sales/Index" class="nav-link">
-                                        <i class="fas fa-shopping-cart"></i>
-                                        <p>Sales</p>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="../Payments/Index" class="nav-link">
-                                        <i class="fas fa-cash-register"></i>
-                                        <p>Payments</p>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="#" class="nav-link">
-                                        <i class="fas fa-credit-card"></i>
-                                        <p>
-                                            Card
-                                            <i class="fas fa-angle-left right"></i>
-                                        </p>
-                                    </a>
-                                    <ul class="nav nav-treeview">
-                                        <li class="nav-item">
-                                            <a href="../DebitCards/Index" class="nav-link">
-                                                <i class="fas fa-credit-card"></i>
-                                                <p>Debit Cards</p>
-                                            </a>
-                                        </li>
-                                        <li class="nav-item">
-                                            <a href="../CreditCards/Index" class="nav-link">
-                                                <i class="fas fa-credit-card"></i>
-                                                <p>Credit Cards</p>
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </li>
-                            </ul>
-                        </li>
+                        @if (@Session["permission"] != null && ((int)@Session["permission"] == 1 || (int)@Session["permission"] == 2 || (int)@Session["permission"] == 3 || (int)@Session["permission"] == 5))
+                        {//superadmin, admin, supervisor, seller
+            <li class="nav-item has-treeview menu-open">
+                <a href="../Sales/Create" class="nav-link active">
+                    <i class="fas fa-cart-plus"></i>
+                    <p> New Sale </p>
+                </a>
+            </li>
+}
+                        @if (@Session["permission"] != null && ((int)@Session["permission"] == 1 || (int)@Session["permission"] == 2))
+                        {//superadmin, admin
+            <li class="nav-item has-treeview">
+                <a href="#" class="nav-link">
+                    <i class="fas fa-chart-line"></i>
+                    <p> Reports </p>
+                </a>
+            </li>
+}
+                        @if (@Session["permission"] != null && ((int)@Session["permission"] == 1 || (int)@Session["permission"] == 2 || (int)@Session["permission"] == 3 || (int)@Session["permission"] == 5))
+                        {//superadmin, admin, supervisor, seller
+            <li class="nav-item has-treeview">
+                <a href="#" class="nav-link">
+                    <i class="fas fa-shopping-cart"></i>
+                    <p>
+                        Sale Options
+                        <i class="fas fa-angle-left right"></i>
+                    </p>
+                </a>
+                <ul class="nav nav-treeview">
+                    <li class="nav-item">
+                        <a href="../Sales/Index" class="nav-link">
+                            <i class="fas fa-shopping-cart"></i>
+                            <p>Sales</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="../Payments/Index" class="nav-link">
+                            <i class="fas fa-cash-register"></i>
+                            <p>Payments</p>
+                        </a>
+                    </li>
+                    @if (@Session["permission"] != null && ((int)@Session["permission"] == 1 || (int)@Session["permission"] == 2 || (int)@Session["permission"] == 3))
+                    {//superadmin, admin, supervisor
+    <li class="nav-item">
+        <a href="#" class="nav-link">
+            <i class="fas fa-credit-card"></i>
+            <p>
+                Card
+                <i class="fas fa-angle-left right"></i>
+            </p>
+        </a>
+        <ul class="nav nav-treeview">
+            <li class="nav-item">
+                <a href="../DebitCards/Index" class="nav-link">
+                    <i class="fas fa-credit-card"></i>
+                    <p>Debit Cards</p>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="../CreditCards/Index" class="nav-link">
+                    <i class="fas fa-credit-card"></i>
+                    <p>Credit Cards</p>
+                </a>
+            </li>
+        </ul>
+    </li>
+}
+                </ul>
+            </li>
+}
 
                         @if (@Session["permission"] != null && ((int)@Session["permission"] == 1 || (int)@Session["permission"] == 2 || (int)@Session["permission"] == 3 || (int)@Session["permission"] == 4))
-                        {
-                            <li class="nav-item has-treeview">
-                                <a href="#" class="nav-link">
-                                    <i class="fas fa-tags"></i>
-                                    <p>
-                                        Product Options
-                                        <i class="fas fa-angle-left right"></i>
-                                    </p>
-                                </a>
-                                <ul class="nav nav-treeview">
-                                    <li class="nav-item">
-                                        <a href="../Products/Index" class="nav-link">
-                                            <i class="fas fa-tags"></i>
-                                            <p>Products</p>
-                                        </a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a href="../UnitMeasures/Index" class="nav-link">
-                                            <i class="fas fa-weight"></i>
-                                            <p>Unit Measures</p>
-                                        </a>
-                                    </li>
+                        {//superadmin, admin, supervisor and stockist
+            <li class="nav-item has-treeview">
+                <a href="#" class="nav-link">
+                    <i class="fas fa-tags"></i>
+                    <p>
+                        Product Options
+                        <i class="fas fa-angle-left right"></i>
+                    </p>
+                </a>
+                <ul class="nav nav-treeview">
+                    <li class="nav-item">
+                        <a href="../Products/Index" class="nav-link">
+                            <i class="fas fa-tags"></i>
+                            <p>Products</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="../UnitMeasures/Index" class="nav-link">
+                            <i class="fas fa-weight"></i>
+                            <p>Unit Measures</p>
+                        </a>
+                    </li>
 
-                                    <li class="nav-item">
-                                        <a href="../Categories/Index" class="nav-link">
-                                            <i class="fas fa-clipboard"></i>
-                                            <p>Categories</p>
-                                        </a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a href="../EntryStocks/Index" class="nav-link">
-                                            <i class="fas fa-cubes"></i>
-                                            <p>Stock</p>
-                                        </a>
-                                    </li>
+                    <li class="nav-item">
+                        <a href="../Categories/Index" class="nav-link">
+                            <i class="fas fa-clipboard"></i>
+                            <p>Categories</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="../EntryStocks/Index" class="nav-link">
+                            <i class="fas fa-cubes"></i>
+                            <p>Stock</p>
+                        </a>
+                    </li>
 
-                                </ul>
-                            </li>
-                        }
+                </ul>
+            </li>}
 
                         @if (@Session["permission"] != null && ((int)@Session["permission"] == 1 || (int)@Session["permission"] == 2)) //superadmin or admin
                         {
-                            <li class="nav-item has-treeview">
-                                <a href="#" class="nav-link">
-                                    <i class="fas fa-store"></i>
-                                    <p>
-                                        Company Options
-                                        <i class="fas fa-angle-left right"></i>
-                                    </p>
-                                </a>
-                                <ul class="nav nav-treeview">
-                                    <li class="nav-item">
-                                        <a href="../Companies/Index" class="nav-link">
-                                            <i class="fas fa-store"></i>
-                                            <p>Company</p>
-                                        </a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a href="../Employees/Index" class="nav-link">
-                                            <i class="fas fa-users"></i>
-                                            <p>Employees</p>
-                                        </a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a href="../Offices/Index" class="nav-link">
-                                            <i class="fas fa-paste"></i>
-                                            <p>Offices</p>
-                                        </a>
-                                    </li>
+            <li class="nav-item has-treeview">
+                <a href="#" class="nav-link">
+                    <i class="fas fa-store"></i>
+                    <p>
+                        Company Options
+                        <i class="fas fa-angle-left right"></i>
+                    </p>
+                </a>
+                <ul class="nav nav-treeview">
+                    <li class="nav-item">
+                        <a href="../Companies/Index" class="nav-link">
+                            <i class="fas fa-store"></i>
+                            <p>Company</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="../Employees/Index" class="nav-link">
+                            <i class="fas fa-users"></i>
+                            <p>Employees</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="../Offices/Index" class="nav-link">
+                            <i class="fas fa-paste"></i>
+                            <p>Offices</p>
+                        </a>
+                    </li>
 
-                                </ul>
-                            </li>
-                        }
+                </ul>
+            </li>}
                     </ul>
                 </nav>
                 <!-- /.sidebar-menu -->
@@ -225,30 +235,33 @@ scratch. This page gets rid of all links and provides the needed markup only.
             </div>
             <!-- /.content-header -->
             <!-- Main content -->
-            <div class="content">
+            <section class="content">
                 <div class="container-fluid">
                     <div class="row">
-                        @if (ViewBag.error != null)
-                        {
-            <div class="alert alert-default-danger" role="alert" style="width:100%">
-                @ViewBag.error
-            </div>}
-                        @if (ViewBag.confirm != null)
-                        {
-            <div class="alert alert-default-success" role="alert" style="width:100%">
-                @ViewBag.confirm
-            </div>}
-                        @if (ViewBag.message != null)
-                        {
-            <div class="alert alert-default-info" role="alert" style="width:100%">
-                @ViewBag.message
-            </div>}
-                        @RenderBody()
+                        <div class="col-12">
+                            @if (ViewBag.error != null)
+                            {
+                <div class="alert alert-default-danger" role="alert" style="width:100%">
+                    @ViewBag.error
+                </div>}
+                            @if (ViewBag.confirm != null)
+                            {
+                <div class="alert alert-default-success" role="alert" style="width:100%">
+                    @ViewBag.confirm
+                </div>}
+                            @if (ViewBag.message != null)
+                            {
+                <div class="alert alert-default-info" role="alert" style="width:100%">
+                    @ViewBag.message
+                </div>}
 
-                        <div id="modal" class="modal fade" role="dialog"></div>
+                        </div>
                     </div>
+
+                    @RenderBody()
+                    <div id="modal" class="modal fade" role="dialog"></div>
                 </div>
-            </div><!-- /.container-fluid -->
+            </section><!-- /.container-fluid -->
         </div>
         <!-- /.content -->
         <!-- /.content-wrapper -->

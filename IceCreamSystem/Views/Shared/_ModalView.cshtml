@@ -16,7 +16,8 @@
             {
                 @Html.AntiForgeryToken()
 
-                <div class="form-group">
+            <div class="form-group">
+                <div class="col-md-12">
                     <button type="button" class="btn btn-block bg-gradient-secondary" data-dismiss="modal" aria-hidden="true">Cancelar</button>
                     @if (@ViewBag.Title == "Details" && ((int)@Session["permission"] == 1 || (int)@Session["permission"] == 2 || (int)@Session["permission"] == 3)) //superadmin or admin
                     {
@@ -27,6 +28,7 @@
                         <input type="submit" value="@ViewBag.Title" class="btn btn-@ViewBag.Btn" />
                     }
                 </div>
+            </div>
             }
         </div><!-- /.modal-footer -->
 
