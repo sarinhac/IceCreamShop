@@ -1,9 +1,11 @@
-﻿using System.Data.Entity;
+﻿using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Net;
 using System.Web.Mvc;
 using IceCreamSystem.DBContext;
 using IceCreamSystem.Models;
+using IceCreamSystem.Services;
 
 namespace IceCreamSystem.Controllers
 {
@@ -17,9 +19,42 @@ namespace IceCreamSystem.Controllers
             ViewBag.confirm = TempData["confirm"] != null ? TempData["confirm"].ToString() : null;
             ViewBag.error = TempData["error"] != null ? TempData["error"].ToString() : null;
 
-            var debitCard = db.DebitCard.Include(d => d.Company);
-            return View(debitCard.ToList());
+            try
+            {
+                int idUser = (int)Session["idUser"];
+                int permission = (int)Session["permission"];
+                int idCompany = (int)Session["idCompany"];
+                string userName = (string)Session["username"];
+
+                if (Check.IsLogOn(idUser, permission, idCompany, userName))
+                {
+                    if (Check.IsSuperAdmin(permission))
+                    {
+                        ViewBag.permission = true;
+                        return View(db.DebitCard.Include(c => c.Company).ToList());
+                    }
+                    else if (Check.IsSupervisor(permission))
+                    {
+                        ViewBag.permission = true;
+                        return View(db.DebitCard.Where(c => c.CompanyId == idCompany).Include(c => c.Company).ToList());
+                    }
+                    else
+                    {
+                        TempData["error"] = "YOU DO NOT HAVE PERMISSION";
+                        return RedirectToAction("Home", "Employees");
+                    }
+
+                }
+                else
+                    return RedirectToAction("LogIn", "Employees");
+            }
+            catch
+            {
+                TempData["error"] = "You need to login";
+                return RedirectToAction("LogIn", "Employees");
+            }
         }
+
 
         public ActionResult Details(int? id)
         {
@@ -27,18 +62,75 @@ namespace IceCreamSystem.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            DebitCard debitCard = db.DebitCard.Find(id);
-            if (debitCard == null)
+            try
             {
-                return HttpNotFound();
+                int idUser = (int)Session["idUser"];
+                int permission = (int)Session["permission"];
+                int idCompany = (int)Session["idCompany"];
+                string userName = (string)Session["username"];
+
+                if (Check.IsLogOn(idUser, permission, idCompany, userName))
+                {
+                    DebitCard debitCard = db.DebitCard.Find(id);
+                    if (debitCard == null)
+                    {
+                        return HttpNotFound();
+                    }
+
+                    if (Check.IsSuperAdmin(permission) || (Check.IsSupervisor(permission) && Check.IsSameCompany(idCompany, debitCard.CompanyId)))
+                        return View(debitCard);
+                    else
+                    {
+                        TempData["error"] = "YOU DO NOT HAVE PERMISSION";
+                        return RedirectToAction("Home", "Employees");
+                    }
+                }
+                else
+                    return RedirectToAction("LogIn", "Employees");
             }
-            return View(debitCard);
+            catch
+            {
+                TempData["error"] = "You need to login";
+                return RedirectToAction("LogIn", "Employees");
+            }
         }
 
         public ActionResult Create()
         {
-            ViewBag.CompanyId = new SelectList(db.Company, "IdCompany", "NameCompany");
-            return View();
+            try
+            {
+                int idUser = (int)Session["idUser"];
+                int permission = (int)Session["permission"];
+                int idCompany = (int)Session["idCompany"];
+                string userName = (string)Session["username"];
+
+                if (Check.IsLogOn(idUser, permission, idCompany, userName))
+                {
+                    if (Check.IsSuperAdmin(permission))
+                        ViewBag.CompanyId = new SelectList(db.Company, "IdCompany", "NameCompany");
+                    else if (Check.IsSupervisor(permission))
+                    {
+                        Company company = db.Company.Where(c => c.IdCompany == idCompany).FirstOrDefault();
+                        List<Company> companies = new List<Company>();
+                        companies.Add(company);
+                        ViewBag.CompanyId = new SelectList(companies, "IdCompany", "NameCompany", idCompany);
+                    }
+                    else
+                    {
+                        TempData["error"] = "YOU DO NOT HAVE PERMISSION";
+                        return RedirectToAction("Home", "Employees");
+                    }
+
+                    return View();
+                }
+                else
+                    return RedirectToAction("LogIn", "Employees");
+            }
+            catch
+            {
+                TempData["error"] = "You need to login";
+                return RedirectToAction("LogIn", "Employees");
+            }
         }
 
         [HttpPost]
@@ -55,7 +147,7 @@ namespace IceCreamSystem.Controllers
                     {
                         try
                         {
-                            int idUser = 1;// (int)Session["idUser"]; //who is login
+                            int idUser = (int)Session["idUser"]; //who is login
 
                             db.DebitCard.Add(debitCard);
                             db.SaveChanges();
@@ -101,13 +193,46 @@ namespace IceCreamSystem.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            DebitCard debitCard = db.DebitCard.Find(id);
-            if (debitCard == null)
+            try
             {
-                return HttpNotFound();
+                int idUser = (int)Session["idUser"];
+                int permission = (int)Session["permission"];
+                int idCompany = (int)Session["idCompany"];
+                string userName = (string)Session["username"];
+
+                if (Check.IsLogOn(idUser, permission, idCompany, userName))
+                {
+                    DebitCard debitCard = db.DebitCard.Find(id);
+                    if (debitCard == null)
+                    {
+                        return HttpNotFound();
+                    }
+
+                    if (Check.IsSuperAdmin(permission))
+                        ViewBag.CompanyId = new SelectList(db.Company, "IdCompany", "NameCompany");
+                    else if (Check.IsSupervisor(permission) && Check.IsSameCompany(idCompany, debitCard.CompanyId))
+                    {
+                        Company company = db.Company.Where(c => c.IdCompany == idCompany).FirstOrDefault();
+                        List<Company> companies = new List<Company>();
+                        companies.Add(company);
+                        ViewBag.CompanyId = new SelectList(companies, "IdCompany", "NameCompany", idCompany);
+                    }
+                    else
+                    {
+                        TempData["error"] = "YOU DO NOT HAVE PERMISSION";
+                        return RedirectToAction("Home", "Employees");
+                    }
+
+                    return View(debitCard);
+                }
+                else
+                    return RedirectToAction("LogIn", "Employees");
             }
-            ViewBag.CompanyId = new SelectList(db.Company, "IdCompany", "NameCompany", debitCard.CompanyId);
-            return View(debitCard);
+            catch
+            {
+                TempData["error"] = "You need to login";
+                return RedirectToAction("LogIn", "Employees");
+            }
         }
 
         [HttpPost]
@@ -127,7 +252,7 @@ namespace IceCreamSystem.Controllers
                 {
                     using (var trans = db.Database.BeginTransaction())
                     {
-                        int idUser =  (int)Session["idUser"]; //who is login
+                        int idUser = (int)Session["idUser"]; //who is login
                         try
                         {
                             Log log = new Log
@@ -176,12 +301,37 @@ namespace IceCreamSystem.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            DebitCard debitCard = db.DebitCard.Find(id);
-            if (debitCard == null)
+            try
             {
-                return HttpNotFound();
+                int idUser = (int)Session["idUser"];
+                int permission = (int)Session["permission"];
+                int idCompany = (int)Session["idCompany"];
+                string userName = (string)Session["username"];
+
+                if (Check.IsLogOn(idUser, permission, idCompany, userName))
+                {
+                    DebitCard debitCard = db.DebitCard.Find(id);
+                    if (debitCard == null)
+                    {
+                        return HttpNotFound();
+                    }
+
+                    if (Check.IsSuperAdmin(permission) || (Check.IsSupervisor(permission) && Check.IsSameCompany(idCompany, debitCard.CompanyId)))
+                        return View(debitCard);
+                    else
+                    {
+                        TempData["error"] = "YOU DO NOT HAVE PERMISSION";
+                        return RedirectToAction("Home", "Employees");
+                    }
+                }
+                else
+                    return RedirectToAction("LogIn", "Employees");
             }
-            return View(debitCard);
+            catch
+            {
+                TempData["error"] = "You need to login";
+                return RedirectToAction("LogIn", "Employees");
+            }
         }
 
         [HttpPost, ActionName("Delete")]
@@ -191,7 +341,7 @@ namespace IceCreamSystem.Controllers
             DebitCard debitCard = db.DebitCard.Find(id);
             using (var trans = db.Database.BeginTransaction())
             {
-                int idUser =  (int)Session["idUser"]; //who is login
+                int idUser = (int)Session["idUser"]; //who is login
                 try
                 {
                     debitCard.DeactivateDebitCard();
@@ -225,12 +375,37 @@ namespace IceCreamSystem.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            DebitCard debitCard = db.DebitCard.Find(id);
-            if (debitCard == null)
+            try
             {
-                return HttpNotFound();
+                int idUser = (int)Session["idUser"];
+                int permission = (int)Session["permission"];
+                int idCompany = (int)Session["idCompany"];
+                string userName = (string)Session["username"];
+
+                if (Check.IsLogOn(idUser, permission, idCompany, userName))
+                {
+                    DebitCard debitCard = db.DebitCard.Find(id);
+                    if (debitCard == null)
+                    {
+                        return HttpNotFound();
+                    }
+
+                    if (Check.IsSuperAdmin(permission) || (Check.IsSupervisor(permission) && Check.IsSameCompany(idCompany, debitCard.CompanyId)))
+                        return View(debitCard);
+                    else
+                    {
+                        TempData["error"] = "YOU DO NOT HAVE PERMISSION";
+                        return RedirectToAction("Home", "Employees");
+                    }
+                }
+                else
+                    return RedirectToAction("LogIn", "Employees");
             }
-            return View(debitCard);
+            catch
+            {
+                TempData["error"] = "You need to login";
+                return RedirectToAction("LogIn", "Employees");
+            }
         }
 
         [HttpPost, ActionName("Active")]

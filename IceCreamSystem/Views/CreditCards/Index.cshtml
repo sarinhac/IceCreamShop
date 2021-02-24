@@ -27,51 +27,51 @@
             <th></th>
         </tr>
     </thead>
-
-    @foreach (var item in Model)
-    {
-        <tr role="row">
-            @if (@Session["permission"] != null && (int)@Session["permission"] == 1)
-            {
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr role="row">
+                @if (@Session["permission"] != null && (int)@Session["permission"] == 1)
+                {
+                    <td class="sorting_1" tabindex="0">
+                        @Html.DisplayFor(modelItem => item.Company.NameCompany)
+                    </td>
+                }
                 <td class="sorting_1" tabindex="0">
-                    @Html.DisplayFor(modelItem => item.Company.NameCompany)
+                    @Html.DisplayFor(modelItem => item.NameCreditCard)
                 </td>
-            }
-            <td class="sorting_1" tabindex="0">
-                @Html.DisplayFor(modelItem => item.NameCreditCard)
-            </td>
-            <td class="sorting_1" tabindex="0">
-                @Html.DisplayFor(modelItem => item.RateCreditCard) %
-            </td>
-            <td>
-                @if (item.Status != 0)
-                {
-                    <div class="badge badge-success">@Html.DisplayFor(modelItem => item.Status)</div> //green when actived
-                }
-                else
-                {
-                    <div class="badge badge-danger">@Html.DisplayFor(modelItem => item.Status)</div>//red when desactived
-                }
-            </td>
-            <td>
-                <div class="btn-group pull-center d-lg-inline">
-                    <a class="btn btn-block bg-gradient-info d-lg-inline details" data-toggle="modal" data-target="#modal" data-url="@Url.Action("Details", "CreditCards", new { id = item.IdCreditCard })"> <i class="fas fa-info-circle"></i> Details </a>
-                    <a class="btn btn-block bg-gradient-warning d-lg-inline" href="@Url.Action("Edit", "CreditCards", new { id = item.IdCreditCard })"> <i class="fas fa-edit"></i> Edit </a>
-
+                <td class="sorting_1" tabindex="0">
+                    @Html.DisplayFor(modelItem => item.RateCreditCard) %
+                </td>
+                <td>
                     @if (item.Status != 0)
                     {
-                        //Red for delete btn
-                        <a class="btn btn-block bg-gradient-danger d-lg-inline delete" data-toggle="modal" data-target="#modal" data-url="@Url.Action("Delete", "CreditCards", new { id = item.IdCreditCard })"> <i class="fas fa-trash-alt"></i> Delete </a>
+                        <div class="badge badge-success">@Html.DisplayFor(modelItem => item.Status)</div> //green when actived
                     }
                     else
                     {
-                        //Green for active btn
-                        <a class="btn btn-block bg-gradient-success d-lg-inline active" data-toggle="modal" data-target="#modal" data-url="@Url.Action("Active", "CreditCards", new { id = item.IdCreditCard })"> <i class="fas fa-history"></i> Active </a>
+                        <div class="badge badge-danger">@Html.DisplayFor(modelItem => item.Status)</div>//red when desactived
                     }
-                </div>
-            </td>
-        </tr>
-    }
+                </td>
+                <td>
+                    <div class="btn-group pull-center d-lg-inline">
+                        <a class="btn btn-block bg-gradient-info d-lg-inline details" data-toggle="modal" data-target="#modal" data-url="@Url.Action("Details", "CreditCards", new { id = item.IdCreditCard })"> <i class="fas fa-info-circle"></i> Details </a>
+                        <a class="btn btn-block bg-gradient-warning d-lg-inline" href="@Url.Action("Edit", "CreditCards", new { id = item.IdCreditCard })"> <i class="fas fa-edit"></i> Edit </a>
 
+                        @if (item.Status != 0)
+                        {
+                            //Red for delete btn
+                            <a class="btn btn-block bg-gradient-danger d-lg-inline delete" data-toggle="modal" data-target="#modal" data-url="@Url.Action("Delete", "CreditCards", new { id = item.IdCreditCard })"> <i class="fas fa-trash-alt"></i> Delete </a>
+                        }
+                        else
+                        {
+                            //Green for active btn
+                            <a class="btn btn-block bg-gradient-success d-lg-inline active" data-toggle="modal" data-target="#modal" data-url="@Url.Action("Active", "CreditCards", new { id = item.IdCreditCard })"> <i class="fas fa-history"></i> Active </a>
+                        }
+                    </div>
+                </td>
+            </tr>
+        }
+    </tbody>
 </table>
 

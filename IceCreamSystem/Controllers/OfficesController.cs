@@ -1,9 +1,11 @@
-﻿using System.Data.Entity;
+﻿using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Net;
 using System.Web.Mvc;
 using IceCreamSystem.DBContext;
 using IceCreamSystem.Models;
+using IceCreamSystem.Services;
 
 namespace IceCreamSystem.Controllers
 {
@@ -17,8 +19,39 @@ namespace IceCreamSystem.Controllers
             ViewBag.confirm = TempData["confirm"] != null ? TempData["confirm"].ToString() : null;
             ViewBag.error = TempData["error"] != null ? TempData["error"].ToString() : null;
 
-            var office = db.Office.Include(o => o.Company);
-            return View(office.ToList());
+            try
+            {
+                int idUser = (int)Session["idUser"];
+                int permission = (int)Session["permission"];
+                int idCompany = (int)Session["idCompany"];
+                string userName = (string)Session["username"];
+
+                if (Check.IsLogOn(idUser, permission, idCompany, userName))
+                {
+                    if (Check.IsSuperAdmin(permission))
+                    {
+                        ViewBag.permission = true;
+                        return View(db.Office.Include(c => c.Company).ToList());
+                    }
+                    else if (Check.IsAdmin(permission))
+                    {
+                        ViewBag.permission = true;
+                        return View(db.Office.Where(o=> o.CompanyId == idCompany).Include(c => c.Company).ToList());
+                    }
+                    else
+                    {
+                        TempData["error"] = "YOU DO NOT HAVE PERMISSION";
+                        return RedirectToAction("Home", "Employees");
+                    }
+                }
+                else
+                    return RedirectToAction("LogIn", "Employees");
+            }
+            catch
+            {
+                TempData["error"] = "You need to login";
+                return RedirectToAction("LogIn", "Employees");
+            }
         }
 
         public ActionResult Details(int? id)
@@ -27,18 +60,74 @@ namespace IceCreamSystem.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Office office = db.Office.Find(id);
-            if (office == null)
+            try
             {
-                return HttpNotFound();
+                int idUser = (int)Session["idUser"];
+                int permission = (int)Session["permission"];
+                int idCompany = (int)Session["idCompany"];
+                string userName = (string)Session["username"];
+
+                if (Check.IsLogOn(idUser, permission, idCompany, userName))
+                {
+                    Office office = db.Office.Find(id);
+
+                    if (office == null)
+                    {
+                        return HttpNotFound();
+                    }
+                    else if (Check.IsSuperAdmin(permission) || (Check.IsAdmin(permission) && idCompany == office.CompanyId))
+                        return View(office);
+                    else
+                    {
+                        TempData["error"] = "YOU DO NOT HAVE PERMISSION";
+                        return RedirectToAction("Index");
+                    }
+                }
+                else
+                    return RedirectToAction("LogIn", "Employees");
             }
-            return View(office);
+            catch
+            {
+                TempData["error"] = "You need to login";
+                return RedirectToAction("LogIn", "Employees");
+            }
         }
 
         public ActionResult Create()
         {
-            ViewBag.CompanyId = new SelectList(db.Company, "IdCompany", "NameCompany");
-            return View();
+            try
+            {
+                int idUser = (int)Session["idUser"];
+                int permission = (int)Session["permission"];
+                int idCompany = (int)Session["idCompany"];
+                string userName = (string)Session["username"];
+
+                if (Check.IsLogOn(idUser, permission, idCompany, userName))
+                {
+                    if (Check.IsSuperAdmin(permission))
+                        ViewBag.CompanyId = new SelectList(db.Company, "IdCompany", "NameCompany");
+                    else if (Check.IsAdmin(permission))
+                    {
+                        Company company = db.Company.Where(c => c.IdCompany == idCompany).FirstOrDefault();
+                        List<Company> companies = new List<Company>();
+                        companies.Add(company);
+                        ViewBag.CompanyId = new SelectList(companies, "IdCompany", "NameCompany", idCompany);
+                    }
+                    else
+                    {
+                        TempData["error"] = "YOU DO NOT HAVE PERMISSION";
+                        return RedirectToAction("Index");
+                    }
+                    return View();
+                }
+                else
+                    return RedirectToAction("LogIn", "Employees");
+            }
+            catch
+            {
+                TempData["error"] = "You need to login";
+                return RedirectToAction("LogIn", "Employees");
+            }
         }
 
         [HttpPost]
@@ -63,7 +152,7 @@ namespace IceCreamSystem.Controllers
                             Log log = new Log
                             {
                                 //[C] in DB refers to an Create
-                                New = "[C]" + office.NameOffice + " " + office.DescriptionOffice,
+                                New = "[C]" + office.NameOffice + " " + office.DescriptionOffice + " " + office.Discount,
                                 Who = idUser,
                                 OfficeId = office.IdOffice
                             };
@@ -101,13 +190,46 @@ namespace IceCreamSystem.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Office office = db.Office.Find(id);
-            if (office == null)
+            try
             {
-                return HttpNotFound();
+                int idUser = (int)Session["idUser"];
+                int permission = (int)Session["permission"];
+                int idCompany = (int)Session["idCompany"];
+                string userName = (string)Session["username"];
+
+                if (Check.IsLogOn(idUser, permission, idCompany, userName))
+                {
+                    Office office = db.Office.Find(id);
+
+                    if (office == null)
+                    {
+                        return HttpNotFound();
+                    }
+
+                    if (Check.IsSuperAdmin(permission))
+                        ViewBag.CompanyId = new SelectList(db.Company, "IdCompany", "NameCompany");
+                    else if (Check.IsAdmin(permission) && idCompany == office.CompanyId)
+                    {
+                        Company company = db.Company.Where(c => c.IdCompany == idCompany).FirstOrDefault();
+                        List<Company> companies = new List<Company>();
+                        companies.Add(company);
+                        ViewBag.CompanyId = new SelectList(companies, "IdCompany", "NameCompany", idCompany);
+                    }
+                    else
+                    {
+                        TempData["error"] = "YOU DO NOT HAVE PERMISSION";
+                        return RedirectToAction("Index");
+                    }
+                    return View(office);
+                }
+                else
+                    return RedirectToAction("LogIn", "Employees");
             }
-            ViewBag.CompanyId = new SelectList(db.Company, "IdCompany", "NameCompany", office.CompanyId);
-            return View(office);
+            catch
+            {
+                TempData["error"] = "You need to login";
+                return RedirectToAction("LogIn", "Employees");
+            }
         }
 
         [HttpPost]
@@ -133,14 +255,15 @@ namespace IceCreamSystem.Controllers
                             Log log = new Log
                             {
                                 //[U] in DB refers to an Update
-                                New = "[U]" + office.NameOffice + " " + office.DescriptionOffice,
-                                Old = oldOffice.NameOffice + " " + oldOffice.DescriptionOffice,
+                                New = "[U]" + office.NameOffice + " " + office.DescriptionOffice + " " + office.Discount,
+                                Old = oldOffice.NameOffice + " " + oldOffice.DescriptionOffice + " " + oldOffice.Discount,
                                 Who = idUser,
                                 OfficeId = oldOffice.IdOffice
                             };
 
                             oldOffice.NameOffice = office.NameOffice;
                             oldOffice.DescriptionOffice = office.DescriptionOffice;
+                            oldOffice.Discount = office.Discount;
                             db.SaveChanges();
 
                             db.Log.Add(log);
@@ -175,12 +298,38 @@ namespace IceCreamSystem.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Office office = db.Office.Find(id);
-            if (office == null)
+            try
             {
-                return HttpNotFound();
+                int idUser = (int)Session["idUser"];
+                int permission = (int)Session["permission"];
+                int idCompany = (int)Session["idCompany"];
+                string userName = (string)Session["username"];
+
+                if (Check.IsLogOn(idUser, permission, idCompany, userName))
+                {
+                    Office office = db.Office.Find(id);
+
+                    if (office == null)
+                    {
+                        return HttpNotFound();
+                    }
+
+                    if (Check.IsSuperAdmin(permission) || (Check.IsAdmin(permission) && idCompany == office.CompanyId))
+                        return View(office);
+                    else
+                    {
+                        TempData["error"] = "YOU DO NOT HAVE PERMISSION";
+                        return RedirectToAction("Index");
+                    }
+                }
+                else
+                    return RedirectToAction("LogIn", "Employees");
             }
-            return View(office);
+            catch
+            {
+                TempData["error"] = "You need to login";
+                return RedirectToAction("LogIn", "Employees");
+            }
         }
 
         [HttpPost, ActionName("Delete")]
@@ -227,12 +376,38 @@ namespace IceCreamSystem.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Office office = db.Office.Find(id);
-            if (office == null)
+            try
             {
-                return HttpNotFound();
+                int idUser = (int)Session["idUser"];
+                int permission = (int)Session["permission"];
+                int idCompany = (int)Session["idCompany"];
+                string userName = (string)Session["username"];
+
+                if (Check.IsLogOn(idUser, permission, idCompany, userName))
+                {
+                    Office office = db.Office.Find(id);
+
+                    if (office == null)
+                    {
+                        return HttpNotFound();
+                    }
+
+                    if (Check.IsSuperAdmin(permission) || (Check.IsAdmin(permission) && idCompany == office.CompanyId))
+                        return View(office);
+                    else
+                    {
+                        TempData["error"] = "YOU DO NOT HAVE PERMISSION";
+                        return RedirectToAction("Index");
+                    }
+                }
+                else
+                    return RedirectToAction("LogIn", "Employees");
             }
-            return View(office);
+            catch
+            {
+                TempData["error"] = "You need to login";
+                return RedirectToAction("LogIn", "Employees");
+            }
         }
 
         [HttpPost, ActionName("Active")]

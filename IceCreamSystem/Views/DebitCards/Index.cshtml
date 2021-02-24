@@ -5,69 +5,72 @@
     ViewBag.Title = "DebitCards";
 }
 
-<table class="table table-bordered table-striped dataTable dtr-inline" style="width:100%" role="grid">
-    <tr>
-        @if (@Session["permission"] != null && @Session["permission"].ToString().Equals("1"))
-        {
-            <th>
-                @Html.DisplayNameFor(model => model.Company.NameCompany)
-            </th>
-        }
-        <th>
-            @Html.DisplayNameFor(model => model.NameDebitCard)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.Rate)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.Status)
-        </th>
-        <th></th>
-    </tr>
-
-    @foreach (var item in Model)
-    {
+<table id="example1" class="table table-bordered table-striped dataTable dtr-inline collapsed" style="width:100%" role="grid" aria-describedby="example1_info">
+    <thead>
         <tr>
-            @if (@Session["permission"] != null && @Session["permission"].ToString().Equals("1"))
+            @if (@Session["permission"] != null && (int)@Session["permission"] == 1)
             {
-                <td>
-                    @Html.DisplayFor(modelItem => item.Company.NameCompany)
-                </td>
+                <th class="sorting_asc" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Rendering engine: activate to sort column descending">
+                    @Html.DisplayNameFor(model => model.Company.NameCompany)
+                </th>
             }
-            <td>
-                @Html.DisplayFor(modelItem => item.NameDebitCard)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Rate)
-            </td>
-            <td>
-                @if (item.Status != 0)
+            <th class="sorting_asc" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Rendering engine: activate to sort column descending">
+                @Html.DisplayNameFor(model => model.NameDebitCard)
+            </th>
+            <th class="sorting_asc" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Rendering engine: activate to sort column descending">
+                @Html.DisplayNameFor(model => model.Rate)
+            </th>
+            <th class="sorting_asc" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Rendering engine: activate to sort column descending">
+                @Html.DisplayNameFor(model => model.Status)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                @if (@Session["permission"] != null && (int)@Session["permission"] == 1)
                 {
-                    <div class="badge badge-success">@Html.DisplayFor(modelItem => item.Status)</div> //green when actived
+                    <td class="sorting_1" tabindex="0">
+                        @Html.DisplayFor(modelItem => item.Company.NameCompany)
+                    </td>
                 }
-                else
-                {
-                    <div class="badge badge-danger">@Html.DisplayFor(modelItem => item.Status)</div>//red when desactived
-                }
-            </td>
-            <td>
-                <div class="btn-group pull-center d-lg-inline">
-                    <a class="btn btn-block bg-gradient-info d-lg-inline details" data-toggle="modal" data-target="#modal" data-url="@Url.Action("Details", "DebitCards", new { id = item.IdDebitCard })"> <i class="fas fa-info-circle"></i> Details </a>
-                    <a class="btn btn-block bg-gradient-warning d-lg-inline" href="@Url.Action("Edit", "DebitCards", new { id = item.IdDebitCard })"> <i class="fas fa-edit"></i> Edit </a>
-
+                <td class="sorting_1" tabindex="0">
+                    @Html.DisplayFor(modelItem => item.NameDebitCard)
+                </td>
+                <td class="sorting_1" tabindex="0">
+                    @Html.DisplayFor(modelItem => item.Rate)
+                </td>
+                <td>
                     @if (item.Status != 0)
                     {
-                        //Red for delete btn
-                        <a class="btn btn-block bg-gradient-danger d-lg-inline delete" data-toggle="modal" data-target="#modal" data-url="@Url.Action("Delete", "DebitCards", new { id = item.IdDebitCard })"> <i class="fas fa-trash-alt"></i> Delete </a>
+                        <div class="badge badge-success">@Html.DisplayFor(modelItem => item.Status)</div> //green when actived
                     }
                     else
                     {
-                        //Green for active btn
-                        <a class="btn btn-block bg-gradient-success d-lg-inline active" data-toggle="modal" data-target="#modal" data-url="@Url.Action("Active", "DebitCards", new { id = item.IdDebitCard })"> <i class="fas fa-history"></i> Active </a>
+                        <div class="badge badge-danger">@Html.DisplayFor(modelItem => item.Status)</div>//red when desactived
                     }
-                </div>
-            </td>
-        </tr>
-    }
+                </td>
+                <td>
+                    <div class="btn-group pull-center d-lg-inline">
+                        <a class="btn btn-block bg-gradient-info d-lg-inline details" data-toggle="modal" data-target="#modal" data-url="@Url.Action("Details", "DebitCards", new { id = item.IdDebitCard })"> <i class="fas fa-info-circle"></i> Details </a>
+                        <a class="btn btn-block bg-gradient-warning d-lg-inline" href="@Url.Action("Edit", "DebitCards", new { id = item.IdDebitCard })"> <i class="fas fa-edit"></i> Edit </a>
 
+                        @if (item.Status != 0)
+                        {
+                            //Red for delete btn
+                            <a class="btn btn-block bg-gradient-danger d-lg-inline delete" data-toggle="modal" data-target="#modal" data-url="@Url.Action("Delete", "DebitCards", new { id = item.IdDebitCard })"> <i class="fas fa-trash-alt"></i> Delete </a>
+                        }
+                        else
+                        {
+                            //Green for active btn
+                            <a class="btn btn-block bg-gradient-success d-lg-inline active" data-toggle="modal" data-target="#modal" data-url="@Url.Action("Active", "DebitCards", new { id = item.IdDebitCard })"> <i class="fas fa-history"></i> Active </a>
+                        }
+                    </div>
+                </td>
+            </tr>
+
+        }
+    </tbody>
 </table>
