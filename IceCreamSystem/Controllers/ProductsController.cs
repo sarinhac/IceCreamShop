@@ -1,10 +1,12 @@
-﻿using System.Data;
+﻿using System.Collections.Generic;
+using System.Data;
 using System.Data.Entity;
 using System.Linq;
 using System.Net;
 using System.Web.Mvc;
 using IceCreamSystem.DBContext;
 using IceCreamSystem.Models;
+using IceCreamSystem.Services;
 
 namespace IceCreamSystem.Controllers
 {
@@ -17,9 +19,45 @@ namespace IceCreamSystem.Controllers
             ViewBag.message = TempData["message"] != null ? TempData["message"].ToString() : null;
             ViewBag.confirm = TempData["confirm"] != null ? TempData["confirm"].ToString() : null;
             ViewBag.error = TempData["error"] != null ? TempData["error"].ToString() : null;
+            ViewBag.message = TempData["message"] != null ? TempData["message"].ToString() : null;
+            ViewBag.confirm = TempData["confirm"] != null ? TempData["confirm"].ToString() : null;
+            ViewBag.error = TempData["error"] != null ? TempData["error"].ToString() : null;
 
-            var product = db.Product.Include(p => p.Category).Include(p => p.Company).Include(p => p.UnitMeasure);
-            return View(product.ToList());
+            try
+            {
+                int idUser = (int)Session["idUser"];
+                int permission = (int)Session["permission"];
+                int idCompany = (int)Session["idCompany"];
+                string userName = (string)Session["username"];
+
+                if (Check.IsLogOn(idUser, permission, idCompany, userName))
+                {
+                    if (Check.IsSuperAdmin(permission))
+                    {
+                        ViewBag.permission = true;
+                        return View(db.Product.Include(c => c.Company).Include(p => p.Category).Include(p => p.UnitMeasure).ToList());
+                    }
+                    else if (Check.IsSupervisor(permission))
+                    {
+                        ViewBag.permission = true;
+                        return View(db.Product.Where(c => c.CompanyId == idCompany).Include(c => c.Company).Include(p => p.Category).Include(p => p.UnitMeasure).ToList());
+                    }
+                    else if (Check.IsStockist(permission))
+                        return View(db.Product.Where(c => c.CompanyId == idCompany).Include(c => c.Company).Include(p => p.Category).Include(p => p.UnitMeasure).ToList());
+                    else
+                    {
+                        TempData["error"] = "YOU DO NOT HAVE PERMISSION";
+                        return RedirectToAction("Home", "Employees");
+                    }
+                }
+                else
+                    return RedirectToAction("LogIn", "Employees");
+            }
+            catch
+            {
+                TempData["error"] = "You need to login";
+                return RedirectToAction("LogIn", "Employees");
+            }
         }
 
         public ActionResult Details(int? id)
@@ -28,21 +66,90 @@ namespace IceCreamSystem.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Product product = db.Product.Find(id);
-            if (product == null)
+            try
             {
-                return HttpNotFound();
+                int idUser = (int)Session["idUser"];
+                int permission = (int)Session["permission"];
+                int idCompany = (int)Session["idCompany"];
+                string userName = (string)Session["username"];
+
+                if (Check.IsLogOn(idUser, permission, idCompany, userName))
+                {
+                    Product product = db.Product.Find(id);
+
+                    if (product == null)
+                    {
+                        return HttpNotFound();
+                    }
+                    else if (Check.IsSuperAdmin(permission) || (Check.IsStockist(permission) && idCompany == product.CompanyId))
+                        return View(product);
+                    else
+                    {
+                        TempData["error"] = "YOU DO NOT HAVE PERMISSION";
+                        return RedirectToAction("Index");
+                    }
+                }
+                else
+                    return RedirectToAction("LogIn", "Employees");
             }
-            return View(product);
+            catch
+            {
+                TempData["error"] = "You need to login";
+                return RedirectToAction("LogIn", "Employees");
+            }
         }
 
         public ActionResult Create()
         {
-            ViewBag.CategoryId = new SelectList(db.Category, "IdCategory", "NameCategory");
-            ViewBag.CompanyId = new SelectList(db.Company, "IdCompany", "NameCompany");
-            ViewBag.UnitMeasureId = new SelectList(db.UnitMeasure, "IdUnitMeasure", "NameUnitMeasure");
+            try
+            {
+                int idUser = (int)Session["idUser"];
+                int permission = (int)Session["permission"];
+                int idCompany = (int)Session["idCompany"];
+                string userName = (string)Session["username"];
 
-            return View();
+                if (Check.IsLogOn(idUser, permission, idCompany, userName))
+                {
+                    if (Check.IsSuperAdmin(permission))
+                    {
+                        ViewBag.CategoryId = new SelectList(db.Category, "IdCategory", "NameCategory");
+                        ViewBag.CompanyId = new SelectList(db.Company, "IdCompany", "NameCompany");
+                        ViewBag.UnitMeasureId = new SelectList(db.UnitMeasure, "IdUnitMeasure", "NameUnitMeasure");
+                    }
+                    else if (Check.IsSupervisor(permission))
+                    {
+                        #region Company
+                        Company company = db.Company.Where(c => c.IdCompany == idCompany).FirstOrDefault();
+                        List<Company> companies = new List<Company>();
+                        companies.Add(company);
+                        ViewBag.CompanyId = new SelectList(companies, "IdCompany", "NameCompany", idCompany);
+                        #endregion
+
+                        string text = "-- Select one --";
+                        #region Category
+                        ViewBag.CategoryId = new SelectList(db.Category.Where(c => c.CompanyId == idCompany).ToList(), "IdCategory", "NameCategory", text);
+                        #endregion
+
+                        #region UnitMeasure
+                        ViewBag.UnitMeasureId = new SelectList(db.UnitMeasure.Where(c => c.CompanyId == idCompany).ToList(), "IdUnitMeasure", "NameUnitMeasure", text);
+                        #endregion
+
+                    }
+                    else
+                    {
+                        TempData["error"] = "YOU DO NOT HAVE PERMISSION";
+                        return RedirectToAction("Index");
+                    }
+                    return View();
+                }
+                else
+                    return RedirectToAction("LogIn", "Employees");
+            }
+            catch
+            {
+                TempData["error"] = "You need to login";
+                return RedirectToAction("LogIn", "Employees");
+            }
         }
 
         [HttpPost]
@@ -97,9 +204,29 @@ namespace IceCreamSystem.Controllers
             }
 
         ReturnIfError:
-            ViewBag.CategoryId = new SelectList(db.Category, "IdCategory", "NameCategory", product.CategoryId);
-            ViewBag.CompanyId = new SelectList(db.Company, "IdCompany", "NameCompany", product.CompanyId);
-            ViewBag.UnitMeasureId = new SelectList(db.UnitMeasure, "IdUnitMeasure", "NameUnitMeasure", product.UnitMeasureId);
+            int permission = (int)Session["permission"];
+            int idCompany = (int)Session["idCompany"];
+
+            if (Check.IsSuperAdmin(permission))
+            {
+                ViewBag.CategoryId = new SelectList(db.Category, "IdCategory", "NameCategory", product.CategoryId);
+                ViewBag.CompanyId = new SelectList(db.Company, "IdCompany", "NameCompany", product.CompanyId);
+                ViewBag.UnitMeasureId = new SelectList(db.UnitMeasure, "IdUnitMeasure", "NameUnitMeasure", product.UnitMeasureId);
+            }
+            else if (Check.IsSupervisor(permission) && idCompany == product.CompanyId)
+            {
+                #region Category
+                Company company = db.Company.Where(c => c.IdCompany == idCompany).FirstOrDefault();
+                List<Company> companies = new List<Company>();
+                companies.Add(company);
+                ViewBag.CompanyId = new SelectList(companies, "IdCompany", "NameCompany", product.CompanyId);
+                #endregion
+
+                #region Category and unit measure
+                ViewBag.CategoryId = new SelectList(db.Category.Where(c => c.CompanyId == idCompany).ToList(), "IdCategory", "NameCategory", product.CategoryId);
+                ViewBag.UnitMeasureId = new SelectList(db.UnitMeasure.Where(c => c.CompanyId == idCompany).ToList(), "IdUnitMeasure", "NameUnitMeasure", product.UnitMeasureId);
+                #endregion
+            }
             return View(product);
         }
 
@@ -109,15 +236,57 @@ namespace IceCreamSystem.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Product product = db.Product.Find(id);
-            if (product == null)
+            try
             {
-                return HttpNotFound();
+                int idUser = (int)Session["idUser"];
+                int permission = (int)Session["permission"];
+                int idCompany = (int)Session["idCompany"];
+                string userName = (string)Session["username"];
+
+                if (Check.IsLogOn(idUser, permission, idCompany, userName))
+                {
+                    Product product = db.Product.Find(id);
+
+                    if (product == null)
+                    {
+                        return HttpNotFound();
+                    }
+
+                    if (Check.IsSuperAdmin(permission))
+                    {
+                        ViewBag.CategoryId = new SelectList(db.Category, "IdCategory", "NameCategory", product.CategoryId);
+                        ViewBag.CompanyId = new SelectList(db.Company, "IdCompany", "NameCompany", product.CompanyId);
+                        ViewBag.UnitMeasureId = new SelectList(db.UnitMeasure, "IdUnitMeasure", "NameUnitMeasure", product.UnitMeasureId);
+                    }
+                    else if (Check.IsSupervisor(permission) && idCompany == product.CompanyId)
+                    {
+                        #region Category
+                        Company company = db.Company.Where(c => c.IdCompany == idCompany).FirstOrDefault();
+                        List<Company> companies = new List<Company>();
+                        companies.Add(company);
+                        ViewBag.CompanyId = new SelectList(companies, "IdCompany", "NameCompany", product.CompanyId);
+                        #endregion
+                        
+                        #region Category and unit measure
+                        ViewBag.CategoryId = new SelectList(db.Category.Where(c => c.CompanyId == idCompany).ToList(), "IdCategory", "NameCategory", product.CategoryId);
+                        ViewBag.UnitMeasureId = new SelectList(db.UnitMeasure.Where(c => c.CompanyId == idCompany).ToList(), "IdUnitMeasure", "NameUnitMeasure", product.UnitMeasureId);
+                        #endregion
+                    }
+                    else
+                    {
+                        TempData["error"] = "YOU DO NOT HAVE PERMISSION";
+                        return RedirectToAction("Index");
+                    }
+                    return View(product);
+                }
+                else
+                    return RedirectToAction("LogIn", "Employees");
             }
-            ViewBag.CategoryId = new SelectList(db.Category, "IdCategory", "NameCategory", product.CategoryId);
-            ViewBag.CompanyId = new SelectList(db.Company, "IdCompany", "NameCompany", product.CompanyId);
-            ViewBag.UnitMeasureId = new SelectList(db.UnitMeasure, "IdUnitMeasure", "NameUnitMeasure", product.UnitMeasureId);
-            return View(product);
+            catch
+            {
+                TempData["error"] = "You need to login";
+                return RedirectToAction("LogIn", "Employees");
+            }
         }
 
         [HttpPost]
@@ -184,9 +353,30 @@ namespace IceCreamSystem.Controllers
             }
 
         ReturnIfError:
-            ViewBag.CategoryId = new SelectList(db.Category, "IdCategory", "NameCategory", product.CategoryId);
-            ViewBag.CompanyId = new SelectList(db.Company, "IdCompany", "NameCompany", product.CompanyId);
-            ViewBag.UnitMeasureId = new SelectList(db.UnitMeasure, "IdUnitMeasure", "NameUnitMeasure", product.UnitMeasureId);
+
+            int permission = (int)Session["permission"];
+            int idCompany = (int)Session["idCompany"];
+
+            if (Check.IsSuperAdmin(permission))
+            {
+                ViewBag.CategoryId = new SelectList(db.Category, "IdCategory", "NameCategory", product.CategoryId);
+                ViewBag.CompanyId = new SelectList(db.Company, "IdCompany", "NameCompany", product.CompanyId);
+                ViewBag.UnitMeasureId = new SelectList(db.UnitMeasure, "IdUnitMeasure", "NameUnitMeasure", product.UnitMeasureId);
+            }
+            else if (Check.IsSupervisor(permission) && idCompany == product.CompanyId)
+            {
+                #region Category
+                Company company = db.Company.Where(c => c.IdCompany == idCompany).FirstOrDefault();
+                List<Company> companies = new List<Company>();
+                companies.Add(company);
+                ViewBag.CompanyId = new SelectList(companies, "IdCompany", "NameCompany", product.CompanyId);
+                #endregion
+
+                #region Category and unit measure
+                ViewBag.CategoryId = new SelectList(db.Category.Where(c => c.CompanyId == idCompany).ToList(), "IdCategory", "NameCategory", product.CategoryId);
+                ViewBag.UnitMeasureId = new SelectList(db.UnitMeasure.Where(c => c.CompanyId == idCompany).ToList(), "IdUnitMeasure", "NameUnitMeasure", product.UnitMeasureId);
+                #endregion
+            }
             return View(product);
         }
 
@@ -196,12 +386,38 @@ namespace IceCreamSystem.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Product product = db.Product.Find(id);
-            if (product == null)
+            try
             {
-                return HttpNotFound();
+                int idUser = (int)Session["idUser"];
+                int permission = (int)Session["permission"];
+                int idCompany = (int)Session["idCompany"];
+                string userName = (string)Session["username"];
+
+                if (Check.IsLogOn(idUser, permission, idCompany, userName))
+                {
+                    Product product = db.Product.Find(id);
+
+                    if (product == null)
+                    {
+                        return HttpNotFound();
+                    }
+
+                    if (Check.IsSuperAdmin(permission) || (Check.IsSupervisor(permission) && idCompany == product.CompanyId))
+                        return View(product);
+                    else
+                    {
+                        TempData["error"] = "YOU DO NOT HAVE PERMISSION";
+                        return RedirectToAction("Index");
+                    }
+                }
+                else
+                    return RedirectToAction("LogIn", "Employees");
             }
-            return View(product);
+            catch
+            {
+                TempData["error"] = "You need to login";
+                return RedirectToAction("LogIn", "Employees");
+            }
         }
 
         [HttpPost, ActionName("Delete")]
@@ -247,12 +463,38 @@ namespace IceCreamSystem.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Product product = db.Product.Find(id);
-            if (product == null)
+            try
             {
-                return HttpNotFound();
+                int idUser = (int)Session["idUser"];
+                int permission = (int)Session["permission"];
+                int idCompany = (int)Session["idCompany"];
+                string userName = (string)Session["username"];
+
+                if (Check.IsLogOn(idUser, permission, idCompany, userName))
+                {
+                    Product product = db.Product.Find(id);
+
+                    if (product == null)
+                    {
+                        return HttpNotFound();
+                    }
+
+                    if (Check.IsSuperAdmin(permission) || (Check.IsSupervisor(permission) && idCompany == product.CompanyId))
+                        return View(product);
+                    else
+                    {
+                        TempData["error"] = "YOU DO NOT HAVE PERMISSION";
+                        return RedirectToAction("Index");
+                    }
+                }
+                else
+                    return RedirectToAction("LogIn", "Employees");
             }
-            return View(product);
+            catch
+            {
+                TempData["error"] = "You need to login";
+                return RedirectToAction("LogIn", "Employees");
+            }
         }
 
         [HttpPost, ActionName("Active")]

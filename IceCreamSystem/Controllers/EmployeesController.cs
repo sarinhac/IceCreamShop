@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.Entity;
-using System.Data.Entity.Infrastructure;
-using System.Data.Entity.Validation;
-using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Web.Mvc;
@@ -23,8 +20,40 @@ namespace IceCreamSystem.Controllers
             ViewBag.message = TempData["message"] != null ? TempData["message"].ToString() : null;
             ViewBag.confirm = TempData["confirm"] != null ? TempData["confirm"].ToString() : null;
             ViewBag.error = TempData["error"] != null ? TempData["error"].ToString() : null;
-            var employee = db.Employee.Include(e => e.Address).Include(e => e.Company).Include(e => e.Office);
-            return View(employee.ToList());
+
+            try
+            {
+                int idUser = Session["idUser"] != null ? (int)Session["idUser"] : 0;
+                int permission = Session["permission"] != null ? (int)Session["permission"] : 0;
+                int idCompany = Session["permission"] != null ? (int)Session["idCompany"] : 0;
+                string userName = Session["permission"] != null ? (string)Session["username"] : null;
+
+                if (Check.IsLogOn(idUser, permission, idCompany, userName))
+                {
+                    if (Check.IsSuperAdmin(permission))
+                    {
+                        ViewBag.permission = true;
+                        return View(db.Employee.Include(c => c.Company).Include(e => e.Office).Include(e => e.Address).ToList());
+                    }
+                    else if (Check.IsAdmin(permission))
+                    {
+                        ViewBag.permission = true;
+                        return View(db.Employee.Where(o => o.CompanyId == idCompany).Include(c => c.Company).Include(e => e.Office).Include(e => e.Address).ToList());
+                    }
+                    else
+                    {
+                        TempData["error"] = "YOU DO NOT HAVE PERMISSION";
+                        return RedirectToAction("Home", "Employees");
+                    }
+                }
+                else
+                    return RedirectToAction("LogIn", "Employees");
+            }
+            catch
+            {
+                TempData["error"] = "You need to login";
+                return RedirectToAction("LogIn", "Employees");
+            }
         }
 
         #region Actions Login
@@ -33,19 +62,46 @@ namespace IceCreamSystem.Controllers
             ViewBag.message = TempData["message"] != null ? TempData["message"].ToString() : null;
             ViewBag.confirm = TempData["confirm"] != null ? TempData["confirm"].ToString() : null;
             ViewBag.error = TempData["error"] != null ? TempData["error"].ToString() : null;
-            return View();
+
+            try
+            {
+                int idUser = Session["idUser"] != null ? (int)Session["idUser"] : 0;
+                int permission = Session["permission"] != null ? (int)Session["permission"] : 0;
+                int idCompany = Session["permission"] != null ? (int)Session["idCompany"] : 0;
+                string userName = Session["permission"] != null ? (string)Session["username"] : null;
+
+                if (Check.IsLogOn(idUser, permission, idCompany, userName))
+                    return View();
+                else
+                    return RedirectToAction("LogIn", "Employees");
+            }
+            catch
+            {
+                TempData["error"] = "You need to login";
+                return RedirectToAction("LogIn", "Employees");
+            }
         }
 
         public ActionResult Login()
         {
             ViewBag.error = TempData["error"] != null ? TempData["error"].ToString() : null;
-            return View();
-        }
+            try
+            {
+                int idUser = Session["idUser"] != null ? (int)Session["idUser"] : 0;
+                int permission = Session["permission"] != null ? (int)Session["permission"] : 0;
+                int idCompany = Session["permission"] != null ? (int)Session["idCompany"] : 0;
+                string userName = Session["permission"] != null ? (string)Session["username"] : null;
 
-        public ActionResult Logout()
-        {
-            Session.RemoveAll();
-            return RedirectToAction("Login");
+                if (!Check.IsLogOn(idUser, permission, idCompany, userName))
+                    return View();
+                else
+                    return RedirectToAction("Home", "Employees");
+            }
+            catch
+            {
+                //Login
+                return View();
+            }
         }
 
         [HttpPost]
@@ -55,7 +111,7 @@ namespace IceCreamSystem.Controllers
             var currentUser = db.Employee.SingleOrDefault(
                 u => u.LoginUser.Equals(employee.LoginUser));
 
-            if (currentUser != null)
+            if (currentUser != null && currentUser.Status == (StatusGeneral)1)
             {
                 if (HashService.ValidatePassword(employee.PasswordUser, currentUser.PasswordUser))
                 {
@@ -68,25 +124,93 @@ namespace IceCreamSystem.Controllers
                 }
             }
 
-            ViewBag.error = "Login or Password Invalid, Please try again";
+            ViewBag.error = "Login or Password Invalid or You Don't Have Access";
             return View();
+        }
+
+        public ActionResult Logout()
+        {
+            try
+            {
+                int idUser = Session["idUser"] != null ? (int)Session["idUser"] : 0;
+                int permission = Session["permission"] != null ? (int)Session["permission"] : 0;
+                int idCompany = Session["permission"] != null ? (int)Session["idCompany"] : 0;
+                string userName = Session["permission"] != null ? (string)Session["username"] : null;
+
+                if (Check.IsLogOn(idUser, permission, idCompany, userName))
+                {
+                    Session.RemoveAll();
+                    return RedirectToAction("Login");
+                }
+                else
+                    return RedirectToAction("Home");
+            }
+            catch
+            {
+                //Login
+                return RedirectToAction("Login");
+            }
         }
         #endregion
 
+
+
         #region CRUD
 
-        #region CREATE ACTIONS 
-        public ActionResult Create()
+        public ActionResult Details(int? id)
         {
-            IEnumerable<SelectListItem> permission = new SelectList(Enum.GetValues(typeof(Permission)));
-            ViewBag.Permission = permission;
+            if (id == null)
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            }
+            try
+            {
+                int idUser = Session["idUser"] != null ? (int)Session["idUser"] : 0;
+                int permission = Session["permission"] != null ? (int)Session["permission"] : 0;
+                int idCompany = Session["permission"] != null ? (int)Session["idCompany"] : 0;
+                string userName = Session["permission"] != null ? (string)Session["username"] : null;
 
-            IEnumerable<SelectListItem> phone = new SelectList(Enum.GetValues(typeof(TypePhone)));
-            ViewBag.TypePhone = phone;
+                if (Check.IsLogOn(idUser, permission, idCompany, userName))
+                {
+                    Employee employee = db.Employee.Find(id);
 
-            ViewBag.CompanyId = new SelectList(db.Company, "IdCompany", "NameCompany");
-            ViewBag.OfficeId = new SelectList(db.Office, "IdOffice", "NameOffice");
-            return View();
+                    if (employee == null)
+                    {
+                        return HttpNotFound();
+                    }
+                    else if (Check.IsSuperAdmin(permission) || (Check.IsAdmin(permission) && idCompany == employee.CompanyId) || Check.IsMe(idUser, employee.IdEmployee))
+                    {
+                        List<Phone> phones = db.Phone.Where(p => p.EmployeeId == id).ToList();
+                        if (phones != null && phones.Count > 0)
+                            ViewBag.Phones = phones;
+
+                        return View(employee);
+                    }
+                    else
+                    {
+                        TempData["error"] = "YOU DO NOT HAVE PERMISSION";
+                        return RedirectToAction("Index");
+                    }
+                }
+                else
+                    return RedirectToAction("LogIn", "Employees");
+            }
+            catch
+            {
+                TempData["error"] = "You need to login";
+                return RedirectToAction("LogIn", "Employees");
+            }
+        }
+
+
+        #region CREATE ACTIONS
+        public JsonResult GetOffices(int? id)
+        {
+
+            var offices =  db.Office.Where(x => x.CompanyId == id).Select(x => new { id = x.IdOffice, name = x.NameOffice }).ToList();;
+
+            return Json(offices, JsonRequestBehavior.AllowGet);
+
         }
 
         public ActionResult AddOtherPhone()
@@ -95,6 +219,58 @@ namespace IceCreamSystem.Controllers
             ViewBag.TypePhone = phone;
 
             return PartialView("_Phone");
+        }
+
+        public ActionResult Create()
+        {
+            try
+            {
+                int idUser = Session["idUser"] != null ? (int)Session["idUser"] : 0;
+                int permission = Session["permission"] != null ? (int)Session["permission"] : 0;
+                int idCompany = Session["permission"] != null ? (int)Session["idCompany"] : 0;
+                string userName = Session["permission"] != null ? (string)Session["username"] : null;
+
+                if (Check.IsLogOn(idUser, permission, idCompany, userName))
+                {
+                    if (Check.IsSuperAdmin(permission))
+                    {
+                        ViewBag.CompanyId = new SelectList(db.Company, "IdCompany", "NameCompany");
+                        ViewBag.OfficeId = new SelectList(db.Office.OrderBy(c => c.CompanyId), "IdOffice", "NameOffice");
+                        IEnumerable<SelectListItem> typePermission = new SelectList(Enum.GetValues(typeof(Permission)));
+                        ViewBag.Permission = typePermission;
+
+                    }
+                    else if (Check.IsAdmin(permission))
+                    {
+                        Company company = db.Company.Where(c => c.IdCompany == idCompany).FirstOrDefault();
+                        List<Company> companies = new List<Company>();
+                        companies.Add(company);
+                        ViewBag.CompanyId = new SelectList(companies, "IdCompany", "NameCompany", idCompany);
+                        ViewBag.OfficeId = new SelectList(db.Office.Where(o => o.CompanyId == idCompany), "IdOffice", "NameOffice");
+
+                        IEnumerable<SelectListItem> typePermission = new SelectList(Enum.GetValues(typeof(Permission))).Where(e => !e.Text.Equals("SuperAdmin"));
+                        ViewBag.Permission = typePermission;
+                    }
+                    else
+                    {
+                        TempData["error"] = "YOU DO NOT HAVE PERMISSION";
+                        return RedirectToAction("Index");
+                    }
+
+                    IEnumerable<SelectListItem> phone = new SelectList(Enum.GetValues(typeof(TypePhone)));
+                    ViewBag.TypePhone = phone;
+
+
+                    return View();
+                }
+                else
+                    return RedirectToAction("LogIn", "Employees");
+            }
+            catch
+            {
+                TempData["error"] = "You need to login";
+                return RedirectToAction("LogIn", "Employees");
+            }
         }
 
         [HttpPost]
@@ -147,7 +323,7 @@ namespace IceCreamSystem.Controllers
                     try
                     {
                         #region SAVE NEW EMPLOYEE
-                        int idUser = 1;// (int)Session["idUser"]; //who is login
+                        int idUser = (int)Session["idUser"]; //who is login
 
                         #region Insert new Address
                         //Using (System.Data.Entity) Add -> Adds the given entity to the context that it will be inserted into the database when SaveChanges is called.
@@ -200,43 +376,126 @@ namespace IceCreamSystem.Controllers
             }
 
         ReturnIfError:
-            IEnumerable<SelectListItem> permission = new SelectList(Enum.GetValues(typeof(Permission)));
-            ViewBag.Permission = permission;
+            #region  ReturnIfError
+            try
+            {
+                int permission = (int)Session["permission"];
+                int idCompany = (int)Session["idCompany"];
 
-            ViewBag.Phones = phones;
+                if (Check.IsSuperAdmin(permission))
+                {
+                    ViewBag.CompanyId = new SelectList(db.Company, "IdCompany", "NameCompany", employee.CompanyId);
+                    ViewBag.OfficeId = new SelectList(db.Office.OrderBy(c => c.CompanyId), "IdOffice", "NameOffice", employee.OfficeId);
+                    IEnumerable<SelectListItem> typePermission = new SelectList(Enum.GetValues(typeof(Permission)));
+                    ViewBag.Permission = typePermission;
+                }
+                else if (Check.IsAdmin(permission))
+                {
+                    Company company = db.Company.Where(c => c.IdCompany == idCompany).FirstOrDefault();
+                    List<Company> companies = new List<Company>();
+                    companies.Add(company);
+                    ViewBag.CompanyId = new SelectList(companies, "IdCompany", "NameCompany", employee.CompanyId);
+                    ViewBag.OfficeId = new SelectList(db.Office.Where(o => o.CompanyId == idCompany), "IdOffice", "NameOffice", employee.OfficeId);
 
-            IEnumerable<SelectListItem> typePhone = new SelectList(Enum.GetValues(typeof(TypePhone)));
-            ViewBag.TypePhone = typePhone;
+                    IEnumerable<SelectListItem> typePermission = new SelectList(Enum.GetValues(typeof(Permission))).Where(e => !e.Text.Equals("SuperAdmin"));
+                    ViewBag.Permission = typePermission;
+                }
 
-            ViewBag.CompanyId = new SelectList(db.Company, "IdCompany", "NameCompany", employee.CompanyId);
-            ViewBag.OfficeId = new SelectList(db.Office, "IdOffice", "NameOffice", employee.OfficeId);
-            return View(employee);
+                IEnumerable<SelectListItem> phone = new SelectList(Enum.GetValues(typeof(TypePhone)));
+                ViewBag.TypePhone = phone;
+
+                return View(employee);
+            }
+            catch
+            {
+                TempData["error"] = "You need to login";
+                return RedirectToAction("LogIn", "Employees");
+            }
+            #endregion
         }
         #endregion
-
         public ActionResult AddOtherDetailsPhone()
         {
             return PartialView("_PhoneDetails");
         }
 
-        public ActionResult Details(int? id)
+        public ActionResult CreateUser(int? id)
         {
             if (id == null)
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Employee employee = db.Employee.Find(id);
-            
-            if (employee == null)
+            try
             {
-                return HttpNotFound();
+                int idUser = Session["idUser"] != null ? (int)Session["idUser"] : 0;
+                int permission = Session["permission"] != null ? (int)Session["permission"] : 0;
+                int idCompany = Session["permission"] != null ? (int)Session["idCompany"] : 0;
+                string userName = Session["permission"] != null ? (string)Session["username"] : null;
+
+                if (Check.IsLogOn(idUser, permission, idCompany, userName))
+                {
+                    Employee employee = db.Employee.Find(id);
+
+                    if (employee == null)
+                    {
+                        return HttpNotFound();
+                    }
+                    else if (Check.IsSuperAdmin(permission) || (Check.IsAdmin(permission) && idCompany == employee.CompanyId) || Check.IsMe(idUser, employee.IdEmployee))
+                    {
+                        return View(employee);
+                    }
+                    else
+                    {
+                        TempData["error"] = "YOU DO NOT HAVE PERMISSION";
+                        return RedirectToAction("Index");
+                    }
+                }
+                else
+                    return RedirectToAction("LogIn", "Employees");
             }
+            catch
+            {
+                TempData["error"] = "You need to login";
+                return RedirectToAction("LogIn", "Employees");
+            }
+        }
 
-            List<Phone> phones = db.Phone.Where(p => p.EmployeeId == id).ToList();
-            if (phones != null && phones.Count > 0)
-                ViewBag.Phones = phones;
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult CreateUser([Bind(Include = "IdEmployee,LoginUser,PasswordUser")] Employee employee)
+        {
+            Employee emp = db.Employee.Find(employee.IdEmployee);
+            int idUser = (int)Session["idUser"];
 
-            return View(employee);
+            using (var trans = db.Database.BeginTransaction())
+            {
+                try
+                {
+                    Log log = new Log
+                    {
+                        Who = idUser,
+                        EmployeeId = employee.IdEmployee,
+                        New = "[CL]"
+                    };
+
+                    emp.LoginUser = employee.LoginUser;
+                    emp.PasswordUser = HashService.HashPassword(employee.PasswordUser);
+                    db.SaveChanges();
+
+                    db.Log.Add(log);
+                    db.SaveChanges();
+
+                    trans.Commit();
+                    TempData["confirm"] = "User Create successfully";
+                    return RedirectToAction("Index");
+                }
+                catch
+                {
+                    trans.Rollback();
+                    ViewBag.error = "An error happened. Please try again";
+                    return View(employee);
+                }
+            }
         }
 
         public ActionResult ChangePassword(int? id)
@@ -245,15 +504,40 @@ namespace IceCreamSystem.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-
-            Employee employee = db.Employee.Find(id);
-            if (employee == null)
+            try
             {
-                return HttpNotFound();
-            }
-            employee.PasswordUser = string.Empty;
+                int idUser = Session["idUser"] != null ? (int)Session["idUser"] : 0;
+                int permission = Session["permission"] != null ? (int)Session["permission"] : 0;
+                int idCompany = Session["permission"] != null ? (int)Session["idCompany"] : 0;
+                string userName = Session["permission"] != null ? (string)Session["username"] : null;
 
-            return View(employee);
+                if (Check.IsLogOn(idUser, permission, idCompany, userName))
+                {
+                    Employee employee = db.Employee.Find(id);
+
+                    if (employee == null)
+                    {
+                        return HttpNotFound();
+                    }
+                    else if (Check.IsSuperAdmin(permission) || (Check.IsAdmin(permission) && idCompany == employee.CompanyId) || Check.IsMe(idUser, employee.IdEmployee))
+                    {
+                        employee.PasswordUser = string.Empty;
+                        return View(employee);
+                    }
+                    else
+                    {
+                        TempData["error"] = "YOU DO NOT HAVE PERMISSION";
+                        return RedirectToAction("Index");
+                    }
+                }
+                else
+                    return RedirectToAction("LogIn", "Employees");
+            }
+            catch
+            {
+                TempData["error"] = "You need to login";
+                return RedirectToAction("LogIn", "Employees");
+            }
         }
 
         [HttpPost]
@@ -261,8 +545,8 @@ namespace IceCreamSystem.Controllers
         public ActionResult ChangePassword([Bind(Include = "IdEmployee,PasswordUser")] Employee employee)
         {
             Employee emp = db.Employee.Find(employee.IdEmployee);
-            int idUser = 1;// (int)Session["idUser"];
-           
+            int idUser = (int)Session["idUser"];
+
             using (var trans = db.Database.BeginTransaction())
             {
                 try
@@ -290,7 +574,7 @@ namespace IceCreamSystem.Controllers
                     ViewBag.error = "An error happened. Please try again";
                     return View(employee);
                 }
-            }  
+            }
         }
 
         #region EDIT ACTIONS
@@ -300,32 +584,63 @@ namespace IceCreamSystem.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-
-            Employee employee = db.Employee.Find(id);
-            if (employee == null)
+            try
             {
-                return HttpNotFound();
+                int idUser = Session["idUser"] != null ? (int)Session["idUser"] : 0;
+                int permission = Session["permission"] != null ? (int)Session["permission"] : 0;
+                int idCompany = Session["permission"] != null ? (int)Session["idCompany"] : 0;
+                string userName = Session["permission"] != null ? (string)Session["username"] : null;
+
+                if (Check.IsLogOn(idUser, permission, idCompany, userName))
+                {
+                    Employee employee = db.Employee.Find(id);
+                    if (employee == null)
+                    {
+                        return HttpNotFound();
+                    }
+
+                    if (Check.IsSuperAdmin(permission))
+                    {
+                        ViewBag.CompanyId = new SelectList(db.Company, "IdCompany", "NameCompany", employee.CompanyId);
+                        ViewBag.OfficeId = new SelectList(db.Office, "IdOffice", "NameOffice", employee.OfficeId);
+
+                        IEnumerable<SelectListItem> typePermission = new SelectList(Enum.GetValues(typeof(Permission)), employee.Permission);
+                        ViewBag.Permission = typePermission;
+                    }
+                    else if (Check.IsAdmin(permission) && idCompany == employee.CompanyId)
+                    {
+                        Company company = db.Company.Where(c => c.IdCompany == idCompany).FirstOrDefault();
+                        List<Company> companies = new List<Company>();
+                        companies.Add(company);
+                        ViewBag.CompanyId = new SelectList(companies, "IdCompany", "NameCompany", employee.CompanyId);
+                        ViewBag.OfficeId = new SelectList(db.Office.Where(o => o.CompanyId == idCompany).ToList(), "IdOffice", "NameOffice", employee.OfficeId);
+
+                        IEnumerable<SelectListItem> typePermission = new SelectList(Enum.GetValues(typeof(Permission))).Where(e => !e.Text.Equals("SuperAdmin"));
+                        ViewBag.Permission = typePermission;
+                    }
+                    else
+                    {
+                        TempData["error"] = "YOU DO NOT HAVE PERMISSION";
+                        return RedirectToAction("Index");
+                    }
+
+                    IEnumerable<SelectListItem> phone = new SelectList(Enum.GetValues(typeof(TypePhone)));
+                    ViewBag.TypePhone = phone;
+
+                    List<Phone> phones = db.Phone.Where(p => p.EmployeeId == id).ToList();
+                    if (phones != null && phones.Count > 0)
+                        ViewBag.Phones = phones;
+
+                    return View(employee);
+                }
+                else
+                    return RedirectToAction("LogIn", "Employees");
             }
-
-            IEnumerable<SelectListItem> typePhone = new SelectList(Enum.GetValues(typeof(TypePhone)));
-            ViewBag.TypePhone = typePhone;
-
-            List<Phone> phones = db.Phone.Where(p => p.EmployeeId == id).ToList();
-            if (phones != null && phones.Count > 0)
-                ViewBag.Phones = phones;
-            else
+            catch
             {
-                TempData["error"] = "Sorry, but an error happened, Please contact your system supplier";
-                return RedirectToAction("Index");
+                TempData["error"] = "You need to login";
+                return RedirectToAction("LogIn", "Employees");
             }
-
-            IEnumerable<SelectListItem> permission = new SelectList(Enum.GetValues(typeof(Permission)), employee.Permission);
-            ViewBag.Permission = permission;
-
-            ViewBag.CompanyId = new SelectList(db.Company, "IdCompany", "NameCompany", employee.CompanyId);
-            ViewBag.OfficeId = new SelectList(db.Office, "IdOffice", "NameOffice", employee.OfficeId);
-
-            return View(employee);
         }
 
         [HttpPost]
@@ -387,13 +702,13 @@ namespace IceCreamSystem.Controllers
                 Address oldAddress = db.Address.Find(editAddress.IdAddress);
                 List<Phone> oldPhones = db.Phone.Where(p => p.EmployeeId == editEmployee.IdEmployee).ToList();
 
-                if(oldEmployee == null || oldAddress == null || oldPhones == null)
+                if (oldEmployee == null || oldAddress == null || oldPhones == null)
                 {
                     TempData["error"] = "Sorry, but an error happened, Please contact your system supplier";
                     return RedirectToAction("Index");
                 }
 
-                int idUser = 1;// (int)Session["idUser"];
+                int idUser = (int)Session["idUser"];
 
                 if (!oldEmployee.Equals(editEmployee) || !oldAddress.Equals(editAddress) || !oldPhones.SequenceEqual(editPhones, new Phone()))
                 {
@@ -413,6 +728,12 @@ namespace IceCreamSystem.Controllers
                                 oldEmployee.CompanyId = editEmployee.CompanyId;
                                 oldEmployee.HaveLogin = editEmployee.HaveLogin;
                                 oldEmployee.Permission = editEmployee.Permission;
+
+                                if (oldEmployee.HaveLogin == false)
+                                {
+                                    oldEmployee.LoginUser = null;
+                                    oldEmployee.PasswordUser = null;
+                                }
 
                                 db.SaveChanges();
 
@@ -446,14 +767,9 @@ namespace IceCreamSystem.Controllers
                                 //Any=> Returns true if at least one of the elements in the source sequence matches the provided predicate.
                                 //All => Returns true if every element in the source sequence matches the provided predicate.
 
-                                //List<Phone> phonesOff = oldPhones.Where(p => editPhones.Any(ph => ph.IdPhone != p.IdPhone)).ToList();
                                 List<Phone> phonesChanged = editPhones.Where(p => oldPhones.Any(ph => ph.IdPhone == p.IdPhone && (!ph.DDD.Equals(p.DDD) || !ph.Number.Equals(p.Number) || !ph.TypePhone.Equals(p.TypePhone)))).ToList();
                                 List<Phone> phonesNew = editPhones.Where(p => oldPhones.All(ph => ph.IdPhone != p.IdPhone)).ToList();
 
-                                /*if (phonesOff != null && phonesOff.Count > 0)
-                                {
-                                    //trocar status
-                                }*/
                                 if (phonesChanged != null && phonesChanged.Count > 0)
                                 {
                                     foreach (Phone phone in phonesChanged)
@@ -480,7 +796,7 @@ namespace IceCreamSystem.Controllers
                                 {
                                     db.Log.Add(log);
                                     db.SaveChanges();
-                                }  
+                                }
                             }
                             trans.Commit();
                             TempData["confirm"] = "Successful Changes";
@@ -502,15 +818,37 @@ namespace IceCreamSystem.Controllers
             }
 
         ReturnIfError:
-            IEnumerable<SelectListItem> typePhone = new SelectList(Enum.GetValues(typeof(TypePhone)));
-            ViewBag.TypePhone = typePhone;
-            ViewBag.Phones = editPhones;
+            int permission = (int)Session["permission"];
+            int idCompany = (int)Session["idCompany"];
 
-            IEnumerable<SelectListItem> permission = new SelectList(Enum.GetValues(typeof(Permission)));
-            ViewBag.Permission = permission;
+            if (Check.IsSuperAdmin(permission))
+            {
+                IEnumerable<SelectListItem> typePhone = new SelectList(Enum.GetValues(typeof(TypePhone)));
+                ViewBag.TypePhone = typePhone;
+                ViewBag.CompanyId = new SelectList(db.Company, "IdCompany", "NameCompany", editEmployee.CompanyId);
+                ViewBag.OfficeId = new SelectList(db.Office, "IdOffice", "NameOffice", editEmployee.OfficeId);
 
-            ViewBag.CompanyId = new SelectList(db.Company, "IdCompany", "NameCompany", editEmployee.CompanyId);
-            ViewBag.OfficeId = new SelectList(db.Office, "IdOffice", "NameOffice", editEmployee.OfficeId);
+                IEnumerable<SelectListItem> typePermission = new SelectList(Enum.GetValues(typeof(Permission)));
+                ViewBag.Permission = typePermission;
+            }
+            else if (Check.IsAdmin(permission) && idCompany == editEmployee.CompanyId)
+            {
+                Company company = db.Company.Where(c => c.IdCompany == idCompany).FirstOrDefault();
+                List<Company> companies = new List<Company>();
+                companies.Add(company);
+                ViewBag.CompanyId = new SelectList(companies, "IdCompany", "NameCompany", editEmployee.CompanyId);
+                ViewBag.OfficeId = new SelectList(db.Office.Where(o => o.CompanyId == idCompany).ToList(), "IdOffice", "NameOffice", editEmployee.OfficeId);
+
+                IEnumerable<SelectListItem> typePermission = new SelectList(Enum.GetValues(typeof(Permission))).Where(e => !e.Text.Equals("SuperAdmin"));
+                ViewBag.Permission = typePermission;
+            }
+
+
+            List<Phone> phones = db.Phone.Where(p => p.EmployeeId == editEmployee.IdEmployee).ToList();
+            if (phones != null && phones.Count > 0)
+                ViewBag.Phones = phones;
+
+
             return View(editEmployee);
         }
         #endregion
@@ -522,15 +860,43 @@ namespace IceCreamSystem.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Employee employee = db.Employee.Find(id);
-            if (employee == null)
+            try
             {
-                return HttpNotFound();
+                int idUser = Session["idUser"] != null ? (int)Session["idUser"] : 0;
+                int permission = Session["permission"] != null ? (int)Session["permission"] : 0;
+                int idCompany = Session["permission"] != null ? (int)Session["idCompany"] : 0;
+                string userName = Session["permission"] != null ? (string)Session["username"] : null;
+
+                if (Check.IsLogOn(idUser, permission, idCompany, userName))
+                {
+                    Employee employee = db.Employee.Find(id);
+                    if (employee == null)
+                    {
+                        return HttpNotFound();
+                    }
+
+                    if (Check.IsSuperAdmin(permission) || (Check.IsAdmin(permission) && idCompany == employee.CompanyId))
+                    {
+                        List<Phone> phones = db.Phone.Where(p => p.EmployeeId == id).ToList();
+                        if (phones != null && phones.Count > 0)
+                            ViewBag.Phones = phones;
+
+                        return View(employee);
+                    }
+                    else
+                    {
+                        TempData["error"] = "YOU DO NOT HAVE PERMISSION";
+                        return RedirectToAction("Index");
+                    }
+                }
+                else
+                    return RedirectToAction("LogIn", "Employees");
             }
-            List<Phone> phones = db.Phone.Where(p => p.EmployeeId == id).ToList();
-            if (phones != null && phones.Count > 0)
-                ViewBag.Phones = phones;
-            return View(employee);
+            catch
+            {
+                TempData["error"] = "You need to login";
+                return RedirectToAction("LogIn", "Employees");
+            }
         }
 
         [HttpPost, ActionName("Delete")]
@@ -577,15 +943,43 @@ namespace IceCreamSystem.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Employee employee = db.Employee.Include(e => e.Address).Include(e => e.Company).Include(e => e.Office).Where(e => e.IdEmployee == id).FirstOrDefault();
-            if (employee == null)
+            try
             {
-                return HttpNotFound();
+                int idUser = Session["idUser"] != null ? (int)Session["idUser"] : 0;
+                int permission = Session["permission"] != null ? (int)Session["permission"] : 0;
+                int idCompany = Session["permission"] != null ? (int)Session["idCompany"] : 0;
+                string userName = Session["permission"] != null ? (string)Session["username"] : null;
+
+                if (Check.IsLogOn(idUser, permission, idCompany, userName))
+                {
+                    Employee employee = db.Employee.Find(id);
+                    if (employee == null)
+                    {
+                        return HttpNotFound();
+                    }
+
+                    if (Check.IsSuperAdmin(permission) || (Check.IsAdmin(permission) && idCompany == employee.CompanyId))
+                    {
+                        List<Phone> phones = db.Phone.Where(p => p.EmployeeId == id).ToList();
+                        if (phones != null && phones.Count > 0)
+                            ViewBag.Phones = phones;
+
+                        return View(employee);
+                    }
+                    else
+                    {
+                        TempData["error"] = "YOU DO NOT HAVE PERMISSION";
+                        return RedirectToAction("Index");
+                    }
+                }
+                else
+                    return RedirectToAction("LogIn", "Employees");
             }
-            List<Phone> phones = db.Phone.Where(p => p.EmployeeId == id).ToList();
-            if (phones != null && phones.Count > 0)
-                ViewBag.Phones = phones;
-            return View(employee);
+            catch
+            {
+                TempData["error"] = "You need to login";
+                return RedirectToAction("LogIn", "Employees");
+            }
         }
 
         [HttpPost, ActionName("Active")]
@@ -593,7 +987,7 @@ namespace IceCreamSystem.Controllers
         public ActionResult ActiveConfirmed(int id)
         {
             Employee employee = db.Employee.Find(id);
-            int idUser = 1;// (int)Session["idUser"];
+            int idUser = (int)Session["idUser"];
 
             using (var trans = db.Database.BeginTransaction())
             {

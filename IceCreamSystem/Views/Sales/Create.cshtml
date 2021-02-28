@@ -5,73 +5,68 @@
 }
 
 
-<div class="container">
-    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
-        <div class="input-group">
-            <input class="form-control" list="products" id="searchProducts" placeholder="Insert a Product in the Sale" />
-            <datalist id="products">
-            </datalist>
-            <div class="input-group-append">
-                <button class="btn btn-outline-success" id="addInSale">
-                    Add
-                </button>
-            </div>
-        </div>
+
+<div class="input-group">
+    <input class="form-control" list="products" id="searchProducts" placeholder="Insert a Product in the Sale" />
+    <datalist id="products">
+    </datalist>
+    <div class="input-group-append">
+        <button class="btn btn-outline-success" id="addInSale">
+            Add
+        </button>
+    </div>
+</div>
+
+<div class="input-group">
+    <div class="form-group col-md-9">
+        <table class="table table-hover table-bordered table-striped dataTable dtr-inline" style="width:100%" role="grid" id="tableProducts">
+            <thead class="thead-dark">
+                <tr>
+                    <th style="display: none">
+
+                    </th>
+                    <th>
+                        Product
+                    </th>
+                    <th>
+                        Unit Price
+                    </th>
+                    <th>
+                        Amount
+                    </th>
+                    <th>
+                        Total Price
+                    </th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+    <div class="form-group col-md-3 rounded" style=" float: right; height: 150px; width: 150px; border: 1px solid white; font-size: 30px; font-family:'Courier New'; font-weight:bold; text-align:center; padding-top: 20px; background-color: lightpink" ;>
+        Total:
+        <div id="total">R$ 0,0</div>
     </div>
 </div>
 
 
-<div class="container">
+<div class="form-group col-md-12">
     <div class="input-group">
-        <div class="form-group col-md-9">
-            <table class="table table-hover table-bordered table-striped dataTable dtr-inline" style="width:100%" role="grid" id="tableProducts">
-                <thead class="thead-dark">
-                    <tr>
-                        <th style="display: none">
+        <input type="button" value="Pay" class="btn btn-success btn-lg" id="finish" />
 
-                        </th>
-                        <th>
-                            Product
-                        </th>
-                        <th>
-                            Unit Price
-                        </th>
-                        <th>
-                            Amount
-                        </th>
-                        <th>
-                            Total Price
-                        </th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                </tbody>
-            </table>
-        </div>
-        <div class="form-group col-md-3 rounded" style=" float: right; height: 150px; width: 150px; border: 1px solid white; font-size: 30px; font-family:'Courier New'; font-weight:bold; text-align:center; padding-top: 20px; background-color: lightpink" ;>
-            Total:
-            <div id="total">R$ 0,0</div>
-        </div>
+        @using (Html.BeginForm())
+        {
+            @Html.AntiForgeryToken()
+            @Html.HiddenFor(model => model.IdSale)
+            <input type="submit" value="Exit" class="btn btn-default btn-lg" id="exit" />
+        }
     </div>
 
+    <div id="payment" style="display: none"></div>
 
-    <div class="form-group col-md-12">
-        <div class="input-group">
-            <input type="button" value="Pay" class="btn btn-success btn-lg" id="finish" />
-
-            @using (Html.BeginForm())
-            {
-                @Html.AntiForgeryToken()
-                @Html.HiddenFor(model => model.IdSale)
-                <input type="submit" value="Exit" class="btn btn-default btn-lg" id="exit" />
-            }
-        </div>
-
-        <div id="payment" style="display: none"></div>
-
-        </div>
 </div>
+
 
 
 
@@ -161,10 +156,12 @@
                                 //td Amount
                                 var tdAmount = document.createElement("td");
                                 var input = document.createElement("input");
+                                var textUnitMeasure = document.createTextNode(" " + data[i].UnitMeasure);
                                 input.type = "number";
                                 input.value = 1;
                                 input.className = "form-control amount";
                                 tdAmount.appendChild(input);
+                                tdAmount.appendChild(textUnitMeasure)
                                 tr.appendChild(tdAmount);
 
                                  //td Total Price
@@ -332,6 +329,6 @@
         $(document).on("click", "button.remove", function () {
             $(this).parent().parent().remove();
         });
-                   // });
+                       // });
     </script>
 }

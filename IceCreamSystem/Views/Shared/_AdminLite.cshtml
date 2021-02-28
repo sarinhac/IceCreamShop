@@ -11,7 +11,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
 
     <title>@ViewBag.Title - IceCreamShop</title>
 
-
+    <link href="~/Content/select2.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="~/Content/all.min.css">
     <link rel="stylesheet" href="~/Content/adminlte.min.css">
     <link rel="stylesheet" href="~/Content/dataTables.bootstrap4.min.css">
@@ -57,7 +57,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
                         <img src="~/Images/user.png" alt="User" class="img-circle elevation-2">
                     </div>
                     <div class="info">
-                        <a class="details" data-toggle="modal" data-target="#modal" data-url="@Url.Action("Details", "Employees", new { id = (int)@Session["idUser"] })"> @Session["username"] </a>
+                        @* <a class="details" data-toggle="modal" data-target="#modal" data-url="@Url.Action("Details", "Employees", new { id = (int)@Session["idUser"] })"> @Session["username"] </a>*@
                     </div>
                 </div>
 
@@ -134,7 +134,6 @@ scratch. This page gets rid of all links and provides the needed markup only.
                 </ul>
             </li>
 }
-
                         @if (@Session["permission"] != null && ((int)@Session["permission"] == 1 || (int)@Session["permission"] == 2 || (int)@Session["permission"] == 3 || (int)@Session["permission"] == 4))
                         {//superadmin, admin, supervisor and stockist
             <li class="nav-item has-treeview">
@@ -239,27 +238,37 @@ scratch. This page gets rid of all links and provides the needed markup only.
                 <div class="container-fluid">
                     <div class="row">
                         <div class="col-12">
-                            @if (ViewBag.error != null)
-                            {
-                <div class="alert alert-default-danger" role="alert" style="width:100%">
-                    @ViewBag.error
-                </div>}
-                            @if (ViewBag.confirm != null)
-                            {
-                <div class="alert alert-default-success" role="alert" style="width:100%">
-                    @ViewBag.confirm
-                </div>}
-                            @if (ViewBag.message != null)
-                            {
-                <div class="alert alert-default-info" role="alert" style="width:100%">
-                    @ViewBag.message
-                </div>}
+                            <div class="card">
+                                <div class="card-header">
+                                    @if (ViewBag.error != null)
+                                    {
+                        <div class="alert alert-default-danger" role="alert" style="width:100%">
+                            @ViewBag.error
+                        </div>}
+                                    @if (ViewBag.confirm != null)
+                                    {
+                        <div class="alert alert-default-success" role="alert" style="width:100%">
+                            @ViewBag.confirm
+                        </div>}
+                                    @if (ViewBag.message != null)
+                                    {
+                        <div class="alert alert-default-info" role="alert" style="width:100%">
+                            @ViewBag.message
+                        </div>}
 
+                                </div>
+
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-sm-12 col-md-12">
+                                            @RenderBody()
+                                            <div id="modal" class="modal fade" role="dialog"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-
-                    @RenderBody()
-                    <div id="modal" class="modal fade" role="dialog"></div>
                 </div>
             </section><!-- /.container-fluid -->
         </div>
@@ -274,7 +283,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
     <!-- ./wrapper -->
     <!-- REQUIRED SCRIPTS -->
     <!-- jQuery -->
-    <script src="~/Scripts/jquery-3.4.1.js"></script>
+    <script src="~/Scripts/jquery.min.js"></script>
     <!-- Bootstrap 4 -->
     <script src="~/Scripts/bootstrap.bundle.min.js"></script>
     <!-- AdminLTE App -->
@@ -283,12 +292,10 @@ scratch. This page gets rid of all links and provides the needed markup only.
     <script src="~/Scripts/dataTables.bootstrap4.min.js"></script>
     <script src="~/Scripts/dataTables.responsive.min.js"></script>
     <script src="~/Scripts/responsive.bootstrap4.min.js"></script>
+    <script src="~/Scripts/select2.min.js"></script>
     <script src="~/Scripts/demo.js"></script>
     <script src="~/Scripts/Modal.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
-    @Scripts.Render("~/bundles/jquery")
-    @Scripts.Render("~/bundles/bootstrap")
+
     @Scripts.Render("~/bundles/modernizr")
     @RenderSection("scripts", required: false)
 </body>

@@ -33,6 +33,7 @@ namespace IceCreamSystem.Models
         [Display(Name = "Description Office")]
         public string DescriptionOffice { get; set; }
 
+        [DisplayFormat(DataFormatString = "{0:P}")]
         public decimal? Discount { get; set; }
 
         public int CompanyId { get; set; }
@@ -64,7 +65,7 @@ namespace IceCreamSystem.Models
         public override bool Equals(object obj)
         {
             Office office = (Office)obj;
-            return office.IdOffice == IdOffice && office.NameOffice.Equals(NameOffice) && office.DescriptionOffice.Equals(DescriptionOffice)
+            return office.IdOffice == IdOffice && office.NameOffice.Equals(NameOffice) && office.DescriptionOffice == DescriptionOffice
                 && office.Discount == Discount && office.CompanyId == CompanyId;
         }
         #endregion //METHODS

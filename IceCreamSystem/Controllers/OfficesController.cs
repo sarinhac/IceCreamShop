@@ -36,7 +36,7 @@ namespace IceCreamSystem.Controllers
                     else if (Check.IsAdmin(permission))
                     {
                         ViewBag.permission = true;
-                        return View(db.Office.Where(o=> o.CompanyId == idCompany).Include(c => c.Company).ToList());
+                        return View(db.Office.Where(o => o.CompanyId == idCompany).Include(c => c.Company).ToList());
                     }
                     else
                     {
@@ -179,8 +179,26 @@ namespace IceCreamSystem.Controllers
             }
 
         ReturnIfError:
-            ViewBag.CompanyId = new SelectList(db.Company, "IdCompany", "NameCompany", office.CompanyId);
-            return View(office);
+            try
+            {
+                int permission = (int)Session["permission"];
+                int idCompany = (int)Session["idCompany"];
+                if (Check.IsSuperAdmin(permission))
+                    ViewBag.CompanyId = new SelectList(db.Company, "IdCompany", "NameCompany", office.CompanyId);
+                else if (Check.IsAdmin(permission))
+                {
+                    Company company = db.Company.Where(c => c.IdCompany == idCompany).FirstOrDefault();
+                    List<Company> companies = new List<Company>();
+                    companies.Add(company);
+                    ViewBag.CompanyId = new SelectList(companies, "IdCompany", "NameCompany", office.CompanyId);
+                }
+                return View(office);
+            }
+            catch
+            {
+                TempData["error"] = "You need to login";
+                return RedirectToAction("LogIn", "Employees");
+            }
         }
 
 
@@ -288,8 +306,26 @@ namespace IceCreamSystem.Controllers
             }
 
         ReturnIfError:
-            ViewBag.CompanyId = new SelectList(db.Company, "IdCompany", "NameCompany", office.CompanyId);
-            return View(office);
+            try
+            {
+                int permission = (int)Session["permission"];
+                int idCompany = (int)Session["idCompany"];
+                if (Check.IsSuperAdmin(permission))
+                    ViewBag.CompanyId = new SelectList(db.Company, "IdCompany", "NameCompany", office.CompanyId);
+                else if (Check.IsAdmin(permission))
+                {
+                    Company company = db.Company.Where(c => c.IdCompany == idCompany).FirstOrDefault();
+                    List<Company> companies = new List<Company>();
+                    companies.Add(company);
+                    ViewBag.CompanyId = new SelectList(companies, "IdCompany", "NameCompany", office.CompanyId);
+                }
+                return View(office);
+            }
+            catch
+            {
+                TempData["error"] = "You need to login";
+                return RedirectToAction("LogIn", "Employees");
+            }
         }
 
         public ActionResult Delete(int? id)

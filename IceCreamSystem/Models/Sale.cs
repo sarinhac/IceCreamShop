@@ -30,6 +30,7 @@ namespace IceCreamSystem.Models
         public int EmployeeId { get; set; }
 
         [Display(Name = "Total")]
+        [DisplayFormat(DataFormatString = "{0:C}")]
         public decimal TotalPrice { get; set; }
 
         public SaleStatus Status { get; set; }

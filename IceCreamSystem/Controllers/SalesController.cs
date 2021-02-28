@@ -43,7 +43,7 @@ namespace IceCreamSystem.Controllers
         {
             int companyId = 1;// (int)Session["companyId"];
 
-            var products = db.Product.Where(x => x.CompanyId == companyId && x.NameProduct.StartsWith(search)).Select(x => new { IdProduct = x.IdProduct, NameProduct = x.NameProduct, SalePrice = x.SalePrice }).ToList();
+            var products = db.Product.Where(x => x.CompanyId == companyId && x.NameProduct.StartsWith(search)).Select(x => new { IdProduct = x.IdProduct, NameProduct = x.NameProduct, SalePrice = x.SalePrice, UnitMeasure = x.UnitMeasure.NameUnitMeasure }).ToList();
             return Json(products, JsonRequestBehavior.AllowGet);
 
         }

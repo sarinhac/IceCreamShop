@@ -32,6 +32,10 @@ namespace IceCreamSystem.Models
         [Display(Name = "Installment Price")]
         public decimal InstallmentPrice { get; set; }
 
+        [Display(Name = "Discont")]
+        [DisplayFormat(DataFormatString = "{0:C}")]
+        public decimal? DiscontApply { get; set; }
+
         public int? DebitCardId { get; set; }
 
         public int? CreditCardId { get; set; }

@@ -2,23 +2,24 @@
 
     <div class="modal-content">
 
-        <div class="modal-header" style="background-color:#C0C0C0">
+        <div class="modal-header" style="background-color: #00CED1;">
             <h5 class="modal-title">@ViewBag.Title</h5>
-            <a class="close" data-dismiss="modal">&times;</a>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
         </div><!-- /.modal-header -->
 
-        <div class="modal-body" style="background-color: #DCDCDC;">
+        <div class="modal-body ">
             @RenderBody()
         </div><!-- /.modal-body -->
 
-        <div class="modal-footer" style="background-color:#C0C0C0;">
+        <div class="modal-footer" style="background-color: #00CED1;">
             @using (Html.BeginForm())
             {
                 @Html.AntiForgeryToken()
 
             <div class="form-group">
                 <div class="col-md-12">
-                    <button type="button" class="btn btn-block bg-gradient-secondary" data-dismiss="modal" aria-hidden="true">Cancelar</button>
+
+                    <button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">Cancelar</span></button>
                     @if (@ViewBag.Title == "Details" && ((int)@Session["permission"] == 1 || (int)@Session["permission"] == 2 || (int)@Session["permission"] == 3)) //superadmin or admin
                     {
                         <a class="btn btn-block bg-gradient-warning d-lg-inline" href="@Url.Action("Edit", @ViewBag.Controller, new { id = @ViewBag.Id })"> Edit </a>
@@ -34,6 +35,3 @@
 
     </div><!-- /.modal-content -->
 </div><!-- /.modal-dialog -->
-
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>

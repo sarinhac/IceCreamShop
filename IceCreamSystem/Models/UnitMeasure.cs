@@ -26,9 +26,11 @@ namespace IceCreamSystem.Models
 
         [Required]
         [StringLength(50)]
+        [Display(Name = "UnitMeasure")]
         public string NameUnitMeasure { get; set; }
 
         [StringLength(255)]
+        [Display(Name = "Description")]
         public string DescriptionUnitMeasure { get; set; }
 
         public int CompanyId { get; set; }
@@ -60,7 +62,7 @@ namespace IceCreamSystem.Models
         public override bool Equals(object obj)
         {
             UnitMeasure uM = (UnitMeasure)obj;
-            return uM.IdUnitMeasure == IdUnitMeasure && uM.NameUnitMeasure.Equals(NameUnitMeasure) && uM.DescriptionUnitMeasure.Equals(DescriptionUnitMeasure)
+            return uM.IdUnitMeasure == IdUnitMeasure && uM.NameUnitMeasure.Equals(NameUnitMeasure) && (uM.DescriptionUnitMeasure == DescriptionUnitMeasure)
                 && uM.CompanyId == CompanyId;
         }
         #endregion //METHODS

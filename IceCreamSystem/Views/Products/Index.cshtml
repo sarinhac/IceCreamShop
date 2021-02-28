@@ -5,57 +5,59 @@
     ViewBag.Title = "Products";
 }
 
-<table class="table table-bordered table-striped dataTable dtr-inline" style="width:100%" role="grid">
-    <tr>
-        @if (@Session["permission"] != null && @Session["permission"].ToString().Equals("1"))
-        {
-            <th>
-                @Html.DisplayNameFor(model => model.Company.NameCompany)
-            </th>
-        }
-        <th>
-            @Html.DisplayNameFor(model => model.NameProduct)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.CostPrice)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.SalePrice)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.UnitMeasure.NameUnitMeasure)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.Category.NameCategory)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.Status)
-        </th>
-        <th></th>
-    </tr>
-
-    @foreach (var item in Model)
-    {
-        <tr>
-            @if (@Session["permission"] != null && @Session["permission"].ToString().Equals("1"))
+<table id="example1" class="table table-bordered table-striped dataTable dtr-inline collapsed" style="width:100%" role="grid" aria-describedby="example1_info">
+    <thead>
+        <tr role="row">
+            @if (@Session["permission"] != null && (int)@Session["permission"] == 1)
             {
-                <td>
+                <th class="sorting_asc" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Rendering engine: activate to sort column descending">
+                    @Html.DisplayNameFor(model => model.Company.NameCompany)
+                </th>
+            }
+            <th class="sorting_asc" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Rendering engine: activate to sort column descending">
+                @Html.DisplayNameFor(model => model.NameProduct)
+            </th>
+            <th class="sorting_asc" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Rendering engine: activate to sort column descending">
+                @Html.DisplayNameFor(model => model.CostPrice)
+            </th>
+            <th class="sorting_asc" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Rendering engine: activate to sort column descending">
+                @Html.DisplayNameFor(model => model.SalePrice)
+            </th>
+            <th class="sorting_asc" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Rendering engine: activate to sort column descending">
+                @Html.DisplayNameFor(model => model.UnitMeasure.NameUnitMeasure)
+            </th>
+            <th class="sorting_asc" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Rendering engine: activate to sort column descending">
+                @Html.DisplayNameFor(model => model.Category.NameCategory)
+            </th>
+            <th class="sorting_asc" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Rendering engine: activate to sort column descending">
+                @Html.DisplayNameFor(model => model.Status)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+        <tr>
+            @if (@Session["permission"] != null && (int)@Session["permission"] == 1)
+            {
+                <td class="sorting_1" tabindex="0">
                     @Html.DisplayFor(modelItem => item.Company.NameCompany)
                 </td>
             }
-            <td>
+            <td class="sorting_1" tabindex="0">
                 @Html.DisplayFor(modelItem => item.NameProduct)
             </td>
-            <td>
+            <td class="sorting_1" tabindex="0">
                 @Html.DisplayFor(modelItem => item.CostPrice)
             </td>
-            <td>
+            <td class="sorting_1" tabindex="0">
                 @Html.DisplayFor(modelItem => item.SalePrice)
             </td>
-            <td>
+            <td class="sorting_1" tabindex="0">
                 @Html.DisplayFor(modelItem => item.Category.NameCategory)
             </td>
-            <td>
+            <td class="sorting_1" tabindex="0">
                 @Html.DisplayFor(modelItem => item.UnitMeasure.NameUnitMeasure)
             </td>
             <td>
@@ -71,22 +73,40 @@
             <td>
                 <div class="btn-group pull-center d-lg-inline">
                     <a class="btn btn-block bg-gradient-info d-lg-inline details" data-toggle="modal" data-target="#modal" data-url="@Url.Action("Details", "Products", new { id = item.IdProduct })"> <i class="fas fa-info-circle"></i> Details </a>
-                    <a class="btn btn-block bg-gradient-warning d-lg-inline" href="@Url.Action("Edit", "Products", new { id = item.IdProduct })"> <i class="fas fa-edit"></i> Edit </a>
-
-                    @if (item.Status != 0)
+                    @if ((int)@Session["permission"] == 4)
                     {
-                        //Red for delete btn
-                        <a class="btn btn-block bg-gradient-danger d-lg-inline delete" data-toggle="modal" data-target="#modal" data-url="@Url.Action("Delete", "Products", new { id = item.IdProduct })"> <i class="fas fa-trash-alt"></i> Delete </a>
+                        <a class="btn btn-block bg-gradient-warning d-lg-inline disabled" href="@Url.Action("Edit", "Products", new { id = item.IdProduct })"> <i class="fas fa-edit"></i> Edit </a>
+
+                        if (item.Status != 0)
+                        {
+                            //Red for delete btn
+                            <a class="btn btn-block bg-gradient-danger d-lg-inline disabled delete" data-toggle="modal" data-target="#modal" data-url="@Url.Action("Delete", "Products", new { id = item.IdProduct })"> <i class="fas fa-trash-alt"></i> Delete </a>
+                        }
+                        else
+                        {
+                            //Green for active btn
+                            <a class="btn btn-block bg-gradient-success d-lg-inline  disabled active" data-toggle="modal" data-target="#modal" data-url="@Url.Action("Active", "Products", new { id = item.IdProduct })"> <i class="fas fa-history"></i> Active </a>
+                        }
                     }
                     else
                     {
-                        //Green for active btn
-                        <a class="btn btn-block bg-gradient-success d-lg-inline active" data-toggle="modal" data-target="#modal" data-url="@Url.Action("Active", "Products", new { id = item.IdProduct })"> <i class="fas fa-history"></i> Active </a>
+                        <a class="btn btn-block bg-gradient-warning d-lg-inline" href="@Url.Action("Edit", "Products", new { id = item.IdProduct })"> <i class="fas fa-edit"></i> Edit </a>
+
+                        if (item.Status != 0)
+                        {
+                            //Red for delete btn
+                            <a class="btn btn-block bg-gradient-danger d-lg-inline delete" data-toggle="modal" data-target="#modal" data-url="@Url.Action("Delete", "Products", new { id = item.IdProduct })"> <i class="fas fa-trash-alt"></i> Delete </a>
+                        }
+                        else
+                        {
+                            //Green for active btn
+                            <a class="btn btn-block bg-gradient-success d-lg-inline active" data-toggle="modal" data-target="#modal" data-url="@Url.Action("Active", "Products", new { id = item.IdProduct })"> <i class="fas fa-history"></i> Active </a>
+                        }
                     }
                 </div>
             </td>
         </tr>
-    }
-
+        }
+    </tbody>
 </table>
 

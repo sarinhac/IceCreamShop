@@ -4,175 +4,203 @@
     ViewBag.Title = "Create Employee";
 }
 
-<div class="container">
-    <div class="col-xs-12 col-sm-8 col-md-7 col-lg-7">
 
-        @if (ViewBag.error != null)
-        {
-            <div class="alert alert-danger" role="alert">
-                @ViewBag.error
+@if (ViewBag.error != null)
+{
+    <div class="alert alert-danger" role="alert">
+        @ViewBag.error
+    </div>
+}
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    <div class="card-body">
+        <div class="form-horizontal">
+
+            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.NameEmployee, htmlAttributes: new { @class = "control-label col-md-12" })
+                <div class="col-md-12">
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fas fa-user"></i></span>
+                        </div>
+                        @Html.EditorFor(model => model.NameEmployee, new { htmlAttributes = new { @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.NameEmployee, "", new { @class = "text-danger" })
+                    </div>
+                </div>
             </div>
-        }
 
-        @using (Html.BeginForm())
-        {
-            @Html.AntiForgeryToken()
+            <div class="form-group">
+                @Html.LabelFor(model => model.Birth, htmlAttributes: new { @class = "control-label col-md-12" })
+                <div class="col-md-12">
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="far fa-calendar-alt"></i></span>
+                        </div>
+                        @Html.EditorFor(model => model.Birth, new { htmlAttributes = new { @class = "form-control", @type = "date" } })
+                        @Html.ValidationMessageFor(model => model.Birth, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+            </div>
 
-            <div class="form-horizontal">
+            <div class="form-group col-md-12">
+                @if (ViewBag.Phones != null)
+                {
+                    foreach (IceCreamSystem.Models.Phone phone in ViewBag.Phones)
+                    {
+                        <div class="input-group" id="divPhone">
+                            @Html.Partial("_Phone", phone)
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="input-group" id="divPhone">
+                        @Html.Partial("_Phone")
+                    </div>
+                }
 
-                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                <button class="btn btn-outline-secondary" id="btnPhone" type="button">Add Other Telephone</button>
+            </div>
 
+            <!-- Address -->
+            <div class="form-group">
+                @Html.LabelFor(model => model.Address.Cep, "CEP", htmlAttributes: new { @class = "control-label col-md-12" })
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fas fa-house-user"></i></span>
+                        </div>
+                        @Html.EditorFor(model => model.Address.Cep, new { htmlAttributes = new { @class = "form-control" } })
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-info" id="btnCep" type="button">Search</button>
+                        </div>
+                        @Html.ValidationMessageFor(model => model.Address.Cep, "", new { @class = "text-danger col-md-12", @id = "erromsg" })
+                    </div>
+                </div>
+            </div>
 
-                <div class="form-group">
-                    @Html.LabelFor(model => model.NameEmployee, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="input-group">
+
+                <div class="form-group col-md-9" id="address">
+                    @Html.LabelFor(model => model.Address.Logradouro, "Address", htmlAttributes: new { @class = "control-label col-md-12" })
                     <div class="col-md-12">
                         <div class="input-group">
                             <div class="input-group-prepend">
-                                <span class="input-group-text"><i class="fas fa-user"></i></span>
+                                <span class="input-group-text"><i class="fas fa-house-user"></i></span>
                             </div>
-                            @Html.EditorFor(model => model.NameEmployee, new { htmlAttributes = new { @class = "form-control" } })
-                            @Html.ValidationMessageFor(model => model.NameEmployee, "", new { @class = "text-danger" })
+                            @Html.EditorFor(model => model.Address.Logradouro, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.Address.Logradouro, "", new { @class = "text-danger" })
                         </div>
                     </div>
                 </div>
 
+                <div class="form-group col-md-3" id="number">
+                    @Html.LabelFor(model => model.Address.Numero, "Number", htmlAttributes: new { @class = "control-label col-md-12" })
+                    <div class="col-md-12">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="fas fa-house-user"></i></span>
+                            </div>
+                            @Html.EditorFor(model => model.Address.Numero, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.Address.Numero, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group" id="moreInformation">
+                @Html.LabelFor(model => model.Address.Complemento, "More information about your Address", htmlAttributes: new { @class = "control-label col-md-12" })
+                <div class="col-md-12">
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fas fa-house-user"></i></span>
+                        </div>
+                        @Html.EditorFor(model => model.Address.Complemento, new { htmlAttributes = new { @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.Address.Complemento, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <div class="form-group col-md-5" id="neighborhood">
+                    @Html.LabelFor(model => model.Address.Bairro, "Neighborhood", htmlAttributes: new { @class = "control-label col-md-12" })
+                    <div class="col-md-12">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="fas fa-house-user"></i></span>
+                            </div>
+                            @Html.EditorFor(model => model.Address.Bairro, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.Address.Bairro, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group col-md-4" id="city">
+                    @Html.LabelFor(model => model.Address.Cidade, "City", htmlAttributes: new { @class = "control-label col-md-12" })
+                    <div class="col-md-12">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="fas fa-house-user"></i></span>
+                            </div>
+                            @Html.EditorFor(model => model.Address.Cidade, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.Address.Cidade, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group col-md-3" id="estate">
+                    @Html.LabelFor(model => model.Address.Uf, "Estate", htmlAttributes: new { @class = "control-label col-md-12" })
+                    <div class="col-md-12">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="fas fa-house-user"></i></span>
+                            </div>
+                            @Html.EditorFor(model => model.Address.Uf, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.Address.Uf, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--End Address -->
+            <!-- Information Company -->
+            <div class="input-group">
                 <div class="form-group">
-                    @Html.LabelFor(model => model.Birth, htmlAttributes: new { @class = "control-label col-md-2" })
+                    @Html.LabelFor(model => model.Admission, htmlAttributes: new { @class = "control-label col-md-12" })
                     <div class="col-md-12">
                         <div class="input-group">
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="far fa-calendar-alt"></i></span>
                             </div>
-                            @Html.EditorFor(model => model.Birth, new { htmlAttributes = new { @class = "form-control", @type = "date" } })
-                            @Html.ValidationMessageFor(model => model.Birth, "", new { @class = "text-danger" })
+                            @Html.EditorFor(model => model.Admission, new { htmlAttributes = new { @class = "form-control", @type = "date" } })
+                            @Html.ValidationMessageFor(model => model.Admission, "", new { @class = "text-danger" })
                         </div>
                     </div>
                 </div>
 
-                <div class="form-group col-md-12">
-                    @if (ViewBag.Phones != null)
-                    {
-                        foreach (IceCreamSystem.Models.Phone phone in ViewBag.Phones)
-                        {
-                            <div class="input-group" id="divPhone">
-                                @Html.Partial("_Phone", phone)
-                            </div>
-                        }
-                    }
-                    else
-                    {
-                        <div class="input-group" id="divPhone">
-                            @Html.Partial("_Phone")
-                        </div>
-                    }
-
-                    <button class="btn btn-outline-secondary" id="btnPhone" type="button">Add Other Telephone</button>
-                </div>
-
-                <!-- Address -->
-                <div class="form-group">
-                    @Html.LabelFor(model => model.Address.Cep, "CEP", htmlAttributes: new { @class = "control-label col-md-2" })
-                    <div class="col-md-6">
-                        <div class="input-group">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text"><i class="fas fa-house-user"></i></span>
-                            </div>
-                            @Html.EditorFor(model => model.Address.Cep, new { htmlAttributes = new { @class = "form-control" } })
-                            <div class="input-group-append">
-                                <button class="btn btn-outline-info" id="btnCep" type="button">Search</button>
-                            </div>
-                            @Html.ValidationMessageFor(model => model.Address.Cep, "", new { @class = "text-danger col-md-12", @id = "erromsg" })
-                        </div>
-                    </div>
-                </div>
-
-                <div class="input-group">
-
-                    <div class="form-group col-md-9" id="address">
-                        @Html.LabelFor(model => model.Address.Logradouro, "Address", htmlAttributes: new { @class = "control-label col-md-2" })
-                        <div class="col-md-12">
-                            <div class="input-group">
-                                <div class="input-group-prepend">
-                                    <span class="input-group-text"><i class="fas fa-house-user"></i></span>
-                                </div>
-                                @Html.EditorFor(model => model.Address.Logradouro, new { htmlAttributes = new { @class = "form-control" } })
-                                @Html.ValidationMessageFor(model => model.Address.Logradouro, "", new { @class = "text-danger" })
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="form-group col-md-3" id="number">
-                        @Html.LabelFor(model => model.Address.Numero, "Number", htmlAttributes: new { @class = "control-label col-md-2" })
-                        <div class="col-md-12">
-                            <div class="input-group">
-                                <div class="input-group-prepend">
-                                    <span class="input-group-text"><i class="fas fa-house-user"></i></span>
-                                </div>
-                                @Html.EditorFor(model => model.Address.Numero, new { htmlAttributes = new { @class = "form-control" } })
-                                @Html.ValidationMessageFor(model => model.Address.Numero, "", new { @class = "text-danger" })
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="form-group" id="moreInformation">
-                    @Html.LabelFor(model => model.Address.Complemento, "More information about your Address", htmlAttributes: new { @class = "control-label col-md-12" })
-                    <div class="col-md-12">
-                        <div class="input-group">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text"><i class="fas fa-house-user"></i></span>
-                            </div>
-                            @Html.EditorFor(model => model.Address.Complemento, new { htmlAttributes = new { @class = "form-control" } })
-                            @Html.ValidationMessageFor(model => model.Address.Complemento, "", new { @class = "text-danger" })
-                        </div>
-                    </div>
-                </div>
-
-                <div class="input-group">
-                    <div class="form-group col-md-5" id="neighborhood">
-                        @Html.LabelFor(model => model.Address.Bairro, "Neighborhood", htmlAttributes: new { @class = "control-label col-md-2" })
-                        <div class="col-md-12">
-                            <div class="input-group">
-                                <div class="input-group-prepend">
-                                    <span class="input-group-text"><i class="fas fa-house-user"></i></span>
-                                </div>
-                                @Html.EditorFor(model => model.Address.Bairro, new { htmlAttributes = new { @class = "form-control" } })
-                                @Html.ValidationMessageFor(model => model.Address.Bairro, "", new { @class = "text-danger" })
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="form-group col-md-4" id="city">
-                        @Html.LabelFor(model => model.Address.Cidade, "City", htmlAttributes: new { @class = "control-label col-md-2" })
-                        <div class="col-md-12">
-                            <div class="input-group">
-                                <div class="input-group-prepend">
-                                    <span class="input-group-text"><i class="fas fa-house-user"></i></span>
-                                </div>
-                                @Html.EditorFor(model => model.Address.Cidade, new { htmlAttributes = new { @class = "form-control" } })
-                                @Html.ValidationMessageFor(model => model.Address.Cidade, "", new { @class = "text-danger" })
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="form-group col-md-3" id="estate">
-                        @Html.LabelFor(model => model.Address.Uf, "Estate", htmlAttributes: new { @class = "control-label col-md-2" })
-                        <div class="col-md-12">
-                            <div class="input-group">
-                                <div class="input-group-prepend">
-                                    <span class="input-group-text"><i class="fas fa-house-user"></i></span>
-                                </div>
-                                @Html.EditorFor(model => model.Address.Uf, new { htmlAttributes = new { @class = "form-control" } })
-                                @Html.ValidationMessageFor(model => model.Address.Uf, "", new { @class = "text-danger" })
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!--End Address -->
-                <!-- Information Company -->
-                <div class="input-group">
+                @if ((int)@Session["permission"] == 1)
+                {
                     <div class="form-group">
-                        @Html.LabelFor(model => model.CompanyId, "Company", htmlAttributes: new { @class = "control-label col-md-2" })
+                        @Html.LabelFor(model => model.CompanyId, "Company", htmlAttributes: new { @class = "control-label col-md-12" })
+                        <div class="col-md-12">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text"><i class="fas fa-building"></i></span>
+                                </div>
+                                @Html.DropDownList("CompanyId", null ,"--Select an option--", htmlAttributes: new { @class = "form-control select2" })
+                                @Html.ValidationMessageFor(model => model.CompanyId, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="form-group" style="display:none">
+                        @Html.LabelFor(model => model.CompanyId, "Company", htmlAttributes: new { @class = "control-label col-md-12" })
                         <div class="col-md-12">
                             <div class="input-group">
                                 <div class="input-group-prepend">
@@ -183,120 +211,107 @@
                             </div>
                         </div>
                     </div>
+                }
 
-                    <div class="form-group">
-                        @Html.LabelFor(model => model.Admission, htmlAttributes: new { @class = "control-label col-md-2" })
-                        <div class="col-md-12">
-                            <div class="input-group">
-                                <div class="input-group-prepend">
-                                    <span class="input-group-text"><i class="far fa-calendar-alt"></i></span>
-                                </div>
-                                @Html.EditorFor(model => model.Admission, new { htmlAttributes = new { @class = "form-control", @type = "date" } })
-                                @Html.ValidationMessageFor(model => model.Admission, "", new { @class = "text-danger" })
-                            </div>
-                        </div>
-                    </div>
-                </div>
 
-                <div class="input-group">
+            </div>
 
-                    <div class="form-group col-md-4">
-                        @Html.LabelFor(model => model.Salary, htmlAttributes: new { @class = "control-label col-md-2" })
-                        <div class="col-md-12">
-                            <div class="input-group">
-                                <div class="input-group-prepend">
-                                    <span class="input-group-text"><i class="fas fa-coins"></i></span>
-                                </div>
-                                @Html.EditorFor(model => model.Salary, new { htmlAttributes = new { @class = "form-control" } })
-                                @Html.ValidationMessageFor(model => model.Salary, "", new { @class = "text-danger" })
-                            </div>
-                        </div>
-                    </div>
+            <div class="input-group">
 
-                    <div class="form-group col-md-5">
-                        @Html.LabelFor(model => model.OfficeId, "Office", htmlAttributes: new { @class = "control-label col-md-2" })
-                        <div class="col-md-12">
-                            <div class="input-group">
-                                <div class="input-group-prepend">
-                                    <span class="input-group-text"><i class="fas fa-briefcase"></i></span>
-                                </div>
-                                @Html.DropDownList("OfficeId", null, htmlAttributes: new { @class = "form-control" })
-                                @Html.ValidationMessageFor(model => model.OfficeId, "", new { @class = "text-danger" })
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="form-group col-md-3">
-                        @Html.LabelFor(model => model.HaveLogin, htmlAttributes: new { @class = "control-label col-md-2" })
-                        <div class="col-md-12">
-                            <div class="checkbox" data-val="false" value="false">
-                                @Html.EditorFor(model => model.HaveLogin, "", new { @value = "false" })
-                                @Html.ValidationMessageFor(model => model.HaveLogin, "", new { @class = "text-danger" })
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- End Information Company -->
-                <!-- Login -->
-                <div class="form-group" id="permission">
-                    @Html.LabelFor(model => model.Permission, "Permission", htmlAttributes: new { @class = "control-label col-md-2" })
-                    <div class="col-md-8">
+                <div class="form-group col-md-4">
+                    @Html.LabelFor(model => model.Salary, htmlAttributes: new { @class = "control-label col-md-12" })
+                    <div class="col-md-12">
                         <div class="input-group">
                             <div class="input-group-prepend">
-                                <span class="input-group-text"><i class="fas fa-key"></i></span>
+                                <span class="input-group-text"><i class="fas fa-coins"></i></span>
                             </div>
-                            @Html.DropDownList("Permission", null, htmlAttributes: new { @class = "form-control" })
-                            @Html.ValidationMessageFor(model => model.Permission, "", new { @class = "text-danger" })
+                            @Html.EditorFor(model => model.Salary, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.Salary, "", new { @class = "text-danger" })
                         </div>
                     </div>
                 </div>
 
-                <div class="input-group">
-                    <div class="form-group" id="login">
-                        @Html.LabelFor(model => model.LoginUser, htmlAttributes: new { @class = "control-label col-md-2" })
-                        <div class="col-md-12">
-                            <div class="input-group">
-                                <div class="input-group-prepend">
-                                    <span class="input-group-text"><i class="fas fa-lock"></i></span>
-                                </div>
-                                @Html.EditorFor(model => model.LoginUser, new { htmlAttributes = new { @class = "form-control" } })
-                                @Html.ValidationMessageFor(model => model.LoginUser, "", new { @class = "text-danger" })
+                <div class="form-group col-md-5">
+                    @Html.LabelFor(model => model.OfficeId, "Office", htmlAttributes: new { @class = "control-label col-md-12" })
+                    <div class="col-md-12">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="fas fa-briefcase"></i></span>
                             </div>
-                        </div>
-                    </div>
-
-                    <div class="form-group" id="password">
-                        @Html.LabelFor(model => model.PasswordUser, htmlAttributes: new { @class = "control-label col-md-2" })
-                        <div class="col-md-12">
-                            <div class="input-group">
-                                <div class="input-group-prepend">
-                                    <span class="input-group-text"><i class="fas fa-lock"></i></span>
-                                </div>
-                                @Html.EditorFor(model => model.PasswordUser, new { htmlAttributes = new { @class = "form-control", @type = "password" } })
-                                @Html.ValidationMessageFor(model => model.PasswordUser, "", new { @class = "text-danger" })
-                            </div>
+                            @Html.DropDownList("OfficeId", null, "--Select an option--", htmlAttributes: new { @class = "form-control select2" })
+                            @Html.ValidationMessageFor(model => model.OfficeId, "", new { @class = "text-danger" })
                         </div>
                     </div>
                 </div>
-                <!-- End Login -->
 
-                <div class="col-md-6">
-                    <div class="form-group">
-                        @Html.ActionLink("Cancelar", "Index", null, new { @class = "btn btn-secondary btn-lg" })
-                        <input type="submit" value="Criar" class="btn btn-success btn-lg" id="submit" />
+                <div class="form-group col-md-3">
+                    @Html.LabelFor(model => model.HaveLogin, htmlAttributes: new { @class = "control-label col-md-12" })
+                    <div class="col-md-12">
+                        <div class="checkbox" data-val="false" value="false">
+                            @Html.EditorFor(model => model.HaveLogin, "", new { @value = "false" })
+                            @Html.ValidationMessageFor(model => model.HaveLogin, "", new { @class = "text-danger" })
+                        </div>
                     </div>
                 </div>
             </div>
-        }
+            <!-- End Information Company -->
+            <!-- Login -->
+            <div class="form-group" id="permission">
+                @Html.LabelFor(model => model.Permission, "Permission", htmlAttributes: new { @class = "control-label col-md-12" })
+                <div class="col-md-8">
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fas fa-key"></i></span>
+                        </div>
+                        @Html.DropDownList("Permission", null, "--Please Select--", htmlAttributes: new { @class = "form-control" })
+                        @Html.ValidationMessageFor(model => model.Permission, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <div class="form-group" id="login">
+                    @Html.LabelFor(model => model.LoginUser, htmlAttributes: new { @class = "control-label col-md-12" })
+                    <div class="col-md-12">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                            </div>
+                            @Html.EditorFor(model => model.LoginUser, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.LoginUser, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group" id="password">
+                    @Html.LabelFor(model => model.PasswordUser, htmlAttributes: new { @class = "control-label col-md-12" })
+                    <div class="col-md-12">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                            </div>
+                            @Html.EditorFor(model => model.PasswordUser, new { htmlAttributes = new { @class = "form-control", @type = "password" } })
+                            @Html.ValidationMessageFor(model => model.PasswordUser, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- End Login -->
+
+            <div class="col-md-6">
+                <div class="form-group">
+                    @Html.ActionLink("Cancelar", "Index", null, new { @class = "btn btn-secondary btn-lg" })
+                    <input type="submit" value="Criar" class="btn btn-success btn-lg" id="submit" />
+                </div>
+            </div>
+        </div>
     </div>
-</div>
+}
+
+
 
 
 @section Scripts {
-    <script src="~/Scripts/jquery-3.4.1.js"></script>
-    <script src="https://ajax.aspnetcdn.com/ajax/jquery/1.8.0.js"></script>
-    <script src="https://ajax.aspnetcdn.com/ajax/jquery.ui/1.8.22/jquery-ui.js"></script>
-
     <script type="text/javascript">
         //login information
 
@@ -323,12 +338,6 @@
                 $('#login').hide();
                 $('#password').hide();
             }
-        });
-    </script>
-
-    <script type="text/javascript">
-        $(function () {
-            $('.datetimepicker').datepicker();
         });
     </script>
 
@@ -399,6 +408,71 @@
                     $('#divPhone').append(view);
                 }
             });
+        });
+    </script>
+
+    <script type="text/javascript">
+
+        var Select2Cascade = ( function(window, $) {
+
+            function Select2Cascade(parent, child, url, select2Options) {
+                var afterActions = [];
+                var options = select2Options || {};
+
+                this.then = function(callback) {
+                    afterActions.push(callback);
+                    return this;
+            };
+
+            parent.select2(select2Options).on("change", function (e) {
+
+            //child.prop("disabled", true);
+                child.val(null).trigger("change").empty();
+
+                var _this = this;
+
+                var message = "-- Select an option --";
+
+                var field = child[0].id;
+
+                $.getJSON(url.replace('1', $(this).val()), function(items) {
+                    var newOptions = '<option value="">'+ message +'</option>';
+
+                    items.forEach(function(entry) {
+                        newOptions += '<option value="'+ entry.id +'">'+ entry.name +'</option>';
+                    });
+
+                    child.select2('destroy').html(newOptions).prop("disabled", false)
+                        .select2(options);
+
+                    afterActions.forEach(function (callback) {
+                        callback(parent, child, items);
+                    });
+                });
+             });
+        }
+
+            return Select2Cascade;
+
+        })( window, $);
+
+
+        $(document).ready(function () {
+
+            var select2Options = {
+                        language: {
+                            noResults: function() {
+                                return "No results found";
+                            }
+                        }
+            };
+
+            var companyId = $('#CompanyId').val();
+
+            var apiUrl = "/Employees/GetOffices/1";
+
+            $('.select2').select2(select2Options);
+            var cascadLoading = new Select2Cascade($('#CompanyId'), $('#OfficeId'), apiUrl, select2Options);
         });
     </script>
 }

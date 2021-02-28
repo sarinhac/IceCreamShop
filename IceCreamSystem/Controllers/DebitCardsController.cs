@@ -55,7 +55,6 @@ namespace IceCreamSystem.Controllers
             }
         }
 
-
         public ActionResult Details(int? id)
         {
             if (id == null)

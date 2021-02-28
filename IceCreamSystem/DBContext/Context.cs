@@ -292,6 +292,10 @@ namespace IceCreamSystem.DBContext
                 .WithOptional(e => e.Payment)
                 .HasForeignKey(e => e.PaymentId);
 
+            modelBuilder.Entity<Payment>()
+                .Property(e => e.DiscontApply)
+                .HasPrecision(7, 2);
+
             modelBuilder.Entity<Phone>()
                 .Property(e => e.DDD)
                 .IsFixedLength()

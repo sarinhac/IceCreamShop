@@ -6,61 +6,70 @@
     {
         @Html.AntiForgeryToken()
 
-        <div class="form-horizontal">
+    <div class="form-horizontal">
 
-            @Html.HiddenFor(model => model.SaleId, htmlAttributes: new { @Value = ViewBag.SaleId })
+        @Html.HiddenFor(model => model.SaleId, htmlAttributes: new { @Value = ViewBag.SaleId })
 
+        <div class="form-group">
+            @Html.LabelFor(model => model.TypePayment, "Type Payment", htmlAttributes: new { @class = "control-label col-md-12" })
+            <div class="col-md-6">
+                @Html.DropDownList("TypePayment", null, htmlAttributes: new { @class = "form-control" })
+                @Html.ValidationMessageFor(model => model.TypePayment, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="input-group">
+            <div class="form-group" id="debitCard">
+                @Html.LabelFor(model => model.DebitCardId, "Debit Card", htmlAttributes: new { @class = "control-label col-md-12" })
+                <div class="col-md-12">
+                    @Html.DropDownList("DebitCardId", null, (string)ViewBag.Text, htmlAttributes: new { @class = "form-control" })
+                    @Html.ValidationMessageFor(model => model.DebitCardId, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="form-group" id="creditCard">
+                @Html.LabelFor(model => model.CreditCardId, "Credit Card", htmlAttributes: new { @class = "control-label col-md-12" })
+                <div class="col-md-12">
+                    @Html.DropDownList("CreditCardId", null, (string)ViewBag.Text, htmlAttributes: new { @class = "form-control" })
+                    @Html.ValidationMessageFor(model => model.CreditCardId, "", new { @class = "text-danger" })
+                </div>
+            </div>
+        </div>
+
+        <div class="input-group">
+            <div class="form-group" id="codePayment">
+                @Html.LabelFor(model => model.CodePaymentCard, "Code Payment", htmlAttributes: new { @class = "control-label col-md-12" })
+                <div class="col-md-12">
+                    @Html.EditorFor(model => model.CodePaymentCard, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.CodePaymentCard, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="form-group" id="installment">
+                @Html.LabelFor(model => model.InstallmentNumber, "Installment Number", htmlAttributes: new { @class = "control-label col-md-12" })
+                <div class="col-md-12">
+                    @Html.EditorFor(model => model.InstallmentNumber, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.InstallmentNumber, "", new { @class = "text-danger" })
+                </div>
+            </div>
+        </div>
+
+        <div class="input-group">
             <div class="form-group">
-                @Html.LabelFor(model => model.TypePayment, "Type Payment", htmlAttributes: new { @class = "control-label col-md-2" })
+                @Html.LabelFor(model => model.DiscontApply, "Discont", htmlAttributes: new { @class = "control-label col-md-12" })
                 <div class="col-md-6">
-                    @Html.DropDownList("TypePayment", null, htmlAttributes: new { @class = "form-control" })
-                    @Html.ValidationMessageFor(model => model.TypePayment, "", new { @class = "text-danger" })
+                    @Html.EditorFor(model => model.DiscontApply, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.DiscontApply, "", new { @class = "text-danger" })
                 </div>
             </div>
-
-            <div class="input-group">
-                <div class="form-group" id="debitCard">
-                    @Html.LabelFor(model => model.DebitCardId, "Debit Card", htmlAttributes: new { @class = "control-label col-md-2" })
-                    <div class="col-md-12">
-                        @Html.DropDownList("DebitCardId", null,(string)ViewBag.Text, htmlAttributes: new { @class = "form-control" })
-                        @Html.ValidationMessageFor(model => model.DebitCardId, "", new { @class = "text-danger" })
-                    </div>
-                </div>
-
-                <div class="form-group" id="creditCard">
-                    @Html.LabelFor(model => model.CreditCardId, "Credit Card", htmlAttributes: new { @class = "control-label col-md-2" })
-                    <div class="col-md-12">
-                        @Html.DropDownList("CreditCardId", null, (string)ViewBag.Text, htmlAttributes: new { @class = "form-control" })
-                        @Html.ValidationMessageFor(model => model.CreditCardId, "", new { @class = "text-danger" })
-                    </div>
-                </div>
-            </div>
-
-            <div class="input-group">
-                <div class="form-group" id="codePayment">
-                    @Html.LabelFor(model => model.CodePaymentCard, "Code Payment", htmlAttributes: new { @class = "control-label col-md-2" })
-                    <div class="col-md-12">
-                        @Html.EditorFor(model => model.CodePaymentCard, new { htmlAttributes = new { @class = "form-control" } })
-                        @Html.ValidationMessageFor(model => model.CodePaymentCard, "", new { @class = "text-danger" })
-                    </div>
-                </div>
-
-                <div class="form-group" id="installment">
-                    @Html.LabelFor(model => model.InstallmentNumber, "Installment Number", htmlAttributes: new { @class = "control-label col-md-2" })
-                    <div class="col-md-12">
-                        @Html.EditorFor(model => model.InstallmentNumber, new { htmlAttributes = new { @class = "form-control" } })
-                        @Html.ValidationMessageFor(model => model.InstallmentNumber, "", new { @class = "text-danger" })
-                    </div>
-                </div>
-            </div>
-
             <div class="form-group">
-                @Html.LabelFor(model => model.CompanyId, "Company", htmlAttributes: new { @class = "control-label col-md-2" })
+                @Html.LabelFor(model => model.CompanyId, "Company", htmlAttributes: new { @class = "control-label col-md-12" })
                 <div class="col-md-6">
                     @Html.DropDownList("CompanyId", null, htmlAttributes: new { @class = "form-control" })
                     @Html.ValidationMessageFor(model => model.CompanyId, "", new { @class = "text-danger" })
                 </div>
             </div>
+        </div>
 
             <div class="form-group">
                 <div class="col-md-6">
@@ -69,8 +78,8 @@
             </div>
 
         </div>
-    }
-</div>
+        }
+    </div>
 
 
 

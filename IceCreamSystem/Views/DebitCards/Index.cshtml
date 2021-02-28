@@ -54,7 +54,7 @@
                 </td>
                 <td>
                     <div class="btn-group pull-center d-lg-inline">
-                        <a class="btn btn-block bg-gradient-info d-lg-inline details" data-toggle="modal" data-target="#modal" data-url="@Url.Action("Details", "DebitCards", new { id = item.IdDebitCard })"> <i class="fas fa-info-circle"></i> Details </a>
+                        <a class="btn btn-block bg-gradient-info d-lg-inline details" data-toggle="modal" data-target="#modal" data-url="@Url.Action("Details", "DebitCards", new { id = item.IdDebitCard })" href="#modal"> <i class="fas fa-info-circle"></i> Details </a>
                         <a class="btn btn-block bg-gradient-warning d-lg-inline" href="@Url.Action("Edit", "DebitCards", new { id = item.IdDebitCard })"> <i class="fas fa-edit"></i> Edit </a>
 
                         @if (item.Status != 0)

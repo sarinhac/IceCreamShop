@@ -1,9 +1,11 @@
-﻿using System.Data.Entity;
+﻿using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Net;
 using System.Web.Mvc;
 using IceCreamSystem.DBContext;
 using IceCreamSystem.Models;
+using IceCreamSystem.Services;
 
 namespace IceCreamSystem.Controllers
 {
@@ -17,8 +19,41 @@ namespace IceCreamSystem.Controllers
             ViewBag.confirm = TempData["confirm"] != null ? TempData["confirm"].ToString() : null;
             ViewBag.error = TempData["error"] != null ? TempData["error"].ToString() : null;
 
-            var unitMeasure = db.UnitMeasure.Include(u => u.Company);
-            return View(unitMeasure.ToList());
+            try
+            {
+                int idUser = (int)Session["idUser"];
+                int permission = (int)Session["permission"];
+                int idCompany = (int)Session["idCompany"];
+                string userName = (string)Session["username"];
+
+                if (Check.IsLogOn(idUser, permission, idCompany, userName))
+                {
+                    if (Check.IsSuperAdmin(permission))
+                    {
+                        ViewBag.permission = true;
+                        return View(db.UnitMeasure.Include(c => c.Company).ToList());
+                    }
+                    else if (Check.IsSupervisor(permission))
+                    {
+                        ViewBag.permission = true;
+                        return View(db.UnitMeasure.Where(c => c.CompanyId == idCompany).Include(c => c.Company).ToList());
+                    }
+                    else if (Check.IsStockist(permission))
+                        return View(db.UnitMeasure.Where(c => c.CompanyId == idCompany).Include(c => c.Company).ToList());
+                    else
+                    {
+                        TempData["error"] = "YOU DO NOT HAVE PERMISSION";
+                        return RedirectToAction("Home", "Employees");
+                    }
+                }
+                else
+                    return RedirectToAction("LogIn", "Employees");
+            }
+            catch
+            {
+                TempData["error"] = "You need to login";
+                return RedirectToAction("LogIn", "Employees");
+            }
         }
 
         public ActionResult Details(int? id)
@@ -27,18 +62,74 @@ namespace IceCreamSystem.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            UnitMeasure unitMeasure = db.UnitMeasure.Find(id);
-            if (unitMeasure == null)
+            try
             {
-                return HttpNotFound();
+                int idUser = (int)Session["idUser"];
+                int permission = (int)Session["permission"];
+                int idCompany = (int)Session["idCompany"];
+                string userName = (string)Session["username"];
+
+                if (Check.IsLogOn(idUser, permission, idCompany, userName))
+                {
+                    UnitMeasure unitMeasure = db.UnitMeasure.Find(id);
+
+                    if (unitMeasure == null)
+                    {
+                        return HttpNotFound();
+                    }
+                    else if (Check.IsSuperAdmin(permission) || (Check.IsStockist(permission) && idCompany == unitMeasure.CompanyId))
+                        return View(unitMeasure);
+                    else
+                    {
+                        TempData["error"] = "YOU DO NOT HAVE PERMISSION";
+                        return RedirectToAction("Index");
+                    }
+                }
+                else
+                    return RedirectToAction("LogIn", "Employees");
             }
-            return View(unitMeasure);
+            catch
+            {
+                TempData["error"] = "You need to login";
+                return RedirectToAction("LogIn", "Employees");
+            }
         }
 
         public ActionResult Create()
         {
-            ViewBag.CompanyId = new SelectList(db.Company, "IdCompany", "NameCompany");
-            return View();
+            try
+            {
+                int idUser = (int)Session["idUser"];
+                int permission = (int)Session["permission"];
+                int idCompany = (int)Session["idCompany"];
+                string userName = (string)Session["username"];
+
+                if (Check.IsLogOn(idUser, permission, idCompany, userName))
+                {
+                    if (Check.IsSuperAdmin(permission))
+                        ViewBag.CompanyId = new SelectList(db.Company, "IdCompany", "NameCompany");
+                    else if (Check.IsSupervisor(permission))
+                    {
+                        Company company = db.Company.Where(c => c.IdCompany == idCompany).FirstOrDefault();
+                        List<Company> companies = new List<Company>();
+                        companies.Add(company);
+                        ViewBag.CompanyId = new SelectList(companies, "IdCompany", "NameCompany", idCompany);
+                    }
+                    else
+                    {
+                        TempData["error"] = "YOU DO NOT HAVE PERMISSION";
+                        return RedirectToAction("Index");
+                    }
+                    return View();
+                }
+                else
+                    return RedirectToAction("LogIn", "Employees");
+            }
+            catch
+            {
+                TempData["error"] = "You need to login";
+                return RedirectToAction("LogIn", "Employees");
+            }
         }
 
         [HttpPost]
@@ -90,7 +181,19 @@ namespace IceCreamSystem.Controllers
             }
 
         ReturnIfError:
-            ViewBag.CompanyId = new SelectList(db.Company, "IdCompany", "NameCompany", unitMeasure.CompanyId);
+
+            int permission = (int)Session["permission"];
+            int idCompany = (int)Session["idCompany"];
+
+            if (Check.IsSuperAdmin(permission))
+                ViewBag.CompanyId = new SelectList(db.Company, "IdCompany", "NameCompany");
+            else if (Check.IsSupervisor(permission))
+            {
+                Company company = db.Company.Where(c => c.IdCompany == idCompany).FirstOrDefault();
+                List<Company> companies = new List<Company>();
+                companies.Add(company);
+                ViewBag.CompanyId = new SelectList(companies, "IdCompany", "NameCompany", idCompany);
+            }
             return View(unitMeasure);
         }
 
@@ -100,13 +203,46 @@ namespace IceCreamSystem.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            UnitMeasure unitMeasure = db.UnitMeasure.Find(id);
-            if (unitMeasure == null)
+            try
             {
-                return HttpNotFound();
+                int idUser = (int)Session["idUser"];
+                int permission = (int)Session["permission"];
+                int idCompany = (int)Session["idCompany"];
+                string userName = (string)Session["username"];
+
+                if (Check.IsLogOn(idUser, permission, idCompany, userName))
+                {
+                    UnitMeasure unitMeasure = db.UnitMeasure.Find(id);
+
+                    if (unitMeasure == null)
+                    {
+                        return HttpNotFound();
+                    }
+
+                    if (Check.IsSuperAdmin(permission))
+                        ViewBag.CompanyId = new SelectList(db.Company, "IdCompany", "NameCompany");
+                    else if (Check.IsSupervisor(permission) && idCompany == unitMeasure.CompanyId)
+                    {
+                        Company company = db.Company.Where(c => c.IdCompany == idCompany).FirstOrDefault();
+                        List<Company> companies = new List<Company>();
+                        companies.Add(company);
+                        ViewBag.CompanyId = new SelectList(companies, "IdCompany", "NameCompany", idCompany);
+                    }
+                    else
+                    {
+                        TempData["error"] = "YOU DO NOT HAVE PERMISSION";
+                        return RedirectToAction("Index");
+                    }
+                    return View(unitMeasure);
+                }
+                else
+                    return RedirectToAction("LogIn", "Employees");
             }
-            ViewBag.CompanyId = new SelectList(db.Company, "IdCompany", "NameCompany", unitMeasure.CompanyId);
-            return View(unitMeasure);
+            catch
+            {
+                TempData["error"] = "You need to login";
+                return RedirectToAction("LogIn", "Employees");
+            }          
         }
 
         [HttpPost]
@@ -164,7 +300,19 @@ namespace IceCreamSystem.Controllers
             }
 
         ReturnIfError:
-            ViewBag.CompanyId = new SelectList(db.Company, "IdCompany", "NameCompany", unitMeasure.CompanyId);
+
+            int permission = (int)Session["permission"];
+            int idCompany = (int)Session["idCompany"];
+
+            if (Check.IsSuperAdmin(permission))
+                ViewBag.CompanyId = new SelectList(db.Company, "IdCompany", "NameCompany");
+            else if (Check.IsSupervisor(permission))
+            {
+                Company company = db.Company.Where(c => c.IdCompany == idCompany).FirstOrDefault();
+                List<Company> companies = new List<Company>();
+                companies.Add(company);
+                ViewBag.CompanyId = new SelectList(companies, "IdCompany", "NameCompany", idCompany);
+            }
             return View(unitMeasure);
         }
 
@@ -174,12 +322,38 @@ namespace IceCreamSystem.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            UnitMeasure unitMeasure = db.UnitMeasure.Find(id);
-            if (unitMeasure == null)
+            try
             {
-                return HttpNotFound();
+                int idUser = (int)Session["idUser"];
+                int permission = (int)Session["permission"];
+                int idCompany = (int)Session["idCompany"];
+                string userName = (string)Session["username"];
+
+                if (Check.IsLogOn(idUser, permission, idCompany, userName))
+                {
+                    UnitMeasure unitMeasure = db.UnitMeasure.Find(id);
+
+                    if (unitMeasure == null)
+                    {
+                        return HttpNotFound();
+                    }
+
+                    if (Check.IsSuperAdmin(permission) || (Check.IsSupervisor(permission) && idCompany == unitMeasure.CompanyId))
+                        return View(unitMeasure);
+                    else
+                    {
+                        TempData["error"] = "YOU DO NOT HAVE PERMISSION";
+                        return RedirectToAction("Index");
+                    }
+                }
+                else
+                    return RedirectToAction("LogIn", "Employees");
             }
-            return View(unitMeasure);
+            catch
+            {
+                TempData["error"] = "You need to login";
+                return RedirectToAction("LogIn", "Employees");
+            }
         }
 
         [HttpPost, ActionName("Delete")]
@@ -224,12 +398,38 @@ namespace IceCreamSystem.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            UnitMeasure unitMeasure = db.UnitMeasure.Find(id);
-            if (unitMeasure == null)
+            try
             {
-                return HttpNotFound();
+                int idUser = (int)Session["idUser"];
+                int permission = (int)Session["permission"];
+                int idCompany = (int)Session["idCompany"];
+                string userName = (string)Session["username"];
+
+                if (Check.IsLogOn(idUser, permission, idCompany, userName))
+                {
+                    UnitMeasure unitMeasure = db.UnitMeasure.Find(id);
+
+                    if (unitMeasure == null)
+                    {
+                        return HttpNotFound();
+                    }
+
+                    if (Check.IsSuperAdmin(permission) || (Check.IsSupervisor(permission) && idCompany == unitMeasure.CompanyId))
+                        return View(unitMeasure);
+                    else
+                    {
+                        TempData["error"] = "YOU DO NOT HAVE PERMISSION";
+                        return RedirectToAction("Index");
+                    }
+                }
+                else
+                    return RedirectToAction("LogIn", "Employees");
             }
-            return View(unitMeasure);
+            catch
+            {
+                TempData["error"] = "You need to login";
+                return RedirectToAction("LogIn", "Employees");
+            }
         }
 
         [HttpPost, ActionName("Active")]

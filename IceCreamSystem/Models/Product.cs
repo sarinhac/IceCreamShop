@@ -28,9 +28,11 @@ namespace IceCreamSystem.Models
 
         [Required]
         [StringLength(50)]
+        [Display(Name = "Product")]
         public string NameProduct { get; set; }
 
         [StringLength(255)]
+        [Display(Name = "Description")]
         public string DescriptionProduct { get; set; }
 
         [Display(Name = "Cost Price")]
@@ -88,7 +90,7 @@ namespace IceCreamSystem.Models
         public override bool Equals(object obj)
         {
             Product product = (Product)obj;
-            return product.IdProduct == IdProduct && product.NameProduct.Equals(NameProduct) && product.DescriptionProduct.Equals(DescriptionProduct)
+            return product.IdProduct == IdProduct && product.NameProduct.Equals(NameProduct) && product.DescriptionProduct == DescriptionProduct
                 && product.CostPrice == CostPrice && product.SalePrice == SalePrice && product.MinStock == MinStock && product.UnitMeasureId == UnitMeasureId
                 && product.CategoryId == CategoryId && product.SellNegative == SellNegative && product.CompanyId == CompanyId;
         }

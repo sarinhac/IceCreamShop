@@ -1,4 +1,4 @@
-﻿@model IceCreamSystem.Models.Office 
+﻿@model IceCreamSystem.Models.Office
 
 @{
     Layout = "~/Views/Shared/_ModalView.cshtml";
@@ -39,9 +39,21 @@
         @Html.DisplayNameFor(model => model.Status)
     </dt>
 
-    <dd>
-        @Html.DisplayFor(model => model.Status)
-    </dd>
+    @if (Model.Status != 0)
+    {
+
+
+        <dd class="badge badge-success">
+            @Html.DisplayFor(model => model.Status)
+        </dd>
+
+    }
+    else
+    {
+        <dd class="badge badge-success">
+            @Html.DisplayFor(model => model.Status)
+        </dd>
+    }
 
     <dt>
         @Html.DisplayNameFor(model => model.Created)

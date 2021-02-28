@@ -83,12 +83,14 @@ namespace IceCreamSystem.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "SaleId,TypePayment,DebitCardId,CreditCardId,CompanyId,forecastDatePayment,InstallmentNumber,CodePaymentCard")] Payment payment)
+        public ActionResult Create([Bind(Include = "SaleId,TypePayment,DebitCardId,CreditCardId,CompanyId,forecastDatePayment,InstallmentNumber,CodePaymentCard,DiscontApply")] Payment payment)
         {
             string[] productsInCookie = Request.Cookies["products"].Value.Split('/');
             int companyId = 1;// (int)Session["companyId"];
             List<SaleProduct> saleProducts = SalesProductsService.ReturnSaleProducts(productsInCookie, companyId, payment.SaleId);
             decimal TotalPrice = SalesProductsService.GetTotalPrice(saleProducts);
+            if (payment.DiscontApply != null)
+                TotalPrice -= Convert.ToDecimal(payment.DiscontApply);
 
             if (payment.SaleId > 0)
             {
@@ -130,12 +132,13 @@ namespace IceCreamSystem.Controllers
                                             CreditCardId = payment.CreditCardId,
                                             CompanyId = payment.CompanyId,
                                             TypePayment = payment.TypePayment,
-                                            Status = (StatusPayment)status, 
+                                            Status = (StatusPayment)status,
                                             InstallmentNumber = i,
                                             CodePaymentCard = payment.CodePaymentCard,
                                             TotalPrice = TotalPrice,
                                             InstallmentPrice = installment,
-                                            forecastDatePayment = DateTime.Now.AddDays(days)
+                                            forecastDatePayment = DateTime.Now.AddDays(days),
+                                            DiscontApply = payment.DiscontApply
                                         };
 
                                         installmentSale.Add(pay);
@@ -177,6 +180,7 @@ namespace IceCreamSystem.Controllers
                                     payment.InstallmentNumber = 0;
                                     payment.forecastDatePayment = payment.Created.Date.AddDays(1);
                                     payment.TotalPrice = TotalPrice;
+
                                     
                                     decimal tax = (TotalPrice * card.Rate) / 100;
                                     decimal installment = Math.Round(TotalPrice - tax, 2);

@@ -39,13 +39,16 @@
         @Html.DisplayFor(model => model.NameProduct)
     </dd>
 
-    <dt>
-        @Html.DisplayNameFor(model => model.DescriptionProduct)
-    </dt>
+    @if (Model.DescriptionProduct != null)
+    {
+        <dt>
+            @Html.DisplayNameFor(model => model.DescriptionProduct)
+        </dt>
 
-    <dd>
-        @Html.DisplayFor(model => model.DescriptionProduct)
-    </dd>
+        <dd>
+            @Html.DisplayFor(model => model.DescriptionProduct)
+        </dd>
+    }
 
     <dt>
         @Html.DisplayNameFor(model => model.CostPrice)
