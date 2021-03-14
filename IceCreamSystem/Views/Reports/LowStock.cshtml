@@ -1,0 +1,73 @@
+﻿@model IEnumerable<IceCreamSystem.Models.Product>
+
+@{
+    ViewBag.Controller = "Reports";
+    ViewBag.Title = "Low Stock";
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-sm-12 col-md-6">
+                    <div id="table_button" class="float-right w-50" style=" float: right;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card-body">
+        <div class="row">
+            <div class="col-sm-12 col-md-6 ">
+                <div class="progress-group align-middle">
+                    @ViewBag.Title
+                    <span class="float-right ">
+                        <b>@ViewBag.Count</b>
+                        /@ViewBag.TotalCount
+                    </span>
+                    <div class="progress">
+                        <div class="progress-bar" role="progressbar" style="width: @(ViewBag.Percent)%;" aria-valuenow="@ViewBag.Percent" aria-valuemin="0" aria-valuemax="100">@ViewBag.Percent %</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<table id="example1" class="table table-bordered table-striped dataTable dtr-inline collapsed" style="width:100%" role="grid" aria-describedby="example1_info">
+    <thead>
+        <tr role="row">
+            <th class="sorting_asc" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Rendering engine: activate to sort column descending">
+                @Html.DisplayNameFor(model => model.NameProduct)
+            </th>
+            <th class="sorting_asc" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Rendering engine: activate to sort column descending">
+                @Html.DisplayNameFor(model => model.CostPrice)
+            </th>
+            <th class="sorting_asc" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Rendering engine: activate to sort column descending">
+                @Html.DisplayNameFor(model => model.SalePrice)
+            </th>
+            <th class="sorting_asc" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Rendering engine: activate to sort column descending">
+                @Html.DisplayNameFor(model => model.AmountStock)
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td class="sorting_1" tabindex="0">
+                    @Html.DisplayFor(modelItem => item.NameProduct)
+                </td>
+                <td class="sorting_1" tabindex="0">
+                    @Html.DisplayFor(modelItem => item.CostPrice)
+                </td>
+                <td class="sorting_1" tabindex="0">
+                    @Html.DisplayFor(modelItem => item.SalePrice)
+                </td>
+                <td class="sorting_1" tabindex="0">
+                    @Html.DisplayFor(modelItem => item.AmountStock)
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

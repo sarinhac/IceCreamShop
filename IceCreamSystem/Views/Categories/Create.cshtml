@@ -1,16 +1,10 @@
 ﻿@model IceCreamSystem.Models.Category
 
 @{
+    ViewBag.Controller = "Categories";
     ViewBag.Title = "New Category";
 }
 
-
-@if (ViewBag.error != null)
-{
-    <div class="alert alert-danger" role="alert">
-        @ViewBag.error
-    </div>
-}
 
 @using (Html.BeginForm())
 {
@@ -21,7 +15,7 @@
             <div class="form-group">
                 @Html.ValidationSummary(true, "", new { @class = "text-danger" })
                 <div class="form-group">
-                    @Html.LabelFor(model => model.NameCategory, htmlAttributes: new { @class = "control-label col-md-2" })
+                    @Html.LabelFor(model => model.NameCategory, htmlAttributes: new { @class = "control-label col-md-12" })
                     <div class="col-md-12">
                         <div class="input-group">
                             <div class="input-group-prepend">
@@ -37,7 +31,7 @@
             <div class="form-group">
                 @Html.ValidationSummary(true, "", new { @class = "text-danger" })
                 <div class="form-group">
-                    @Html.LabelFor(model => model.DescriptionCategory, htmlAttributes: new { @class = "control-label col-md-2" })
+                    @Html.LabelFor(model => model.DescriptionCategory, htmlAttributes: new { @class = "control-label col-md-12" })
                     <div class="col-md-12">
                         <div class="input-group">
                             <div class="input-group-prepend">
@@ -54,19 +48,13 @@
                 <div class="form-group">
                     @Html.ValidationSummary(true, "", new { @class = "text-danger" })
                     <div class="form-group">
-                        @Html.LabelFor(model => model.CompanyId, "CompanyId", htmlAttributes: new { @class = "control-label col-md-2" })
+                        @Html.LabelFor(model => model.CompanyId, "CompanyId", htmlAttributes: new { @class = "control-label col-md-12" })
                         <div class="col-md-12">
                             <div class="input-group">
                                 <div class="input-group-prepend">
                                     <span class="input-group-text"><i class="fas fa-building"></i></span>
                                 </div>
-
-                                @Html.DropDownList("CompanyId", null, htmlAttributes: new { @class = "form-control" })
-                                }
-                                else
-                                {
-                                @Html.DropDownList("CompanyId", null, htmlAttributes: new { @class = "form-control", @disabled = "true" })
-                                }
+                                @Html.DropDownList("CompanyId", null, htmlAttributes: new { @class = "form-control  select2" })
                                 @Html.ValidationMessageFor(model => model.CompanyId, "", new { @class = "text-danger" })
                             </div>
                         </div>
@@ -78,19 +66,13 @@
                 <div class="form-group" style="display:none">
                     @Html.ValidationSummary(true, "", new { @class = "text-danger" })
                     <div class="form-group">
-                        @Html.LabelFor(model => model.CompanyId, "CompanyId", htmlAttributes: new { @class = "control-label col-md-2" })
+                        @Html.LabelFor(model => model.CompanyId, "CompanyId", htmlAttributes: new { @class = "control-label col-md-12" })
                         <div class="col-md-12">
                             <div class="input-group">
                                 <div class="input-group-prepend">
                                     <span class="input-group-text"><i class="fas fa-building"></i></span>
-                                </div>
-
-                                @Html.DropDownList("CompanyId", null, htmlAttributes: new { @class = "form-control" })
-                                }
-                                else
-                                {
-                                @Html.DropDownList("CompanyId", null, htmlAttributes: new { @class = "form-control", @disabled = "true" })
-                                }
+                                </div> 
+                                @Html.DropDownList("CompanyId", null, htmlAttributes: new { @class = "form-control select2" })
                                 @Html.ValidationMessageFor(model => model.CompanyId, "", new { @class = "text-danger" })
                             </div>
                         </div>

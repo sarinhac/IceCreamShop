@@ -3,7 +3,7 @@
 @{
     Layout = "~/Views/Shared/_ModalView.cshtml";
     ViewBag.Title = "Active";
-    ViewBag.Btn = "sucess";
+    ViewBag.Btn = "success";
 }
 
 <dl class="dl-horizontal">
@@ -94,9 +94,18 @@
         @Html.DisplayNameFor(model => model.Status)
     </dt>
 
-    <dd>
-        @Html.DisplayFor(model => model.Status)
-    </dd>
+    @if (Model.Status != 0)
+    {
+        <dd class="badge badge-success">
+            @Html.DisplayFor(model => model.Status)
+        </dd>
+    }
+    else
+    {
+        <dd class="badge badge-danger">
+            @Html.DisplayFor(model => model.Status)
+        </dd>
+    }
 
     <dt>
         @Html.DisplayNameFor(model => model.Created)

@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.Web.Mvc;
 using IceCreamSystem.DBContext;
 using IceCreamSystem.Models;
@@ -20,10 +19,10 @@ namespace IceCreamSystem.Controllers
 
             try
             {
-                int idUser = (int)Session["idUser"];
-                int permission = (int)Session["permission"];
-                int idCompany = (int)Session["idCompany"];
-                string userName = (string)Session["username"];
+                int idUser = Session["idUser"] != null ? (int)Session["idUser"] : 0;
+                int permission = Session["permission"] != null ? (int)Session["permission"] : 0;
+                int idCompany = Session["idCompany"] != null ? (int)Session["idCompany"] : 0;
+                string userName = Session["username"] != null ? (string)Session["username"] : null;
 
                 if (Check.IsLogOn(idUser, permission, idCompany, userName))
                 {
@@ -46,12 +45,15 @@ namespace IceCreamSystem.Controllers
                     }
                 }
                 else
+                {
+                    TempData["error"] = "YOU ARE NOT LOGGED IN";
                     return RedirectToAction("LogIn", "Employees");
+                }
+
             }
             catch
             {
-                TempData["error"] = "You need to login";
-                return RedirectToAction("LogIn", "Employees");
+                return RedirectToAction("Error500", "Error");
             }
         }
 
@@ -59,22 +61,20 @@ namespace IceCreamSystem.Controllers
         {
             if (id == null)
             {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                return RedirectToAction("Error500", "Error");
             }
             try
             {
-                int idUser = (int)Session["idUser"];
-                int permission = (int)Session["permission"];
-                int idCompany = (int)Session["idCompany"];
-                string userName = (string)Session["username"];
+                int idUser = Session["idUser"] != null ? (int)Session["idUser"] : 0;
+                int permission = Session["permission"] != null ? (int)Session["permission"] : 0;
+                int idCompany = Session["idCompany"] != null ? (int)Session["idCompany"] : 0;
+                string userName = Session["username"] != null ? (string)Session["username"] : null;
 
                 if (Check.IsLogOn(idUser, permission, idCompany, userName))
                 {
                     Company company = db.Company.Find(id);
                     if (company == null)
-                    {
-                        return HttpNotFound();
-                    }
+                        return RedirectToAction("Error404", "Error");
                     else if (Check.IsSuperAdmin(permission) || (Check.IsAdmin(permission) && Check.IsSameCompany(idCompany, company.IdCompany)))
                         return View(company);
                     else
@@ -84,12 +84,14 @@ namespace IceCreamSystem.Controllers
                     }
                 }
                 else
+                {
+                    TempData["error"] = "YOU ARE NOT LOGGED IN";
                     return RedirectToAction("LogIn", "Employees");
+                }
             }
             catch
             {
-                TempData["error"] = "You need to login";
-                return RedirectToAction("LogIn", "Employees");
+                return RedirectToAction("Error500", "Error");
             }
         }
 
@@ -97,10 +99,10 @@ namespace IceCreamSystem.Controllers
         {
             try
             {
-                int idUser = (int)Session["idUser"];
-                int permission = (int)Session["permission"];
-                int idCompany = (int)Session["idCompany"];
-                string userName = (string)Session["username"];
+                int idUser = Session["idUser"] != null ? (int)Session["idUser"] : 0;
+                int permission = Session["permission"] != null ? (int)Session["permission"] : 0;
+                int idCompany = Session["idCompany"] != null ? (int)Session["idCompany"] : 0;
+                string userName = Session["username"] != null ? (string)Session["username"] : null;
 
                 if (Check.IsLogOn(idUser, permission, idCompany, userName))
                 {
@@ -113,12 +115,14 @@ namespace IceCreamSystem.Controllers
                     }
                 }
                 else
+                {
+                    TempData["error"] = "YOU ARE NOT LOGGED IN";
                     return RedirectToAction("LogIn", "Employees");
+                }
             }
             catch
             {
-                TempData["error"] = "You need to login";
-                return RedirectToAction("LogIn", "Employees");
+                return RedirectToAction("Error500", "Error");
             }
         }
 
@@ -135,7 +139,7 @@ namespace IceCreamSystem.Controllers
                     {
                         try
                         {
-                            int idUser = 1;//(int)Session["idUser"]; //who is login
+                            int idUser = (int)Session["idUser"]; //who is login
                             db.Company.Add(company);
                             db.SaveChanges();
 
@@ -152,47 +156,46 @@ namespace IceCreamSystem.Controllers
                             #endregion
 
                             trans.Commit();
-                            TempData["confirm"] = "New Company Created";
+                            TempData["confirm"] = "NEW COMPANY CREATED";
                         }
                         catch
                         {
                             trans.Rollback();
-                            ViewBag.error = "Sorry, but an error happened, try again, if the error continues please contact your system supplier";
+                            ViewBag.error = "ERROR 500, TRAY AGAIN, IF THE ERROR PERSIST CONTACT THE SYSTEM SUPPLIER";
                             goto ReturnIfError;
                         }
                     }
-
                 }
                 else
-                    TempData["message"] = "This Company already exists in your DB, try another name";
-
+                {
+                    ViewBag.error = "COMPANY ALREADY REGISTERED, TRY ANOTHER NAME";
+                    goto ReturnIfError;
+                }
                 return RedirectToAction("Index");
             }
 
         ReturnIfError:
+
             return View(company);
         }
 
         public ActionResult Edit(int? id)
         {
             if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
+                return RedirectToAction("Error500", "Error");
+
             try
             {
-                int idUser = (int)Session["idUser"];
-                int permission = (int)Session["permission"];
-                int idCompany = (int)Session["idCompany"];
-                string userName = (string)Session["username"];
+                int idUser = Session["idUser"] != null ? (int)Session["idUser"] : 0;
+                int permission = Session["permission"] != null ? (int)Session["permission"] : 0;
+                int idCompany = Session["idCompany"] != null ? (int)Session["idCompany"] : 0;
+                string userName = Session["username"] != null ? (string)Session["username"] : null;
 
                 if (Check.IsLogOn(idUser, permission, idCompany, userName))
                 {
                     Company company = db.Company.Find(id);
                     if (company == null)
-                    {
-                        return HttpNotFound();
-                    }
+                        return RedirectToAction("Error404", "Error");
                     else if (Check.IsSuperAdmin(permission))
                         return View(company);
                     else
@@ -202,12 +205,14 @@ namespace IceCreamSystem.Controllers
                     }
                 }
                 else
+                {
+                    TempData["error"] = "YOU ARE NOT LOGGED IN";
                     return RedirectToAction("LogIn", "Employees");
+                }
             }
             catch
             {
-                TempData["error"] = "You need to login";
-                return RedirectToAction("LogIn", "Employees");
+                return RedirectToAction("Error500", "Error");
             }
         }
 
@@ -220,10 +225,7 @@ namespace IceCreamSystem.Controllers
                 Company oldCompany = db.Company.Find(company.IdCompany);
 
                 if (oldCompany == null)
-                {
-                    TempData["error"] = "Sorry, but an error happened, Please contact your system supplier";
-                    return RedirectToAction("Index");
-                }
+                    return RedirectToAction("Error500", "Error");
                 else if (!oldCompany.Equals(company))
                 {
                     using (var trans = db.Database.BeginTransaction())
@@ -243,26 +245,33 @@ namespace IceCreamSystem.Controllers
                             oldCompany.NameCompany = company.NameCompany;
                             oldCompany.FlAuthoritativeReceipt = company.FlAuthoritativeReceipt;
                             db.SaveChanges();
+                            
+                            int companyDb = db.Company.Where(c => c.NameCompany.Equals(company.NameCompany)).Count();
+
+                            if (companyDb > 1)
+                            {
+                                trans.Rollback();
+                                ViewBag.error = "NAME COMPANY ALREADY REGISTERED, TRY ANOTHER NAME";
+                                goto ReturnIfError;
+                            }
 
                             db.Log.Add(log);
                             db.SaveChanges();
 
                             trans.Commit();
-                            TempData["confirm"] = "Successful Changes";
+                            TempData["confirm"] = "SUCCESSFUL CHANGES";
 
                         }
                         catch
                         {
                             trans.Rollback();
-                            ViewBag.error = "Sorry, but an error happened, try again, if the error continues please contact your system supplier";
+                            ViewBag.error = "ERROR 500, TRAY AGAIN, IF THE ERROR PERSIST CONTACT THE SYSTEM SUPPLIER";
                             goto ReturnIfError;
                         }
-
                     }
-
                 }
                 else
-                    TempData["message"] = "No changes were recorded";
+                    TempData["message"] = "NO CHANGES WERE RECORDED";
 
                 return RedirectToAction("Index");
             }
@@ -273,23 +282,20 @@ namespace IceCreamSystem.Controllers
         public ActionResult Delete(int? id)
         {
             if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
+                return RedirectToAction("Error500", "Error");
+
             try
             {
-                int idUser = (int)Session["idUser"];
-                int permission = (int)Session["permission"];
-                int idCompany = (int)Session["idCompany"];
-                string userName = (string)Session["username"];
+                int idUser = Session["idUser"] != null ? (int)Session["idUser"] : 0;
+                int permission = Session["permission"] != null ? (int)Session["permission"] : 0;
+                int idCompany = Session["idCompany"] != null ? (int)Session["idCompany"] : 0;
+                string userName = Session["username"] != null ? (string)Session["username"] : null;
 
                 if (Check.IsLogOn(idUser, permission, idCompany, userName))
                 {
                     Company company = db.Company.Find(id);
                     if (company == null)
-                    {
-                        return HttpNotFound();
-                    }
+                        return RedirectToAction("Error404", "Error");
                     else if (Check.IsSuperAdmin(permission))
                         return View(company);
                     else
@@ -299,12 +305,14 @@ namespace IceCreamSystem.Controllers
                     }
                 }
                 else
+                {
+                    TempData["error"] = "YOU ARE NOT LOGGED IN";
                     return RedirectToAction("LogIn", "Employees");
+                }
             }
             catch
             {
-                TempData["error"] = "You need to login";
-                return RedirectToAction("LogIn", "Employees");
+                return RedirectToAction("Error500", "Error");
             }
         }
 
@@ -333,14 +341,13 @@ namespace IceCreamSystem.Controllers
                     db.SaveChanges();
 
                     trans.Commit();
-                    TempData["confirm"] = "Successful Delete";
+                    TempData["confirm"] = "SUCCESSFUL DELETE";
                     return RedirectToAction("Index");
                 }
                 catch
                 {
                     trans.Rollback();
-                    TempData["error"] = "An error happened. Please try again";
-                    return RedirectToAction("Index");
+                    return RedirectToAction("Error500", "Error");
                 }
 
             }
@@ -350,22 +357,20 @@ namespace IceCreamSystem.Controllers
         {
             if (id == null)
             {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                return RedirectToAction("Error500", "Error");
             }
             try
             {
-                int idUser = (int)Session["idUser"];
-                int permission = (int)Session["permission"];
-                int idCompany = (int)Session["idCompany"];
-                string userName = (string)Session["username"];
+                int idUser = Session["idUser"] != null ? (int)Session["idUser"] : 0;
+                int permission = Session["permission"] != null ? (int)Session["permission"] : 0;
+                int idCompany = Session["idCompany"] != null ? (int)Session["idCompany"] : 0;
+                string userName = Session["username"] != null ? (string)Session["username"] : null;
 
                 if (Check.IsLogOn(idUser, permission, idCompany, userName))
                 {
                     Company company = db.Company.Find(id);
                     if (company == null)
-                    {
-                        return HttpNotFound();
-                    }
+                        return RedirectToAction("Error404", "Error");
                     else if (Check.IsSuperAdmin(permission))
                         return View(company);
                     else
@@ -375,12 +380,14 @@ namespace IceCreamSystem.Controllers
                     }
                 }
                 else
+                {
+                    TempData["error"] = "YOU ARE NOT LOGGED IN";
                     return RedirectToAction("LogIn", "Employees");
+                }
             }
             catch
             {
-                TempData["error"] = "You need to login";
-                return RedirectToAction("LogIn", "Employees");
+                return RedirectToAction("Error500", "Error");
             }
         }
 
@@ -389,7 +396,7 @@ namespace IceCreamSystem.Controllers
         public ActionResult ActiveConfirmed(int id)
         {
             Company company = db.Company.Find(id);
-            int idUser = 1;//(int)Session["idUser"];
+            int idUser = (int)Session["idUser"];
 
             using (var trans = db.Database.BeginTransaction())
             {
@@ -409,14 +416,13 @@ namespace IceCreamSystem.Controllers
                     db.SaveChanges();
 
                     trans.Commit();
-                    TempData["confirm"] = "Successful Reactivation";
+                    TempData["confirm"] = "SUCCESSFUL REACVTIVATION";
                     return RedirectToAction("Index");
                 }
                 catch
                 {
                     trans.Rollback();
-                    TempData["error"] = "An error happened. Please try again";
-                    return RedirectToAction("Index");
+                    return RedirectToAction("Error500", "Error");
                 }
             }
         }

@@ -1,0 +1,102 @@
+﻿@model IEnumerable<IceCreamSystem.Models.Sale>
+
+@{
+    ViewBag.Title = "Unfinished Sales";
+    ViewBag.Controller = "Reports";
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card-body">
+            <div class="row">
+
+                <div class="col-sm-12 col-md-6">
+                    <div id="table_button" class="float-right w-50" style=" float: right;"></div>
+                </div>
+
+                <div class="col-sm-12 col-md-6">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">
+                            <i class="far fa-calendar-alt"></i>
+                        </span>
+                        <input type="text" class="form-control float-left w-50" id="reservation" style=" float: left;">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card-body">
+        <div class="row">
+            <div class="col-sm-12 col-md-6 ">
+                <div class="progress-group align-middle">
+                    @ViewBag.Title
+                    <span class="float-right ">
+                        <b>@ViewBag.Count</b>
+                        /@ViewBag.TotalCount
+                    </span>
+                    <div class="progress">
+                        <div class="progress-bar" role="progressbar" style="width: @(ViewBag.Percent)%;" aria-valuenow="@ViewBag.Percent" aria-valuemin="0" aria-valuemax="100">@ViewBag.Percent %</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-12 col-md-6 align-middle" style=" float: right; font-size: 30px; font-family:'Courier New'; font-weight:bold; text-align:center;">
+                <div>  Total: R$ @ViewBag.Total </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<table id="example1" class="table table-bordered table-striped dataTable dtr-inline collapsed" style="width:100%" role="grid" aria-describedby="example1_info">
+    <thead>
+        <tr role="row">
+            <th class="sorting_asc" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Rendering engine: activate to sort column descending">
+                @Html.DisplayNameFor(model => model.Employee.NameEmployee)
+            </th>
+            <th class="sorting_asc" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Rendering engine: activate to sort column descending">
+                @Html.DisplayNameFor(model => model.TotalPrice)
+            </th>
+            <th class="sorting_asc" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Rendering engine: activate to sort column descending">
+                @Html.DisplayNameFor(model => model.Status)
+            </th>
+            <th class="sorting_asc" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Rendering engine: activate to sort column descending">
+                @Html.DisplayNameFor(model => model.Created)
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+        <tr>
+            <td class="sorting_1" tabindex="0">
+                @Html.DisplayFor(modelItem => item.Employee.NameEmployee)
+            </td>
+            <td class="sorting_1" tabindex="0">
+                @Html.DisplayFor(modelItem => item.TotalPrice)
+            </td>
+            <td class="sorting_1" tabindex="0">
+                @if (item.Status != 0 && item.Status.ToString().Equals("PENDING"))
+                {
+                    <div class="badge badge-pill badge-warning"> @Html.DisplayFor(modelItem => item.Status)</div>
+                }
+                else if (item.Status != 0 && item.Status.ToString().Equals("CANCELED"))
+                {
+                    <div class="badge badge-pill badge-danger"> @Html.DisplayFor(modelItem => item.Status)</div>
+                }
+                else if (item.Status != 0 && item.Status.ToString().Equals("EXPIRED"))
+                {
+                    <div class="badge badge-pill badge-secondary"> @Html.DisplayFor(modelItem => item.Status)</div>
+                }
+                else
+                {
+                    <div class="badge badge-pill badge-light"> <i class="fas fa-ban"></i></div>
+                }
+
+            </td>
+            <td class="sorting_1" tabindex="0">
+                @Html.DisplayFor(modelItem => item.Created)
+            </td>
+        </tr>
+        }
+    </tbody>
+</table>

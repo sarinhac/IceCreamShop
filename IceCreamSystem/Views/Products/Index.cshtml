@@ -24,7 +24,7 @@
                 @Html.DisplayNameFor(model => model.SalePrice)
             </th>
             <th class="sorting_asc" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Rendering engine: activate to sort column descending">
-                @Html.DisplayNameFor(model => model.UnitMeasure.NameUnitMeasure)
+                @Html.DisplayNameFor(model => model.AmountStock)
             </th>
             <th class="sorting_asc" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Rendering engine: activate to sort column descending">
                 @Html.DisplayNameFor(model => model.Category.NameCategory)
@@ -55,10 +55,10 @@
                 @Html.DisplayFor(modelItem => item.SalePrice)
             </td>
             <td class="sorting_1" tabindex="0">
-                @Html.DisplayFor(modelItem => item.Category.NameCategory)
+                @Html.DisplayFor(modelItem => item.AmountStock)
             </td>
             <td class="sorting_1" tabindex="0">
-                @Html.DisplayFor(modelItem => item.UnitMeasure.NameUnitMeasure)
+                @Html.DisplayFor(modelItem => item.Category.NameCategory)
             </td>
             <td>
                 @if (item.Status != 0)

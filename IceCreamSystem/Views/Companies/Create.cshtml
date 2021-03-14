@@ -1,15 +1,10 @@
 ﻿@model IceCreamSystem.Models.Company
 
 @{
+    ViewBag.Controller = "Companies";
     ViewBag.Title = "New Company";
 }
 
-@if (ViewBag.error != null)
-{
-    <div class="alert alert-danger" role="alert">
-        @ViewBag.error
-    </div>
-}
 
 @using (Html.BeginForm())
 {
@@ -21,7 +16,7 @@
                 <div class="form-group">
                     @Html.ValidationSummary(true, "", new { @class = "text-danger" })
                     <div class="form-group">
-                        @Html.LabelFor(model => model.NameCompany, htmlAttributes: new { @class = "control-label col-md-2" })
+                        @Html.LabelFor(model => model.NameCompany, htmlAttributes: new { @class = "control-label col-md-12" })
                         <div class="col-md-12">
                             <div class="input-group">
                                 <div class="input-group-prepend">
@@ -35,7 +30,7 @@
                 </div>
 
                 <div class="form-group">
-                    @Html.LabelFor(model => model.FlAuthoritativeReceipt, htmlAttributes: new { @class = "control-label col-md-2" })
+                    @Html.LabelFor(model => model.FlAuthoritativeReceipt, htmlAttributes: new { @class = "control-label col-md-12" })
                     <div class="col-md-12">
                         <div class="checkbox" data-val="false" value="false">
                             @Html.EditorFor(model => model.FlAuthoritativeReceipt, "", new { @value = "false" })

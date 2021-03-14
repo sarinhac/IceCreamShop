@@ -1,0 +1,142 @@
+﻿@model IEnumerable<IceCreamSystem.Models.Payment>
+
+@{
+    ViewBag.Controller = "Reports";
+    ViewBag.Title = "Late Payments";
+}
+
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card-body">
+            <div class="row">
+
+                <div class="col-sm-12 col-md-6">
+                    <div id="table_button" class="float-right w-50" style=" float: right;"></div>
+                </div>
+
+                <div class="col-sm-12 col-md-6">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">
+                            <i class="far fa-calendar-alt"></i>
+                        </span>
+                        <input type="text" class="form-control float-left w-50" id="reservation" style=" float: left;">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card-body">
+        <div class="row">
+            <div class="col-sm-12 col-md-6 ">
+                <div class="progress-group align-middle">
+                    @ViewBag.Title
+                    <span class="float-right ">
+                        <b>@ViewBag.Count</b>
+                        /@ViewBag.TotalCount
+                    </span>
+                    <div class="progress">
+                        <div class="progress-bar" role="progressbar" style="width: @(ViewBag.Percent)%;" aria-valuenow="@ViewBag.Percent" aria-valuemin="0" aria-valuemax="100">@ViewBag.Percent %</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-12 col-md-6 align-middle" style=" float: right; font-size: 30px; font-family:'Courier New'; font-weight:bold; text-align:center;">
+                <div>  Total: R$ @ViewBag.Total </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<table id="example1" class="table table-bordered table-striped dataTable dtr-inline collapsed" style="width:100%" role="grid" aria-describedby="example1_info">
+    <thead>
+        <tr role="row">
+            <th>
+                @Html.DisplayNameFor(model => model.TotalPrice)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CodePaymentCard)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.TypePayment)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.InstallmentNumber)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.InstallmentPrice)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.DiscontApply)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.forecastDatePayment)
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.TotalPrice)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.DiscontApply)
+                </td>
+                <td>
+                    @if (item.CodePaymentCard != null)
+                    {
+                        @Html.DisplayFor(modelItem => item.CodePaymentCard)
+                    }
+                    else
+                    {
+                        <div class="badge badge-pill badge-light"> <i class="fas fa-ban"></i></div>
+                    }
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.TypePayment)
+                </td>
+                <td>
+                    @if (item.TypePayment.ToString().Equals("Credit"))
+                    {
+                        @Html.DisplayFor(modelItem => item.InstallmentNumber)
+
+                    }
+                    else
+                    {
+                        <div class="badge badge-pill badge-light"> <i class="fas fa-ban"></i></div>
+                    }
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.InstallmentPrice)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.forecastDatePayment)
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@section Scripts {
+    <script type="text/javascript">
+
+       /* $("#reservation").change(function () {
+                var period = $("#reservation").val();
+
+            document.cookie = "period=" + period + ";path =/;"
+
+                $.ajax({
+                    url: '@Url.Action("LatePayments", "Reports")',
+                    type: "GET",
+                    success: function (data) {
+                    },
+                    error: function (xhr, status, error) {
+                        console.log(status,error)
+                    }
+                });
+        })* /
+    </script>
+}

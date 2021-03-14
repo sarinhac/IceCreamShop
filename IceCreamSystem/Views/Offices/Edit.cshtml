@@ -6,13 +6,6 @@
 }
 
 
-@if (ViewBag.error != null)
-{
-    <div class="alert alert-danger" role="alert">
-        @ViewBag.error
-    </div>
-}
-
 @using (Html.BeginForm())
 {
     @Html.AntiForgeryToken()
@@ -27,7 +20,7 @@
                 <div class="form-group">
                     @Html.ValidationSummary(true, "", new { @class = "text-danger" })
                     <div class="form-group">
-                        @Html.LabelFor(model => model.NameOffice, htmlAttributes: new { @class = "control-label col-md-2" })
+                        @Html.LabelFor(model => model.NameOffice, htmlAttributes: new { @class = "control-label col-md-12" })
                         <div class="col-md-12">
                             <div class="input-group">
                                 <div class="input-group-prepend">
@@ -60,7 +53,7 @@
                     <div class="form-group">
                         @Html.ValidationSummary(true, "", new { @class = "text-danger" })
                         <div class="form-group">
-                            @Html.LabelFor(model => model.Discount, "Discount", htmlAttributes: new { @class = "control-label col-md-2" })
+                            @Html.LabelFor(model => model.Discount, "Discount", htmlAttributes: new { @class = "control-label col-md-12" })
                             <div class="col-md-12">
                                 <div class="input-group">
                                     <div class="input-group-prepend">
@@ -79,7 +72,7 @@
                         <div class="form-group">
                             @Html.ValidationSummary(true, "", new { @class = "text-danger" })
                             <div class="form-group">
-                                @Html.LabelFor(model => model.CompanyId, "Company", htmlAttributes: new { @class = "control-label col-md-2" })
+                                @Html.LabelFor(model => model.CompanyId, "Company", htmlAttributes: new { @class = "control-label col-md-12" })
                                 <div class="col-md-12">
                                     <div class="input-group">
                                         <div class="input-group-prepend">
@@ -97,7 +90,7 @@
                         <div class="form-group" style="display: none">
                             @Html.ValidationSummary(true, "", new { @class = "text-danger" })
                             <div class="form-group">
-                                @Html.LabelFor(model => model.CompanyId, "Company", htmlAttributes: new { @class = "control-label col-md-2" })
+                                @Html.LabelFor(model => model.CompanyId, "Company", htmlAttributes: new { @class = "control-label col-md-12" })
                                 <div class="col-md-12">
                                     <div class="input-group">
                                         <div class="input-group-prepend">
@@ -111,15 +104,15 @@
                         </div>
 
                     }
+                </div>
 
-
-                    <div class="form-group">
-                        <div class="col-md-6">
-                            @Html.ActionLink("Cancelar", "Index", null, new { @class = "btn btn-secondary btn-lg" })
-                            <input type="submit" value="Edit" class="btn btn-warning btn-lg" />
-                        </div>
+                <div class="form-group">
+                    <div class="col-md-6">
+                        @Html.ActionLink("Cancelar", "Index", null, new { @class = "btn btn-secondary btn-lg" })
+                        <input type="submit" value="Edit" class="btn btn-warning btn-lg" />
                     </div>
                 </div>
+
             </div>
         </div>
     </div>

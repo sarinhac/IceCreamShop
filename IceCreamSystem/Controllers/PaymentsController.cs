@@ -19,66 +19,159 @@ namespace IceCreamSystem.Controllers
         {
             ViewBag.confirm = TempData["confirm"] != null ? TempData["confirm"].ToString() : null;
             ViewBag.error = TempData["error"] != null ? TempData["error"].ToString() : null;
+            try
+            {
+                int idUser = Session["idUser"] != null ? (int)Session["idUser"] : 0;
+                int permission = Session["permission"] != null ? (int)Session["permission"] : 0;
+                int idCompany = Session["idCompany"] != null ? (int)Session["idCompany"] : 0;
+                string userName = Session["username"] != null ? (string)Session["username"] : null;
 
-            var payment = db.Payment.Include(p => p.Company).Include(p => p.CreditCard).Include(p => p.DebitCard).Include(p => p.Sale);
-            return View(payment.ToList());
+                if (Check.IsLogOn(idUser, permission, idCompany, userName))
+                {
+                    if (Check.IsSuperAdmin(permission))
+                    {
+                        ViewBag.permission = true;
+                        return View(db.Payment.Include(p => p.Company).Include(p => p.CreditCard).Include(p => p.DebitCard).Include(p => p.Sale).ToList());
+                    }
+                    else if (Check.IsSeller(permission))
+                    {
+                        ViewBag.permission = true;
+                        return View(db.Payment.Where(p=> p.CompanyId == idCompany).Include(p => p.Company).Include(p => p.CreditCard).Include(p => p.DebitCard).Include(p => p.Sale).ToList());
+                    }
+                    else
+                    {
+                        TempData["error"] = "YOU DO NOT HAVE PERMISSION";
+                        return RedirectToAction("Home", "Employees");
+                    }
+                }
+                else
+                {
+                    TempData["error"] = "YOU ARE NOT LOGGED IN";
+                    return RedirectToAction("LogIn", "Employees");
+                }
+            }
+            catch
+            {
+                return RedirectToAction("Error500", "Error");
+            }
         }
 
         public ActionResult Details(int? id)
         {
             if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            
-            Payment payment = db.Payment.Find(id);
-            
-            if (payment == null)
-            {
-                return HttpNotFound();
-            }
+                return RedirectToAction("Error500", "Error");
 
-            #region VIEWBAGS
-            ViewBag.Rate = payment.TypePayment == (TypePayment)1 ? null : payment.TypePayment == (TypePayment)2 ? payment.CreditCard.RateCreditCard.ToString() : payment.DebitCard.Rate.ToString();
-
-            if(payment.TypePayment == (TypePayment)2) //credit
+            try
             {
-                decimal installmentGross = Math.Round((payment.TotalPrice / payment.InstallmentNumber), 2);
-                ViewBag.InstallmentGross = installmentGross.ToString();
-            }
-            else
-                ViewBag.InstallmentGross = payment.TotalPrice.ToString();
+                int idUser = Session["idUser"] != null ? (int)Session["idUser"] : 0;
+                int permission = Session["permission"] != null ? (int)Session["permission"] : 0;
+                int idCompany = Session["idCompany"] != null ? (int)Session["idCompany"] : 0;
+                string userName = Session["username"] != null ? (string)Session["username"] : null;
 
-            if (payment.TypePayment == (TypePayment)2) //credit
-            {
-                decimal TotalNetValue = Math.Round(payment.TotalPrice - ((payment.TotalPrice * payment.CreditCard.RateCreditCard) / 100), 2);
-                ViewBag.TotalNetValue  = TotalNetValue.ToString();
-            }
-            else if (payment.TypePayment == (TypePayment)3) //debit
-            {
-                decimal TotalNetValue = Math.Round(payment.TotalPrice - ((payment.TotalPrice * payment.DebitCard.Rate) / 100), 2);
-                ViewBag.TotalNetValue = TotalNetValue.ToString();
-            }
-            else
-                ViewBag.TotalNetValue = payment.TotalPrice.ToString();
-            #endregion
+                if (Check.IsLogOn(idUser, permission, idCompany, userName))
+                {
+                    Payment payment = db.Payment.Find(id);
 
-            return View(payment);
+                    if (payment == null)
+                        return RedirectToAction("Error404", "Error");
+
+                    else if (Check.IsSuperAdmin(permission) || (Check.IsSeller(permission) && idCompany == payment.CompanyId))
+                    {
+                        #region VIEWBAGS
+                        ViewBag.Rate = payment.TypePayment == (TypePayment)1 ? null : payment.TypePayment == (TypePayment)2 ? payment.CreditCard.RateCreditCard.ToString() : payment.DebitCard.Rate.ToString();
+
+                        if (payment.TypePayment == (TypePayment)2) //credit
+                        {
+                            decimal installmentGross = Math.Round((payment.TotalPrice / payment.InstallmentNumber), 2);
+                            ViewBag.InstallmentGross = installmentGross.ToString();
+                        }
+                        else
+                            ViewBag.InstallmentGross = payment.TotalPrice.ToString();
+
+                        if (payment.TypePayment == (TypePayment)2) //credit
+                        {
+                            decimal TotalNetValue = Math.Round(payment.TotalPrice - ((payment.TotalPrice * payment.CreditCard.RateCreditCard) / 100), 2);
+                            ViewBag.TotalNetValue = TotalNetValue.ToString();
+                        }
+                        else if (payment.TypePayment == (TypePayment)3) //debit
+                        {
+                            decimal TotalNetValue = Math.Round(payment.TotalPrice - ((payment.TotalPrice * payment.DebitCard.Rate) / 100), 2);
+                            ViewBag.TotalNetValue = TotalNetValue.ToString();
+                        }
+                        else
+                            ViewBag.TotalNetValue = payment.TotalPrice.ToString();
+                        #endregion
+                        return View(payment);
+                    }
+                    else
+                    {
+                        TempData["error"] = "YOU DO NOT HAVE PERMISSION";
+                        return RedirectToAction("Index");
+                    }
+                }
+                else
+                {
+                    TempData["error"] = "YOU ARE NOT LOGGED IN";
+                    return RedirectToAction("LogIn", "Employees");
+                }
+            }
+            catch
+            {
+                return RedirectToAction("Error500", "Error");
+            }
         }
 
         public ActionResult Create(int id)
         {
-            ViewBag.SaleId = id;
-            IEnumerable<SelectListItem> typePayment = new SelectList(Enum.GetValues(typeof(TypePayment)));
-            ViewBag.TypePayment = typePayment;
+            try
+            {
+                int idUser = Session["idUser"] != null ? (int)Session["idUser"] : 0;
+                int permission = Session["permission"] != null ? (int)Session["permission"] : 0;
+                int idCompany = Session["permission"] != null ? (int)Session["idCompany"] : 0;
+                string userName = Session["permission"] != null ? (string)Session["username"] : null;
 
-            string text = "--Select--";
-            ViewBag.Text = text;
-            ViewBag.CompanyId = new SelectList(db.Company, "IdCompany", "NameCompany", "");
-            ViewBag.CreditCardId = new SelectList(db.CreditCard, "IdCreditCard", "NameCreditCard");
-            ViewBag.DebitCardId = new SelectList(db.DebitCard, "IdDebitCard", "NameDebitCard");
+                if (Check.IsLogOn(idUser, permission, idCompany, userName))
+                {
+                    if (Check.IsSuperAdmin(permission))
+                    {
+                        ViewBag.CompanyId = new SelectList(db.Company, "IdCompany", "NameCompany");
+                        ViewBag.CreditCardId = new SelectList(db.CreditCard, "IdCreditCard", "NameCreditCard", id);
+                        ViewBag.DebitCardId = new SelectList(db.DebitCard, "IdDebitCard", "NameDebitCard");
+                    }
+                    else if (Check.IsSeller(permission))
+                    {
+                        Company company = db.Company.Where(c => c.IdCompany == idCompany).FirstOrDefault();
+                        List<Company> companies = new List<Company>();
+                        companies.Add(company);
+                        ViewBag.CompanyId = new SelectList(companies, "IdCompany", "NameCompany", idCompany);
 
-            return PartialView("_Create");
+                        ViewBag.CreditCardId = new SelectList(db.CreditCard.Where(c => c.CompanyId == idCompany), "IdCreditCard", "NameCreditCard");
+                        ViewBag.DebitCardId = new SelectList(db.DebitCard.Where(c => c.CompanyId == idCompany), "IdDebitCard", "NameDebitCard");
+                    }
+                    else
+                    {
+                        TempData["error"] = "YOU DO NOT HAVE PERMISSION";
+                        return RedirectToAction("Index", "Payments");
+                    }
+
+                    IEnumerable<SelectListItem> typePayment = new SelectList(Enum.GetValues(typeof(TypePayment)));
+                    ViewBag.TypePayment = typePayment;
+
+                    ViewBag.SaleId = id;
+
+                    return PartialView("_Create");
+                }
+                else
+                {
+                    TempData["error"] = "YOU ARE NOT LOGGED IN";
+                    return RedirectToAction("LogIn", "Employees");
+                }
+            }
+            catch
+            {
+                return RedirectToAction("Error500", "Error");
+            }
+
         }
 
         [HttpPost]
@@ -86,7 +179,7 @@ namespace IceCreamSystem.Controllers
         public ActionResult Create([Bind(Include = "SaleId,TypePayment,DebitCardId,CreditCardId,CompanyId,forecastDatePayment,InstallmentNumber,CodePaymentCard,DiscontApply")] Payment payment)
         {
             string[] productsInCookie = Request.Cookies["products"].Value.Split('/');
-            int companyId = 1;// (int)Session["companyId"];
+            int companyId = (int)Session["idCompany"];
             List<SaleProduct> saleProducts = SalesProductsService.ReturnSaleProducts(productsInCookie, companyId, payment.SaleId);
             decimal TotalPrice = SalesProductsService.GetTotalPrice(saleProducts);
             if (payment.DiscontApply != null)
@@ -94,7 +187,7 @@ namespace IceCreamSystem.Controllers
 
             if (payment.SaleId > 0)
             {
-                int idUser = 1;// (int)Session["idUser"]; //who is login
+                int idUser = (int)Session["idUser"]; //who is login
                 Sale sale = db.Sale.Find(payment.SaleId);
                 if (sale != null)
                 {
@@ -206,7 +299,7 @@ namespace IceCreamSystem.Controllers
                                 else
                                 {
                                     trans.Rollback();
-                                    ViewBag.error = "Sorry, but an error happened, try again, if the error continues please contact your system supplier";
+                                    ViewBag.error = "ERROR 500, TRAY AGAIN, IF THE ERROR PERSIST CONTACT THE SYSTEM SUPPLIER";
                                     goto ReturnIfError;
                                 }
                                 #endregion //SALE ON CARD
@@ -244,14 +337,14 @@ namespace IceCreamSystem.Controllers
                             db.SaveChanges();
 
                             trans.Commit();
-                            TempData["confirm"] = "Sale Saved With FINISHED Status";
+                            TempData["confirm"] = "SALE SAVED WITH FINISHED STATUS";
                             return RedirectToAction("Index", "Sales");
 
                         }
                         catch
                         {
                             trans.Rollback();
-                            ViewBag.error = "Sorry, but an error happened, try again, if the error continues please contact your system supplier";
+                            ViewBag.error = "ERROR 500, TRAY AGAIN, IF THE ERROR PERSIST CONTACT THE SYSTEM SUPPLIER";
                             goto ReturnIfError;
                         }
 
@@ -260,52 +353,93 @@ namespace IceCreamSystem.Controllers
             }
 
         ReturnIfError:
+            int permission = (int)Session["permission"];
+            int idCompany = (int)Session["idCompany"];
+            if (Check.IsSuperAdmin(permission))
+            {
+                ViewBag.CompanyId = new SelectList(db.Company, "IdCompany", "NameCompany", payment.CompanyId);
+                ViewBag.CreditCardId = new SelectList(db.CreditCard, "IdCreditCard", "NameCreditCard", payment.CreditCardId);
+                ViewBag.DebitCardId = new SelectList(db.DebitCard, "IdDebitCard", "NameDebitCard", payment.DebitCardId);
+            }
+            else if (Check.IsSupervisor(permission))
+            {
+                Company company = db.Company.Where(c => c.IdCompany == idCompany).FirstOrDefault();
+                List<Company> companies = new List<Company>();
+                companies.Add(company);
+                ViewBag.CompanyId = new SelectList(companies, "IdCompany", "NameCompany", idCompany);
 
-            ViewBag.CompanyId = new SelectList(db.Company, "IdCompany", "NameCompany", payment.CompanyId);
-            ViewBag.CreditCardId = new SelectList(db.CreditCard, "IdCreditCard", "NameCreditCard", payment.CreditCardId);
-            ViewBag.DebitCardId = new SelectList(db.DebitCard, "IdDebitCard", "NameDebitCard", payment.DebitCardId);
+                ViewBag.CreditCardId = new SelectList(db.CreditCard.Where(c => c.CompanyId == idCompany), "IdCreditCard", "NameCreditCard", payment.CreditCardId);
+                ViewBag.DebitCardId = new SelectList(db.DebitCard.Where(c => c.CompanyId == idCompany), "IdDebitCard", "NameDebitCard", payment.DebitCardId);
+            }
+
+            IEnumerable<SelectListItem> typePayment = new SelectList(Enum.GetValues(typeof(TypePayment)));
+            ViewBag.TypePayment = typePayment;
+
             ViewBag.SaleId = new SelectList(db.Sale, "IdSale", "IdSale", payment.SaleId);
             return View(payment);
         }
 
         public ActionResult Pay(int? id)
         {
-            if (id == null)
+            try
             {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            Payment payment = db.Payment.Find(id);
-            if (payment == null)
-            {
-                return HttpNotFound();
-            }
+                int idUser = Session["idUser"] != null ? (int)Session["idUser"] : 0;
+                int permission = Session["permission"] != null ? (int)Session["permission"] : 0;
+                int idCompany = Session["permission"] != null ? (int)Session["idCompany"] : 0;
+                string userName = Session["permission"] != null ? (string)Session["username"] : null;
 
-            #region VIEWBAGS
-            ViewBag.Rate = payment.TypePayment == (TypePayment)1 ? null : payment.TypePayment == (TypePayment)2 ? payment.CreditCard.RateCreditCard.ToString() : payment.DebitCard.Rate.ToString();
+                if (Check.IsLogOn(idUser, permission, idCompany, userName))
+                {
+                    Payment payment = db.Payment.Find(id);
 
-            if (payment.TypePayment == (TypePayment)2) //credit
-            {
-                decimal installmentGross = Math.Round((payment.TotalPrice / payment.InstallmentNumber), 2);
-                ViewBag.InstallmentGross = installmentGross.ToString();
-            }
-            else
-                ViewBag.InstallmentGross = payment.TotalPrice.ToString();
+                    if (payment == null)
+                    {
+                        return HttpNotFound();
+                    }
+                    else if (Check.IsSuperAdmin(permission) || (Check.IsSeller(permission) && idCompany == payment.CompanyId))
+                    {
+                        #region VIEWBAGS
+                        ViewBag.Rate = payment.TypePayment == (TypePayment)1 ? null : payment.TypePayment == (TypePayment)2 ? payment.CreditCard.RateCreditCard.ToString() : payment.DebitCard.Rate.ToString();
 
-            if (payment.TypePayment == (TypePayment)2) //credit
-            {
-                decimal TotalNetValue = Math.Round(payment.TotalPrice - ((payment.TotalPrice * payment.CreditCard.RateCreditCard) / 100), 2);
-                ViewBag.TotalNetValue = TotalNetValue.ToString();
-            }
-            else if (payment.TypePayment == (TypePayment)3) //debit
-            {
-                decimal TotalNetValue = Math.Round(payment.TotalPrice - ((payment.TotalPrice * payment.DebitCard.Rate) / 100), 2);
-                ViewBag.TotalNetValue = TotalNetValue.ToString();
-            }
-            else
-                ViewBag.TotalNetValue = payment.TotalPrice.ToString();
-            #endregion
+                        if (payment.TypePayment == (TypePayment)2) //credit
+                        {
+                            decimal installmentGross = Math.Round((payment.TotalPrice / payment.InstallmentNumber), 2);
+                            ViewBag.InstallmentGross = installmentGross.ToString();
+                        }
+                        else
+                            ViewBag.InstallmentGross = payment.TotalPrice.ToString();
 
-            return View(payment);
+                        if (payment.TypePayment == (TypePayment)2) //credit
+                        {
+                            decimal TotalNetValue = Math.Round(payment.TotalPrice - ((payment.TotalPrice * payment.CreditCard.RateCreditCard) / 100), 2);
+                            ViewBag.TotalNetValue = TotalNetValue.ToString();
+                        }
+                        else if (payment.TypePayment == (TypePayment)3) //debit
+                        {
+                            decimal TotalNetValue = Math.Round(payment.TotalPrice - ((payment.TotalPrice * payment.DebitCard.Rate) / 100), 2);
+                            ViewBag.TotalNetValue = TotalNetValue.ToString();
+                        }
+                        else
+                            ViewBag.TotalNetValue = payment.TotalPrice.ToString();
+                        #endregion
+                        return View(payment);
+                    }
+                    else
+                    {
+                        TempData["error"] = "YOU DO NOT HAVE PERMISSION";
+                        return RedirectToAction("Index");
+                    }
+                }
+                else
+                {
+                    TempData["error"] = "YOU ARE NOT LOGGED IN";
+                    return RedirectToAction("LogIn", "Employees");
+                }
+            }
+            catch
+            {
+                return RedirectToAction("Error500", "Error");
+            }
         }
 
         [HttpPost, ActionName("Pay")]
@@ -313,7 +447,7 @@ namespace IceCreamSystem.Controllers
         public ActionResult PayConfirmed(int id)
         {
             Payment payment = db.Payment.Find(id);
-            int idUser = 1;//(int)Session["idUser"];
+            int idUser = (int)Session["idUser"];
 
             using (var trans = db.Database.BeginTransaction())
             {
@@ -336,13 +470,13 @@ namespace IceCreamSystem.Controllers
                     db.SaveChanges();
 
                     trans.Commit();
-                    TempData["confirm"] = "Payment Done";
+                    TempData["confirm"] = "PAYMENT DONE";
                     return RedirectToAction("Index");
                 }
                 catch
                 {
                     trans.Rollback();
-                    TempData["error"] = "An error happened. Please try again";
+                    ViewBag.error = "ERROR 500, TRAY AGAIN, IF THE ERROR PERSIST CONTACT THE SYSTEM SUPPLIER";
                     return RedirectToAction("Index");
                 }
             }

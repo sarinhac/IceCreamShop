@@ -41,16 +41,13 @@
 
     @if (Model.Status != 0)
     {
-
-
         <dd class="badge badge-success">
             @Html.DisplayFor(model => model.Status)
         </dd>
-
     }
     else
     {
-        <dd class="badge badge-success">
+        <dd class="badge badge-danger">
             @Html.DisplayFor(model => model.Status)
         </dd>
     }

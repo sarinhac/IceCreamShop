@@ -1,10 +1,12 @@
-﻿using System.Data.Entity;
+﻿using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Net;
 using System.Web.Mvc;
 using IceCreamSystem.DBContext;
 using IceCreamSystem.Models;
 using IceCreamSystem.Models.Enum;
+using IceCreamSystem.Services;
 
 namespace IceCreamSystem.Controllers
 {
@@ -18,29 +20,131 @@ namespace IceCreamSystem.Controllers
             ViewBag.confirm = TempData["confirm"] != null ? TempData["confirm"].ToString() : null;
             ViewBag.error = TempData["error"] != null ? TempData["error"].ToString() : null;
 
-            var entryStock = db.EntryStock.Include(e => e.Company).Include(e => e.Product);
-            return View(entryStock.ToList());
+            try
+            {
+                int idUser = Session["idUser"] != null ? (int)Session["idUser"] : 0;
+                int permission = Session["permission"] != null ? (int)Session["permission"] : 0;
+                int idCompany = Session["idCompany"] != null ? (int)Session["idCompany"] : 0;
+                string userName = Session["username"] != null ? (string)Session["username"] : null;
+
+                if (Check.IsLogOn(idUser, permission, idCompany, userName))
+                {
+                    if (Check.IsSuperAdmin(permission))
+                    {
+                        ViewBag.permission = true;
+                        return View(db.EntryStock.Where(s=>s.Status != (StatusStockSaleProduct) 3).Include(c => c.Company).Include(e => e.Product).ToList());
+                    }
+                    else if (Check.IsStockist(permission))
+                    {
+                        ViewBag.permission = true;
+                        List<EntryStock> entryStocks = db.EntryStock.Where(o => o.CompanyId == idCompany && o.Status != (StatusStockSaleProduct)3).Include(c => c.Company).Include(e => e.Product).ToList();
+                        return View(entryStocks);
+                    }
+                    else
+                    {
+                        TempData["error"] = "YOU DO NOT HAVE PERMISSION";
+                        return RedirectToAction("Home", "Employees");
+                    }
+                }
+                else
+                {
+                    TempData["error"] = "YOU ARE NOT LOGGED IN";
+                    return RedirectToAction("LogIn", "Employees");
+                }
+            }
+            catch
+            {
+                return RedirectToAction("Error500", "Error");
+            }
         }
 
         public ActionResult Details(int? id)
         {
             if (id == null)
+                return RedirectToAction("Error500", "Error");
+
+            try
             {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                int idUser = Session["idUser"] != null ? (int)Session["idUser"] : 0;
+                int permission = Session["permission"] != null ? (int)Session["permission"] : 0;
+                int idCompany = Session["permission"] != null ? (int)Session["idCompany"] : 0;
+                string userName = Session["permission"] != null ? (string)Session["username"] : null;
+
+                if (Check.IsLogOn(idUser, permission, idCompany, userName))
+                {
+                    EntryStock entryStock = db.EntryStock.Find(id);
+
+                    if (entryStock == null)
+                        return RedirectToAction("Error404", "Error");
+
+                    else if (Check.IsSuperAdmin(permission) || (Check.IsStockist(permission) && idCompany == entryStock.CompanyId))
+                        return View(entryStock);
+                    else
+                    {
+                        TempData["error"] = "YOU DO NOT HAVE PERMISSION";
+                        return RedirectToAction("Index");
+                    }
+                }
+                else
+                {
+                    TempData["error"] = "YOU ARE NOT LOGGED IN";
+                    return RedirectToAction("LogIn", "Employees");
+                }
             }
-            EntryStock entryStock = db.EntryStock.Find(id);
-            if (entryStock == null)
+            catch
             {
-                return HttpNotFound();
+                return RedirectToAction("Error500", "Error");
             }
-            return View(entryStock);
+        }
+
+        public JsonResult GetProducts(int? id)
+        {
+            var products = db.Product.Where(x => x.CompanyId == id).Select(x => new { id = x.IdProduct, name = x.NameProduct }).ToList(); ;
+
+            return Json(products, JsonRequestBehavior.AllowGet);
         }
 
         public ActionResult Create()
         {
-            ViewBag.CompanyId = new SelectList(db.Company, "IdCompany", "NameCompany");
-            ViewBag.ProductId = new SelectList(db.Product, "IdProduct", "NameProduct");
-            return View();
+            try
+            {
+                int idUser = Session["idUser"] != null ? (int)Session["idUser"] : 0;
+                int permission = Session["permission"] != null ? (int)Session["permission"] : 0;
+                int idCompany = Session["permission"] != null ? (int)Session["idCompany"] : 0;
+                string userName = Session["permission"] != null ? (string)Session["username"] : null;
+
+                if (Check.IsLogOn(idUser, permission, idCompany, userName))
+                {
+                    if (Check.IsSuperAdmin(permission))
+                    {
+                        ViewBag.CompanyId = new SelectList(db.Company, "IdCompany", "NameCompany");
+                        ViewBag.ProductId = new SelectList(db.Product, "IdProduct", "NameProduct");
+                    }
+                    else if (Check.IsStockist(permission))
+                    {
+                        Company company = db.Company.Where(c => c.IdCompany == idCompany).FirstOrDefault();
+                        List<Company> companies = new List<Company>();
+                        companies.Add(company);
+                        ViewBag.CompanyId = new SelectList(companies, "IdCompany", "NameCompany", idCompany);
+                        ViewBag.ProductId = new SelectList(db.Product.Where(p => p.CompanyId == idCompany), "IdProduct", "NameProduct");
+                    }
+                    else
+                    {
+                        TempData["error"] = "YOU DO NOT HAVE PERMISSION";
+                        return RedirectToAction("Index");
+                    }
+                    return View();
+                }
+                else
+                {
+                    TempData["error"] = "YOU ARE NOT LOGGED IN";
+                    return RedirectToAction("LogIn", "Employees");
+                }
+            }
+            catch
+            {
+                return RedirectToAction("Error500", "Error");
+            }
         }
 
         [HttpPost]
@@ -49,17 +153,17 @@ namespace IceCreamSystem.Controllers
         {
             if (ModelState.IsValid)
             {
-                EntryStock entryStockDB = db.EntryStock.Where(p => p.CompanyId == entryStock.CompanyId && p.ProductId == p.ProductId && p.Status == (StatusGeneral)1
+                EntryStock entryStockDB = db.EntryStock.Where(p => p.CompanyId == entryStock.CompanyId && p.ProductId == p.ProductId
                 && p.ProductBatch.Equals(entryStock.ProductBatch) && p.FabicationDate.Equals(entryStock.FabicationDate)
                 && p.ExpirationDate.Equals(entryStock.ExpirationDate)).FirstOrDefault();
 
-                if(entryStockDB == null)
+                if (entryStockDB == null)
                 {
                     using (var trans = db.Database.BeginTransaction())
                     {
                         try
                         {
-                            int idUser = 1;// (int)Session["idUser"]; //who is login
+                            int idUser = (int)Session["idUser"]; //who is login
 
                             db.EntryStock.Add(entryStock);
                             db.SaveChanges();
@@ -80,42 +184,107 @@ namespace IceCreamSystem.Controllers
                             #endregion
 
                             trans.Commit();
-                            TempData["confirm"] = "Updated stock";
+                            TempData["confirm"] = "NEW STOCK INSERTED";
                         }
                         catch
                         {
                             trans.Rollback();
-                            ViewBag.error = "Sorry, but an error happened, try again, if the error continues please contact your system supplier";
+                            ViewBag.error = "ERROR 500, TRAY AGAIN, IF THE ERROR PERSIST CONTACT THE SYSTEM SUPPLIER";
                             goto ReturnIfError;
                         }
                     }
 
                 }
                 else
-                    TempData["message"] = "This Product Batch already registred, try another name";
+                    ViewBag.error = "THIS STOCK ALREADY INSERTED, TRY EDIT IT";
 
                 return RedirectToAction("Index");
             }
 
-            ReturnIfError:
-            ViewBag.CompanyId = new SelectList(db.Company, "IdCompany", "NameCompany", entryStock.CompanyId);
-            ViewBag.ProductId = new SelectList(db.Product, "IdProduct", "NameProduct", entryStock.ProductId);
-            return View(entryStock);
+        ReturnIfError:
+            int permission = Session["permission"] != null ? (int)Session["permission"] : 0;
+            int idCompany = Session["idCompany"] != null ? (int)Session["idCompany"] : 0;
+
+            if(permission > 0)
+            {
+                if (Check.IsSuperAdmin(permission))
+                {
+                    ViewBag.CompanyId = new SelectList(db.Company, "IdCompany", "NameCompany", entryStock.CompanyId);
+                    ViewBag.ProductId = new SelectList(db.Product, "IdProduct", "NameProduct", entryStock.ProductId);
+                }
+                else if (Check.IsSupervisor(permission))
+                {
+                    Company company = db.Company.Where(c => c.IdCompany == idCompany).FirstOrDefault();
+                    List<Company> companies = new List<Company>();
+                    companies.Add(company);
+                    ViewBag.CompanyId = new SelectList(companies, "IdCompany", "NameCompany", idCompany);
+
+                    ViewBag.ProductId = new SelectList(db.Product.Where(p => p.CompanyId == idCompany), "IdProduct", "NameProduct", entryStock.ProductId);
+                }
+                return View(entryStock);
+            }
+            else
+            {
+                TempData["error"] = "YOU ARE NOT LOGGED IN";
+                return RedirectToAction("LogIn", "Employees");
+            }
+
         }
         public ActionResult Edit(int? id)
         {
             if (id == null)
+                return RedirectToAction("Error500", "Error");
+
+            try
             {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                int idUser = Session["idUser"] != null ? (int)Session["idUser"] : 0;
+                int permission = Session["permission"] != null ? (int)Session["permission"] : 0;
+                int idCompany = Session["permission"] != null ? (int)Session["idCompany"] : 0;
+                string userName = Session["permission"] != null ? (string)Session["username"] : null;
+
+                if (Check.IsLogOn(idUser, permission, idCompany, userName))
+                {
+                    EntryStock stock = db.EntryStock.Find(id);
+
+                    if (stock == null)
+                        return RedirectToAction("Error404", "Error");
+
+                    if (stock.Status != (StatusStockSaleProduct)1)
+                    {
+                        TempData["error"] = "YOU DO NOT HAVE PERMISSION";
+                        return RedirectToAction("Index");
+                    }
+
+                    if (Check.IsSuperAdmin(permission))
+                    {
+                        ViewBag.CompanyId = new SelectList(db.Company, "IdCompany", "NameCompany", stock.CompanyId);
+                        ViewBag.ProductId = new SelectList(db.Product, "IdProduct", "NameProduct", stock.ProductId);
+                    }
+                    else if (Check.IsStockist(permission) && idCompany == stock.CompanyId)
+                    {
+                        Company company = db.Company.Where(c => c.IdCompany == idCompany).FirstOrDefault();
+                        List<Company> companies = new List<Company>();
+                        companies.Add(company);
+                        ViewBag.CompanyId = new SelectList(companies, "IdCompany", "NameCompany", stock.CompanyId);
+                        ViewBag.ProductId = new SelectList(db.Product.Where(p => p.CompanyId == idCompany), "IdProduct", "NameProduct", stock.ProductId);
+                    }
+                    else
+                    {
+                        TempData["error"] = "YOU DO NOT HAVE PERMISSION";
+                        return RedirectToAction("Index");
+                    }
+                    return View(stock);
+                }
+                else
+                {
+                    TempData["error"] = "YOU ARE NOT LOGGED IN";
+                    return RedirectToAction("LogIn", "Employees");
+                }
             }
-            EntryStock stock = db.EntryStock.Find(id);
-            if (stock == null)
+            catch
             {
-                return HttpNotFound();
+                return RedirectToAction("Error500", "Error");
             }
-            ViewBag.CompanyId = new SelectList(db.Company, "IdCompany", "NameCompany", stock.CompanyId);
-            ViewBag.ProductId = new SelectList(db.Product, "IdProduct", "NameProduct", stock.ProductId);
-            return View(stock);
         }
 
         [HttpPost]
@@ -128,14 +297,14 @@ namespace IceCreamSystem.Controllers
 
                 if (oldStock == null)
                 {
-                    TempData["error"] = "Sorry, but an error happened, Please contact your system supplier";
+                    ViewBag.error = "ERROR 500, TRAY AGAIN, IF THE ERROR PERSIST CONTACT THE SYSTEM SUPPLIER";
                     return RedirectToAction("Index");
                 }
                 else if (!oldStock.Equals(stock))
                 {
                     using (var trans = db.Database.BeginTransaction())
                     {
-                        int idUser = 1;// (int)Session["idUser"]; //who is login
+                        int idUser = (int)Session["idUser"]; //who is login
                         try
                         {
                             Log log = new Log
@@ -150,6 +319,7 @@ namespace IceCreamSystem.Controllers
                                 CompanyId = oldStock.CompanyId,
                                 ProductId = stock.ProductId
                             };
+
                             oldStock.FabicationDate = stock.FabicationDate;
                             oldStock.ExpirationDate = stock.ExpirationDate;
                             oldStock.ProductBatch = stock.ProductBatch;
@@ -163,40 +333,96 @@ namespace IceCreamSystem.Controllers
                             db.SaveChanges();
 
                             trans.Commit();
-                            TempData["confirm"] = "Successful Changes";
+                            TempData["confirm"] = "SUCCESSFUL CHANGES";
                         }
                         catch
                         {
                             trans.Rollback();
-                            ViewBag.error = "Sorry, but an error happened, try again, if the error continues please contact your system supplier";
+                            ViewBag.error = "ERROR 500, TRAY AGAIN, IF THE ERROR PERSIST CONTACT THE SYSTEM SUPPLIER";
                             goto ReturnIfError;
                         }
                     }
                 }
                 else
-                    TempData["message"] = "No changes were recorded";
+                    TempData["message"] = "NO CHANGES WERE RECORDED";
 
                 return RedirectToAction("Index");
             }
 
         ReturnIfError:
-            ViewBag.CompanyId = new SelectList(db.Company, "IdCompany", "NameCompany", stock.CompanyId);
-            ViewBag.ProductId = new SelectList(db.Product, "IdProduct", "NameProduct", stock.ProductId);
-            return View(stock);
+            int permission = Session["permission"] != null ? (int)Session["permission"] : 0;
+            int idCompany = Session["idCompany"] != null ? (int)Session["idCompany"] : 0;
+
+            if (permission > 0)
+            {
+                if (Check.IsSuperAdmin(permission))
+                {
+                    ViewBag.CompanyId = new SelectList(db.Company, "IdCompany", "NameCompany", stock.CompanyId);
+                    ViewBag.ProductId = new SelectList(db.Product, "IdProduct", "NameProduct", stock.ProductId);
+                }
+                else if (Check.IsSupervisor(permission))
+                {
+                    Company company = db.Company.Where(c => c.IdCompany == idCompany).FirstOrDefault();
+                    List<Company> companies = new List<Company>();
+                    companies.Add(company);
+                    ViewBag.CompanyId = new SelectList(companies, "IdCompany", "NameCompany", idCompany);
+
+                    ViewBag.ProductId = new SelectList(db.Product.Where(p => p.CompanyId == idCompany), "IdProduct", "NameProduct", stock.ProductId);
+                }
+                return View(stock);
+            }
+            else
+            {
+                TempData["error"] = "YOU ARE NOT LOGGED IN";
+                return RedirectToAction("LogIn", "Employees");
+            }
         }
 
         public ActionResult Delete(int? id)
         {
             if (id == null)
+                return RedirectToAction("Error500", "Error");
+
+            try
             {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                int idUser = (int)Session["idUser"];
+                int permission = (int)Session["permission"];
+                int idCompany = (int)Session["idCompany"];
+                string userName = (string)Session["username"];
+
+                if (Check.IsLogOn(idUser, permission, idCompany, userName))
+                {
+                    EntryStock entryStock = db.EntryStock.Find(id);
+
+                    if (entryStock == null)
+                        return RedirectToAction("Error404", "Error");
+
+
+                    if (entryStock.Status != (StatusStockSaleProduct)1)
+                    {
+                        TempData["error"] = "YOU DO NOT HAVE PERMISSION";
+                        return RedirectToAction("Index");
+                    }
+
+                    else if (Check.IsSuperAdmin(permission) || (Check.IsStockist(permission) && idCompany == entryStock.CompanyId))
+                        return View(entryStock);
+                    else
+                    {
+                        TempData["error"] = "YOU DO NOT HAVE PERMISSION";
+                        return RedirectToAction("Index");
+                    }
+                }
+                else
+                {
+                    TempData["error"] = "YOU ARE NOT LOGGED IN";
+                    return RedirectToAction("LogIn", "Employees");
+                }
             }
-            EntryStock stock = db.EntryStock.Find(id);
-            if (stock == null)
+            catch
             {
-                return HttpNotFound();
+                return RedirectToAction("Error500", "Error");
             }
-            return View(stock);
+
         }
 
         [HttpPost, ActionName("Delete")]
@@ -206,7 +432,7 @@ namespace IceCreamSystem.Controllers
             EntryStock stock = db.EntryStock.Find(id);
             using (var trans = db.Database.BeginTransaction())
             {
-                int idUser = 1;// (int)Session["idUser"]; //who is login
+                int idUser = (int)Session["idUser"]; //who is login
                 try
                 {
                     stock.DeactivateStock();
@@ -225,12 +451,12 @@ namespace IceCreamSystem.Controllers
                     db.SaveChanges();
 
                     trans.Commit();
-                    TempData["confirm"] = "Successful Delete";
+                    TempData["confirm"] = "SUCCESSFUL DELETE";
                 }
                 catch
                 {
                     trans.Rollback();
-                    TempData["error"] = "An error happened. Please try again";
+                    ViewBag.error = "ERROR 500, TRAY AGAIN, IF THE ERROR PERSIST CONTACT THE SYSTEM SUPPLIER";
                 }
             }
             return RedirectToAction("Index");

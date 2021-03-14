@@ -21,10 +21,10 @@ namespace IceCreamSystem.Controllers
 
             try
             {
-                int idUser = (int)Session["idUser"];
-                int permission = (int)Session["permission"];
-                int idCompany = (int)Session["idCompany"];
-                string userName = (string)Session["username"];
+                int idUser = Session["idUser"] != null ? (int)Session["idUser"] : 0;
+                int permission = Session["permission"] != null ? (int)Session["permission"] : 0;
+                int idCompany = Session["idCompany"] != null ? (int)Session["idCompany"] : 0;
+                string userName = Session["username"] != null ? (string)Session["username"] : null;
 
                 if (Check.IsLogOn(idUser, permission, idCompany, userName))
                 {
@@ -45,12 +45,14 @@ namespace IceCreamSystem.Controllers
                     }
                 }
                 else
+                {
+                    TempData["error"] = "YOU ARE NOT LOGGED IN";
                     return RedirectToAction("LogIn", "Employees");
+                }
             }
             catch
             {
-                TempData["error"] = "You need to login";
-                return RedirectToAction("LogIn", "Employees");
+                return RedirectToAction("Error500", "Error");
             }
         }
 
@@ -58,23 +60,22 @@ namespace IceCreamSystem.Controllers
         {
             if (id == null)
             {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                return RedirectToAction("Error500", "Error");
             }
             try
             {
-                int idUser = (int)Session["idUser"];
-                int permission = (int)Session["permission"];
-                int idCompany = (int)Session["idCompany"];
-                string userName = (string)Session["username"];
+                int idUser = Session["idUser"] != null ? (int)Session["idUser"] : 0;
+                int permission = Session["permission"] != null ? (int)Session["permission"] : 0;
+                int idCompany = Session["idCompany"] != null ? (int)Session["idCompany"] : 0;
+                string userName = Session["username"] != null ? (string)Session["username"] : null;
 
                 if (Check.IsLogOn(idUser, permission, idCompany, userName))
                 {
                     Office office = db.Office.Find(id);
 
                     if (office == null)
-                    {
-                        return HttpNotFound();
-                    }
+                        return RedirectToAction("Error404", "Error");
+
                     else if (Check.IsSuperAdmin(permission) || (Check.IsAdmin(permission) && idCompany == office.CompanyId))
                         return View(office);
                     else
@@ -84,12 +85,14 @@ namespace IceCreamSystem.Controllers
                     }
                 }
                 else
+                {
+                    TempData["error"] = "YOU ARE NOT LOGGED IN";
                     return RedirectToAction("LogIn", "Employees");
+                }
             }
             catch
             {
-                TempData["error"] = "You need to login";
-                return RedirectToAction("LogIn", "Employees");
+                return RedirectToAction("Error500", "Error");
             }
         }
 
@@ -97,10 +100,10 @@ namespace IceCreamSystem.Controllers
         {
             try
             {
-                int idUser = (int)Session["idUser"];
-                int permission = (int)Session["permission"];
-                int idCompany = (int)Session["idCompany"];
-                string userName = (string)Session["username"];
+                int idUser = Session["idUser"] != null ? (int)Session["idUser"] : 0;
+                int permission = Session["permission"] != null ? (int)Session["permission"] : 0;
+                int idCompany = Session["idCompany"] != null ? (int)Session["idCompany"] : 0;
+                string userName = Session["username"] != null ? (string)Session["username"] : null;
 
                 if (Check.IsLogOn(idUser, permission, idCompany, userName))
                 {
@@ -121,12 +124,14 @@ namespace IceCreamSystem.Controllers
                     return View();
                 }
                 else
+                {
+                    TempData["error"] = "YOU ARE NOT LOGGED IN";
                     return RedirectToAction("LogIn", "Employees");
+                }
             }
             catch
             {
-                TempData["error"] = "You need to login";
-                return RedirectToAction("LogIn", "Employees");
+                return RedirectToAction("Error500", "Error");
             }
         }
 
@@ -134,6 +139,9 @@ namespace IceCreamSystem.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Create([Bind(Include = "NameOffice,DescriptionOffice,Discount,CompanyId")] Office office)
         {
+            int idCompany = (int)Session["idCompany"];
+            int idUser = (int)Session["idUser"]; //who is login
+
             if (ModelState.IsValid)
             {
                 Office officeDb = db.Office.Where(c => c.CompanyId == office.CompanyId && c.NameOffice.Equals(office.NameOffice)).FirstOrDefault();
@@ -144,7 +152,6 @@ namespace IceCreamSystem.Controllers
                     {
                         try
                         {
-                            int idUser = 1;// (int)Session["idUser"]; //who is login
                             db.Office.Add(office);
                             db.SaveChanges();
 
@@ -154,35 +161,37 @@ namespace IceCreamSystem.Controllers
                                 //[C] in DB refers to an Create
                                 New = "[C]" + office.NameOffice + " " + office.DescriptionOffice + " " + office.Discount,
                                 Who = idUser,
-                                OfficeId = office.IdOffice
+                                OfficeId = office.IdOffice,
+                                CompanyId = office.CompanyId
                             };
                             db.Log.Add(log);
                             db.SaveChanges();
                             #endregion
 
                             trans.Commit();
-                            TempData["confirm"] = "New Office Created";
+                            TempData["confirm"] = "NEW OFFICE CREATED";
                         }
                         catch
                         {
                             trans.Rollback();
-                            ViewBag.error = "Sorry, but an error happened, try again, if the error continues please contact your system supplier";
+                            ViewBag.error = "ERROR 500, TRAY AGAIN, IF THE ERROR PERSIST CONTACT THE SYSTEM SUPPLIER";
                             goto ReturnIfError;
                         }
                     }
 
+                    return RedirectToAction("Index");
                 }
                 else
-                    TempData["message"] = "This Office already exists, try another name";
-
-                return RedirectToAction("Index");
+                {
+                    ViewBag.error = "OFFICE ALREADY REGISTERED, TRY ANOTHER NAME";
+                }
             }
 
         ReturnIfError:
             try
             {
                 int permission = (int)Session["permission"];
-                int idCompany = (int)Session["idCompany"];
+                
                 if (Check.IsSuperAdmin(permission))
                     ViewBag.CompanyId = new SelectList(db.Company, "IdCompany", "NameCompany", office.CompanyId);
                 else if (Check.IsAdmin(permission))
@@ -196,7 +205,7 @@ namespace IceCreamSystem.Controllers
             }
             catch
             {
-                TempData["error"] = "You need to login";
+                TempData["error"] = "YOU ARE NOT LOGGED IN";
                 return RedirectToAction("LogIn", "Employees");
             }
         }
@@ -205,24 +214,20 @@ namespace IceCreamSystem.Controllers
         public ActionResult Edit(int? id)
         {
             if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
+                return RedirectToAction("Error500", "Error");
             try
             {
-                int idUser = (int)Session["idUser"];
-                int permission = (int)Session["permission"];
-                int idCompany = (int)Session["idCompany"];
-                string userName = (string)Session["username"];
+                int idUser = Session["idUser"] != null ? (int)Session["idUser"] : 0;
+                int permission = Session["permission"] != null ? (int)Session["permission"] : 0;
+                int idCompany = Session["idCompany"] != null ? (int)Session["idCompany"] : 0;
+                string userName = Session["username"] != null ? (string)Session["username"] : null;
 
                 if (Check.IsLogOn(idUser, permission, idCompany, userName))
                 {
                     Office office = db.Office.Find(id);
 
                     if (office == null)
-                    {
-                        return HttpNotFound();
-                    }
+                        return RedirectToAction("Error404", "Error");
 
                     if (Check.IsSuperAdmin(permission))
                         ViewBag.CompanyId = new SelectList(db.Company, "IdCompany", "NameCompany");
@@ -241,12 +246,14 @@ namespace IceCreamSystem.Controllers
                     return View(office);
                 }
                 else
+                {
+                    TempData["error"] = "YOU ARE NOT LOGGED IN";
                     return RedirectToAction("LogIn", "Employees");
+                }
             }
             catch
             {
-                TempData["error"] = "You need to login";
-                return RedirectToAction("LogIn", "Employees");
+                return RedirectToAction("Error500", "Error");
             }
         }
 
@@ -254,20 +261,20 @@ namespace IceCreamSystem.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Edit([Bind(Include = "IdOffice,NameOffice,DescriptionOffice,Discount,CompanyId")] Office office)
         {
+            int idUser = (int)Session["idUser"]; //who is login
+            int idCompany = (int)Session["idCompany"];
+
             if (ModelState.IsValid)
             {
                 Office oldOffice = db.Office.Find(office.IdOffice);
 
                 if (oldOffice == null)
-                {
-                    TempData["error"] = "Sorry, but an error happened, Please contact your system supplier";
-                    return RedirectToAction("Index");
-                }
+                    return RedirectToAction("Error500", "Error");
+
                 else if (!oldOffice.Equals(office))
                 {
                     using (var trans = db.Database.BeginTransaction())
                     {
-                        int idUser = 1;// (int)Session["idUser"]; //who is login
                         try
                         {
                             Log log = new Log
@@ -276,31 +283,41 @@ namespace IceCreamSystem.Controllers
                                 New = "[U]" + office.NameOffice + " " + office.DescriptionOffice + " " + office.Discount,
                                 Old = oldOffice.NameOffice + " " + oldOffice.DescriptionOffice + " " + oldOffice.Discount,
                                 Who = idUser,
-                                OfficeId = oldOffice.IdOffice
+                                OfficeId = oldOffice.IdOffice,
+                                CompanyId = office.CompanyId
                             };
 
                             oldOffice.NameOffice = office.NameOffice;
                             oldOffice.DescriptionOffice = office.DescriptionOffice;
                             oldOffice.Discount = office.Discount;
                             db.SaveChanges();
+                            
+                            int officeDb = db.Office.Where(c => c.CompanyId == office.CompanyId && c.NameOffice.Equals(office.NameOffice)).Count();
+
+                            if (officeDb > 1)
+                            {
+                                trans.Rollback();
+                                ViewBag.error = "OFFICE ALREADY REGISTERED, TRY ANOTHER NAME";
+                                goto ReturnIfError;
+                            }
 
                             db.Log.Add(log);
                             db.SaveChanges();
 
                             trans.Commit();
-                            TempData["confirm"] = "Successful Changes";
+                            TempData["confirm"] = "SUCCESSFUL CHANGES";
 
                         }
                         catch
                         {
                             trans.Rollback();
-                            ViewBag.error = "Sorry, but an error happened, try again, if the error continues please contact your system supplier";
+                            ViewBag.error = "ERROR 500, TRAY AGAIN, IF THE ERROR PERSIST CONTACT THE SYSTEM SUPPLIER";
                             goto ReturnIfError;
                         }
                     }
                 }
                 else
-                    TempData["message"] = "No changes were recorded";
+                    TempData["message"] = "NO CHANGES WERE RECORDED";
 
                 return RedirectToAction("Index");
             }
@@ -309,7 +326,7 @@ namespace IceCreamSystem.Controllers
             try
             {
                 int permission = (int)Session["permission"];
-                int idCompany = (int)Session["idCompany"];
+
                 if (Check.IsSuperAdmin(permission))
                     ViewBag.CompanyId = new SelectList(db.Company, "IdCompany", "NameCompany", office.CompanyId);
                 else if (Check.IsAdmin(permission))
@@ -323,7 +340,7 @@ namespace IceCreamSystem.Controllers
             }
             catch
             {
-                TempData["error"] = "You need to login";
+                TempData["error"] = "YOU ARE NOT LOGGED IN";
                 return RedirectToAction("LogIn", "Employees");
             }
         }
@@ -331,24 +348,20 @@ namespace IceCreamSystem.Controllers
         public ActionResult Delete(int? id)
         {
             if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
+                return RedirectToAction("Error500", "Error");
             try
             {
-                int idUser = (int)Session["idUser"];
-                int permission = (int)Session["permission"];
-                int idCompany = (int)Session["idCompany"];
-                string userName = (string)Session["username"];
+                int idUser = Session["idUser"] != null ? (int)Session["idUser"] : 0;
+                int permission = Session["permission"] != null ? (int)Session["permission"] : 0;
+                int idCompany = Session["idCompany"] != null ? (int)Session["idCompany"] : 0;
+                string userName = Session["username"] != null ? (string)Session["username"] : null;
 
                 if (Check.IsLogOn(idUser, permission, idCompany, userName))
                 {
                     Office office = db.Office.Find(id);
 
                     if (office == null)
-                    {
-                        return HttpNotFound();
-                    }
+                        return RedirectToAction("Error404", "Error");
 
                     if (Check.IsSuperAdmin(permission) || (Check.IsAdmin(permission) && idCompany == office.CompanyId))
                         return View(office);
@@ -359,12 +372,14 @@ namespace IceCreamSystem.Controllers
                     }
                 }
                 else
+                {
+                    TempData["error"] = "YOU ARE NOT LOGGED IN";
                     return RedirectToAction("LogIn", "Employees");
+                }
             }
             catch
             {
-                TempData["error"] = "You need to login";
-                return RedirectToAction("LogIn", "Employees");
+                return RedirectToAction("Error500", "Error");
             }
         }
 
@@ -374,6 +389,7 @@ namespace IceCreamSystem.Controllers
         {
             Office office = db.Office.Find(id);
             int idUser = (int)Session["idUser"];
+            int idCompany = (int)Session["idCompany"];
 
             using (var trans = db.Database.BeginTransaction())
             {
@@ -387,46 +403,43 @@ namespace IceCreamSystem.Controllers
                         Who = idUser,
                         OfficeId = id,
                         New = "DISABLED",
-                        Old = "ACTIVATED"
+                        Old = "ACTIVATED",
+                        CompanyId = office.CompanyId
                     };
                     db.Log.Add(log);
                     db.SaveChanges();
 
                     trans.Commit();
-                    TempData["confirm"] = "Successful Delete";
+                    TempData["confirm"] = "SUCCESSFUL DELETE";
                     return RedirectToAction("Index");
                 }
                 catch
                 {
                     trans.Rollback();
-                    TempData["error"] = "An error happened. Please try again";
+                    ViewBag.error = "ERROR 500, TRAY AGAIN, IF THE ERROR PERSIST CONTACT THE SYSTEM SUPPLIER";
                     return RedirectToAction("Index");
                 }
-
             }
         }
 
         public ActionResult Active(int? id)
         {
             if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
+                return RedirectToAction("Error500", "Error");
+
             try
             {
-                int idUser = (int)Session["idUser"];
-                int permission = (int)Session["permission"];
-                int idCompany = (int)Session["idCompany"];
-                string userName = (string)Session["username"];
+                int idUser = Session["idUser"] != null ? (int)Session["idUser"] : 0;
+                int permission = Session["permission"] != null ? (int)Session["permission"] : 0;
+                int idCompany = Session["idCompany"] != null ? (int)Session["idCompany"] : 0;
+                string userName = Session["username"] != null ? (string)Session["username"] : null;
 
                 if (Check.IsLogOn(idUser, permission, idCompany, userName))
                 {
                     Office office = db.Office.Find(id);
 
                     if (office == null)
-                    {
-                        return HttpNotFound();
-                    }
+                        return RedirectToAction("Error404", "Error");
 
                     if (Check.IsSuperAdmin(permission) || (Check.IsAdmin(permission) && idCompany == office.CompanyId))
                         return View(office);
@@ -437,12 +450,14 @@ namespace IceCreamSystem.Controllers
                     }
                 }
                 else
+                {
+                    TempData["error"] = "YOU ARE NOT LOGGED IN";
                     return RedirectToAction("LogIn", "Employees");
+                }
             }
             catch
             {
-                TempData["error"] = "You need to login";
-                return RedirectToAction("LogIn", "Employees");
+                return RedirectToAction("Error500", "Error");
             }
         }
 
@@ -451,7 +466,8 @@ namespace IceCreamSystem.Controllers
         public ActionResult ActiveConfirmed(int id)
         {
             Office office = db.Office.Find(id);
-            int idUser = 1;// (int)Session["idUser"];
+            int idUser = (int)Session["idUser"];
+            int idCompany = (int)Session["idCompany"];
 
             using (var trans = db.Database.BeginTransaction())
             {
@@ -465,19 +481,20 @@ namespace IceCreamSystem.Controllers
                         Who = idUser,
                         OfficeId = id,
                         New = "ACTIVATED",
-                        Old = "DISABLED"
+                        Old = "DISABLED",
+                        CompanyId = office.CompanyId
                     };
                     db.Log.Add(log);
                     db.SaveChanges();
 
                     trans.Commit();
-                    TempData["confirm"] = "Successful Reactivation";
+                    TempData["confirm"] = "SUCCESSFUL REACTIVATION";
                     return RedirectToAction("Index");
                 }
                 catch
                 {
                     trans.Rollback();
-                    TempData["error"] = "An error happened. Please try again";
+                    ViewBag.error = "ERROR 500, TRAY AGAIN, IF THE ERROR PERSIST CONTACT THE SYSTEM SUPPLIER";
                     return RedirectToAction("Index");
                 }
             }

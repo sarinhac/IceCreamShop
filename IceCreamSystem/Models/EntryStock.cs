@@ -13,7 +13,7 @@ namespace IceCreamSystem.Models
         public EntryStock()
         {
             Log = new HashSet<Log>();
-            Status = (StatusGeneral)1;
+            Status = (StatusStockSaleProduct)1;
             Created = DateTime.Now;
         }
 
@@ -22,12 +22,12 @@ namespace IceCreamSystem.Models
         public int IdStock { get; set; }
 
         [Column(TypeName = "date")]
-        [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:d}")]
+        [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:yyyy-MM-dd}")]
         [Display(Name = "Fabication")]
         public DateTime FabicationDate { get; set; }
 
         [Column(TypeName = "date")]
-        [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:d}")]
+        [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:yyyy-MM-dd}")]
         [Display(Name = "Expiration")]
         public DateTime ExpirationDate { get; set; }
 
@@ -42,7 +42,7 @@ namespace IceCreamSystem.Models
 
         public int CompanyId { get; set; }
 
-        public StatusGeneral Status { get; set; }
+        public StatusStockSaleProduct Status { get; set; }
 
         public DateTime Created { get; set; }
 
@@ -58,7 +58,7 @@ namespace IceCreamSystem.Models
 
         public void DeactivateStock()
         {
-            Status = 0;
+            Status = (StatusStockSaleProduct)3;
         }
 
         public override bool Equals(object obj)

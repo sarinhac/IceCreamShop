@@ -21,43 +21,130 @@ namespace IceCreamSystem.Controllers
             ViewBag.confirm = TempData["confirm"] != null ? TempData["confirm"].ToString() : null;
             ViewBag.error = TempData["error"] != null ? TempData["error"].ToString() : null;
 
-            var sale = db.Sale.Include(s => s.Company).Include(s => s.Employee);
-            return View(sale.ToList());
+            try
+            {
+                int idUser = Session["idUser"] != null ? (int)Session["idUser"] : 0;
+                int permission = Session["permission"] != null ? (int)Session["permission"] : 0;
+                int idCompany = Session["idCompany"] != null ? (int)Session["idCompany"] : 0;
+                string userName = Session["username"] != null ? (string)Session["username"] : null;
+
+                if (Check.IsLogOn(idUser, permission, idCompany, userName))
+                {
+                    if (Check.IsSuperAdmin(permission))
+                    {
+                        ViewBag.permission = true;
+                        return View(db.Sale.Include(s => s.Company).Include(s => s.Employee).ToList());
+                    }
+                    else if (Check.IsSeller(permission))
+                    {
+                        ViewBag.permission = true;
+                        return View(db.Sale.Where(s => s.CompanyId == idCompany).Include(s => s.Company).Include(s => s.Employee).ToList());
+                    }
+                    else
+                    {
+                        TempData["error"] = "YOU DO NOT HAVE PERMISSION";
+                        return RedirectToAction("Home", "Employees");
+                    }
+                }
+                else
+                {
+                    TempData["error"] = "YOU ARE NOT LOGGED IN";
+                    return RedirectToAction("LogIn", "Employees");
+                }
+            }
+            catch
+            {
+                return RedirectToAction("Error500", "Error");
+            }
         }
 
         public ActionResult Details(int? id)
         {
             if (id == null)
+                return RedirectToAction("Error500", "Error");
+
+            try
             {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                int idUser = Session["idUser"] != null ? (int)Session["idUser"] : 0;
+                int permission = Session["permission"] != null ? (int)Session["permission"] : 0;
+                int idCompany = Session["permission"] != null ? (int)Session["idCompany"] : 0;
+                string userName = Session["permission"] != null ? (string)Session["username"] : null;
+
+                if (Check.IsLogOn(idUser, permission, idCompany, userName))
+                {
+                    Sale sale = db.Sale.Find(id);
+
+                    if (sale == null)
+                        return RedirectToAction("Error404", "Error");
+
+                    else if (Check.IsSuperAdmin(permission) || (Check.IsSeller(permission) && idCompany == sale.CompanyId))
+                    {
+                        return View(sale);
+                    }
+                    else
+                    {
+                        TempData["error"] = "YOU DO NOT HAVE PERMISSION";
+                        return RedirectToAction("Index");
+                    }
+                }
+                else
+                {
+                    TempData["error"] = "YOU ARE NOT LOGGED IN";
+                    return RedirectToAction("LogIn", "Employees");
+                }
             }
-            Sale sale = db.Sale.Find(id);
-            if (sale == null)
+            catch
             {
-                return HttpNotFound();
+                return RedirectToAction("Error500", "Error");
             }
-            return View(sale);
         }
 
         public JsonResult GetProducts(string search)
         {
-            int companyId = 1;// (int)Session["companyId"];
+            int companyId = (int)Session["idCompany"];
 
-            var products = db.Product.Where(x => x.CompanyId == companyId && x.NameProduct.StartsWith(search)).Select(x => new { IdProduct = x.IdProduct, NameProduct = x.NameProduct, SalePrice = x.SalePrice, UnitMeasure = x.UnitMeasure.NameUnitMeasure }).ToList();
+            var products = db.Product.Where(x => x.CompanyId == companyId && x.NameProduct.StartsWith(search) && (x.AmountStock > x.MinStock || x.SellNegative == true)).Select(x => new { IdProduct = x.IdProduct, NameProduct = x.NameProduct, SalePrice = x.SalePrice, UnitMeasure = x.UnitMeasure.NameUnitMeasure }).ToList();
             return Json(products, JsonRequestBehavior.AllowGet);
 
         }
 
         public ActionResult Create()
         {
-            int companyId = 1;// (int)Session["companyId"];
-            int employeeId = 1; //(int)Session["idUser"];
-            Sale sale = new Sale() { CompanyId = companyId, EmployeeId = employeeId };
-            db.Sale.Add(sale);
-            db.SaveChanges();
+            try
+            {
+                int idUser = Session["idUser"] != null ? (int)Session["idUser"] : 0;
+                int permission = Session["permission"] != null ? (int)Session["permission"] : 0;
+                int idCompany = Session["permission"] != null ? (int)Session["idCompany"] : 0;
+                string userName = Session["permission"] != null ? (string)Session["username"] : null;
 
-            return View(sale);
+                if (Check.IsLogOn(idUser, permission, idCompany, userName))
+                {
+                    if (Check.IsSeller(permission))
+                    {
+                        Sale sale = new Sale() { CompanyId = idCompany, EmployeeId = idUser };
+                        db.Sale.Add(sale);
+                        db.SaveChanges();
+                        return View(sale);
+
+                    }
+                    else
+                    {
+                        TempData["error"] = "YOU DO NOT HAVE PERMISSION";
+                        return RedirectToAction("Index");
+                    }
+                }
+                else
+                {
+                    TempData["error"] = "YOU ARE NOT LOGGED IN";
+                    return RedirectToAction("LogIn", "Employees");
+                }
+            }
+            catch
+            {
+                return RedirectToAction("Error500", "Error");
+            }
         }
+
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -66,16 +153,16 @@ namespace IceCreamSystem.Controllers
             if (sale.IdSale > 0)
             {
                 Sale currentSale = db.Sale.Find(sale.IdSale);
-                int companyId = 1;// (int)Session["companyId"];
+                int companyId = (int)Session["idCompany"];
                 string[] productsInCookie = Request.Cookies["products"].Value.Split('/');
-                
-                if (productsInCookie == null || productsInCookie.Length == 0)
+
+                if (productsInCookie == null || (productsInCookie.Length == 1 && string.IsNullOrEmpty(productsInCookie[0])) || productsInCookie.Length == 0)
                 {
                     //this sale has no product, so it will be deleted
                     Sale saleNoProducts = db.Sale.Find(sale.IdSale);
                     db.Sale.Remove(saleNoProducts);
                     db.SaveChanges();
-                    TempData["message"] = "Unsaved Sale";
+                    TempData["message"] = "UNSAVED SALE";
                 }
                 else
                 {
@@ -86,65 +173,94 @@ namespace IceCreamSystem.Controllers
                     db.SaveChanges();
                     currentSale.TotalPrice = TotalPrice;
                     db.SaveChanges();
-                    TempData["message"] = "Sale Saved With Pending Status";
+                    TempData["message"] = "SALE SAVED WITH PENDING STATUS";
                 }
 
                 return RedirectToAction("Index");
             }
 
-            ViewBag.CompanyId = new SelectList(db.Company, "IdCompany", "NameCompany", sale.CompanyId);
-            ViewBag.EmployeeId = new SelectList(db.Employee, "IdEmployee", "NameEmployee", sale.EmployeeId);
             return View(sale);
         }
 
         public ActionResult Edit(int? id)
         {
             if (id == null)
+                return RedirectToAction("Error500", "Error");
+            try
             {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            Sale sale = db.Sale.Find(id);
+                int idUser = Session["idUser"] != null ? (int)Session["idUser"] : 0;
+                int permission = Session["permission"] != null ? (int)Session["permission"] : 0;
+                int idCompany = Session["permission"] != null ? (int)Session["idCompany"] : 0;
+                string userName = Session["permission"] != null ? (string)Session["username"] : null;
 
-            if (sale == null)
+                if (Check.IsLogOn(idUser, permission, idCompany, userName))
+                {
+                    Sale sale = db.Sale.Find(id);
+                    if (Check.IsSeller(permission))
+                    {
+                        List<SaleProduct> saleProducts = db.SaleProduct.Where(s => s.SaleId == id).ToList();
+                        ViewBag.Products = saleProducts;
+
+                        return View(sale);
+
+                    }
+                    else
+                    {
+                        TempData["error"] = "YOU DO NOT HAVE PERMISSION";
+                        return RedirectToAction("Index");
+                    }
+                }
+                else
+                {
+                    TempData["error"] = "YOU ARE NOT LOGGED IN";
+                    return RedirectToAction("LogIn", "Employees");
+                }
+            }
+            catch
             {
-                return HttpNotFound();
+                return RedirectToAction("Error500", "Error");
             }
-
-            List<SaleProduct> saleProducts = db.SaleProduct.Where(s => s.SaleId == id).ToList();
-            ViewBag.Products = saleProducts;
-           
-            ViewBag.CompanyId = new SelectList(db.Company, "IdCompany", "NameCompany", sale.CompanyId);
-            ViewBag.EmployeeId = new SelectList(db.Employee, "IdEmployee", "NameEmployee", sale.EmployeeId);
-            return View(sale);
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "IdSale,CompanyId,EmployeeId,Status,Created")] Sale sale)
-        {
-            if (ModelState.IsValid)
-            {
-                db.Entry(sale).State = EntityState.Modified;
-                db.SaveChanges();
-                return RedirectToAction("Index");
-            }
-            ViewBag.CompanyId = new SelectList(db.Company, "IdCompany", "NameCompany", sale.CompanyId);
-            ViewBag.EmployeeId = new SelectList(db.Employee, "IdEmployee", "NameEmployee", sale.EmployeeId);
-            return View(sale);
         }
 
         public ActionResult Cancel(int? id)
         {
             if (id == null)
+                return RedirectToAction("Error500", "Error");
+            try
             {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                int idUser = Session["idUser"] != null ? (int)Session["idUser"] : 0;
+                int permission = Session["permission"] != null ? (int)Session["permission"] : 0;
+                int idCompany = Session["permission"] != null ? (int)Session["idCompany"] : 0;
+                string userName = Session["permission"] != null ? (string)Session["username"] : null;
+
+                if (Check.IsLogOn(idUser, permission, idCompany, userName))
+                {
+                    Sale sale = db.Sale.Find(id);
+
+                    if (sale == null)
+                        return RedirectToAction("Error404", "Error");
+
+                    else if (Check.IsSuperAdmin(permission) || (Check.IsSeller(permission) && idCompany == sale.CompanyId))
+                    {
+                        return View(sale);
+                    }
+                    else
+                    {
+                        TempData["error"] = "YOU DO NOT HAVE PERMISSION";
+                        return RedirectToAction("Index");
+                    }
+                }
+                else
+                {
+                    TempData["error"] = "YOU ARE NOT LOGGED IN";
+                    return RedirectToAction("LogIn", "Employees");
+                }
             }
-            Sale sale = db.Sale.Find(id);
-            if (sale == null)
+            catch
             {
-                return HttpNotFound();
+                return RedirectToAction("Error500", "Error");
+
             }
-            return View(sale);
         }
 
         [HttpPost, ActionName("Cancel")]
@@ -153,7 +269,7 @@ namespace IceCreamSystem.Controllers
         {
             #region CANCEL
             Sale sale = db.Sale.Find(id);
-            int idUser = 1;//(int)Session["idUser"];
+            int idUser = (int)Session["idUser"];
             int companyId = sale.CompanyId;
 
             using (var trans = db.Database.BeginTransaction())
@@ -203,18 +319,18 @@ namespace IceCreamSystem.Controllers
                     }
                     else
                         throw new Exception();
-                   
+
                     trans.Commit();
-                    TempData["confirm"] = "Cancellation completed";
+                    TempData["confirm"] = "CANCELLATION COMPLETED";
                     return RedirectToAction("Index");
                 }
                 catch
                 {
                     trans.Rollback();
-                    TempData["error"] = "An error happened. Please try again";
+                    TempData["error"] = "ERROR 500, TRAY AGAIN, IF THE ERROR PERSIST CONTACT THE SYSTEM SUPPLIER";
                     return RedirectToAction("Index");
                 }
-                
+
             }
             #endregion
         }

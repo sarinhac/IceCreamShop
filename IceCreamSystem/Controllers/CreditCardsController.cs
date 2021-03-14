@@ -21,10 +21,10 @@ namespace IceCreamSystem.Controllers
 
             try
             {
-                int idUser = (int)Session["idUser"];
-                int permission = (int)Session["permission"];
-                int idCompany = (int)Session["idCompany"];
-                string userName = (string)Session["username"];
+                int idUser = Session["idUser"] != null ? (int)Session["idUser"] : 0;
+                int permission = Session["permission"] != null ? (int)Session["permission"] : 0;
+                int idCompany = Session["permission"] != null ? (int)Session["idCompany"] : 0;
+                string userName = Session["permission"] != null ? (string)Session["username"] : null;
 
                 if (Check.IsLogOn(idUser, permission, idCompany, userName))
                 {
@@ -46,36 +46,34 @@ namespace IceCreamSystem.Controllers
                         
                 }
                 else
+                {
+                    TempData["error"] = "YOU ARE NOT LOGGED IN";
                     return RedirectToAction("LogIn", "Employees");
+                }
             }
             catch
             {
-                TempData["error"] = "You need to login";
-                return RedirectToAction("LogIn", "Employees");
+                return RedirectToAction("Error500", "Error");
             }
         }
 
         public ActionResult Details(int? id)
         {
             if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
+                return RedirectToAction("Error500", "Error");
 
             try
             {
-                int idUser = (int)Session["idUser"];
-                int permission = (int)Session["permission"];
-                int idCompany = (int)Session["idCompany"];
-                string userName = (string)Session["username"];
+                int idUser = Session["idUser"] != null ? (int)Session["idUser"] : 0;
+                int permission = Session["permission"] != null ? (int)Session["permission"] : 0;
+                int idCompany = Session["permission"] != null ? (int)Session["idCompany"] : 0;
+                string userName = Session["permission"] != null ? (string)Session["username"] : null;
 
                 if (Check.IsLogOn(idUser, permission, idCompany, userName))
                 {
                     CreditCard creditCard = db.CreditCard.Find(id);
                     if (creditCard == null)
-                    {
-                        return HttpNotFound();
-                    }
+                        return RedirectToAction("Error404", "Error");
 
                     if (Check.IsSuperAdmin(permission) || (Check.IsSupervisor(permission) && Check.IsSameCompany(idCompany, creditCard.CompanyId)))
                         return View(creditCard);
@@ -86,12 +84,14 @@ namespace IceCreamSystem.Controllers
                     }
                 }
                 else
+                {
+                    TempData["error"] = "YOU ARE NOT LOGGED IN";
                     return RedirectToAction("LogIn", "Employees");
+                }
             }
             catch
             {
-                TempData["error"] = "You need to login";
-                return RedirectToAction("LogIn", "Employees");
+                return RedirectToAction("Error500", "Error");
             }
         }
 
@@ -99,10 +99,10 @@ namespace IceCreamSystem.Controllers
         {
             try
             {
-                int idUser = (int)Session["idUser"];
-                int permission = (int)Session["permission"];
-                int idCompany = (int)Session["idCompany"];
-                string userName = (string)Session["username"];
+                int idUser = Session["idUser"] != null ? (int)Session["idUser"] : 0;
+                int permission = Session["permission"] != null ? (int)Session["permission"] : 0;
+                int idCompany = Session["permission"] != null ? (int)Session["idCompany"] : 0;
+                string userName = Session["permission"] != null ? (string)Session["username"] : null;
 
                 if (Check.IsLogOn(idUser, permission, idCompany, userName))
                 {
@@ -124,13 +124,15 @@ namespace IceCreamSystem.Controllers
                     return View();
                 }
                 else
+                {
+                    TempData["error"] = "YOU ARE NOT LOGGED IN";
                     return RedirectToAction("LogIn", "Employees");
+                }
             }
             catch
             {
-                TempData["error"] = "You need to login";
-                return RedirectToAction("LogIn", "Employees");
-            }            
+                return RedirectToAction("Error500", "Error");
+            }
         }
 
         [HttpPost]
@@ -166,47 +168,61 @@ namespace IceCreamSystem.Controllers
                             #endregion
 
                             trans.Commit();
-                            TempData["confirm"] = "New Credit Card Created";
+                            TempData["confirm"] = "NEW CREDIT CARD CREATED";
                         }
                         catch
                         {
                             trans.Rollback();
-                            ViewBag.error = "Sorry, but an error happened, try again, if the error continues please contact your system supplier";
+                            ViewBag.error = "ERROR 500, TRAY AGAIN, IF THE ERROR PERSIST CONTACT THE SYSTEM SUPPLIER";
                             goto ReturnIfError;
                         }
                     }
+                    return RedirectToAction("Index");
                 }
                 else
-                    TempData["message"] = "This Product already exists, try another name";
+                    ViewBag.error = "COMPANY ALREADY REGISTERED, TRY ANOTHER NAME";
 
-                return RedirectToAction("Index");
             }
 
         ReturnIfError:
-            ViewBag.CompanyId = new SelectList(db.Company, "IdCompany", "NameCompany", creditCard.CompanyId);
-            return View(creditCard);
+            int permission = Session["permission"] != null ? (int)Session["permission"] : 0;
+            int idCompany = Session["permission"] != null ? (int)Session["idCompany"] : 0;
+            if (permission > 0)
+            {
+                if (Check.IsSuperAdmin(permission))
+                    ViewBag.CompanyId = new SelectList(db.Company, "IdCompany", "NameCompany", creditCard.IdCreditCard);
+                else if (Check.IsSupervisor(permission))
+                {
+                    Company company = db.Company.Where(c => c.IdCompany == idCompany).FirstOrDefault();
+                    List<Company> companies = new List<Company>();
+                    companies.Add(company);
+                    ViewBag.CompanyId = new SelectList(companies, "IdCompany", "NameCompany", idCompany);
+                }
+                return View(creditCard);
+            }
+            else
+            {
+                TempData["error"] = "YOU DO NOT HAVE PERMISSION";
+                return RedirectToAction("Home", "Employees");
+            }
         }
 
         public ActionResult Edit(int? id)
         {
             if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
+                return RedirectToAction("Error500", "Error");
             try
             {
-                int idUser = (int)Session["idUser"];
-                int permission = (int)Session["permission"];
-                int idCompany = (int)Session["idCompany"];
-                string userName = (string)Session["username"];
+                int idUser = Session["idUser"] != null ? (int)Session["idUser"] : 0;
+                int permission = Session["permission"] != null ? (int)Session["permission"] : 0;
+                int idCompany = Session["permission"] != null ? (int)Session["idCompany"] : 0;
+                string userName = Session["permission"] != null ? (string)Session["username"] : null;
 
                 if (Check.IsLogOn(idUser, permission, idCompany, userName))
                 {
                     CreditCard creditCard = db.CreditCard.Find(id);
                     if (creditCard == null)
-                    {
-                        return HttpNotFound();
-                    }
+                        return RedirectToAction("Error404", "Error");
 
                     if (Check.IsSuperAdmin(permission))
                         ViewBag.CompanyId = new SelectList(db.Company, "IdCompany", "NameCompany");
@@ -226,12 +242,14 @@ namespace IceCreamSystem.Controllers
                     return View(creditCard);
                 }
                 else
+                {
+                    TempData["error"] = "YOU ARE NOT LOGGED IN";
                     return RedirectToAction("LogIn", "Employees");
+                }
             }
             catch
             {
-                TempData["error"] = "You need to login";
-                return RedirectToAction("LogIn", "Employees");
+                return RedirectToAction("Error500", "Error");
             }
         }
 
@@ -270,51 +288,74 @@ namespace IceCreamSystem.Controllers
 
                             db.SaveChanges();
 
+                            int creditCardDB = db.CreditCard.Where(u => u.CompanyId == oldCreditCard.CompanyId && u.NameCreditCard.Equals(creditCard.NameCreditCard)).Count();
+
+                            if (creditCardDB > 1)
+                            {
+                                trans.Rollback();
+                                ViewBag.error = "CREDIT CARD ALREADY REGISTERED, TRY ANOTHER NAME";
+                                goto ReturnIfError;
+                            }
+
                             db.Log.Add(log);
                             db.SaveChanges();
 
                             trans.Commit();
-                            TempData["confirm"] = "Successful Changes";
+                            TempData["confirm"] = "SUCCESSFUL CHANGES";
                         }
                         catch
                         {
                             trans.Rollback();
-                            ViewBag.error = "Sorry, but an error happened, try again, if the error continues please contact your system supplier";
+                            ViewBag.error = "ERROR 500, TRAY AGAIN, IF THE ERROR PERSIST CONTACT THE SYSTEM SUPPLIER";
                             goto ReturnIfError;
                         }
                     }
                 }
                 else
-                    TempData["message"] = "No changes were recorded";
+                    TempData["message"] = "NO CHANGES WERE RECORDED";
 
                 return RedirectToAction("Index");
             }
 
         ReturnIfError:
-            ViewBag.CompanyId = new SelectList(db.Company, "IdCompany", "NameCompany", creditCard.CompanyId);
-            return View(creditCard);
+            int permission = Session["permission"] != null ? (int)Session["permission"] : 0;
+            int idCompany = Session["permission"] != null ? (int)Session["idCompany"] : 0;
+            if(permission > 0)
+            {
+                if (Check.IsSuperAdmin(permission))
+                    ViewBag.CompanyId = new SelectList(db.Company, "IdCompany", "NameCompany");
+                else if (Check.IsSupervisor(permission) && Check.IsSameCompany(idCompany, creditCard.CompanyId))
+                {
+                    Company company = db.Company.Where(c => c.IdCompany == idCompany).FirstOrDefault();
+                    List<Company> companies = new List<Company>();
+                    companies.Add(company);
+                    ViewBag.CompanyId = new SelectList(companies, "IdCompany", "NameCompany", idCompany);
+                }
+                return View(creditCard);
+            }
+            else
+            {
+                TempData["error"] = "YOU DO NOT HAVE PERMISSION";
+                return RedirectToAction("Home", "Employees");
+            }
         }
 
         public ActionResult Delete(int? id)
         {
             if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
+                return RedirectToAction("Error500", "Error");
             try
             {
-                int idUser = (int)Session["idUser"];
-                int permission = (int)Session["permission"];
-                int idCompany = (int)Session["idCompany"];
-                string userName = (string)Session["username"];
+                int idUser = Session["idUser"] != null ? (int)Session["idUser"] : 0;
+                int permission = Session["permission"] != null ? (int)Session["permission"] : 0;
+                int idCompany = Session["permission"] != null ? (int)Session["idCompany"] : 0;
+                string userName = Session["permission"] != null ? (string)Session["username"] : null;
 
                 if (Check.IsLogOn(idUser, permission, idCompany, userName))
                 {
                     CreditCard creditCard = db.CreditCard.Find(id);
                     if (creditCard == null)
-                    {
-                        return HttpNotFound();
-                    }
+                        return RedirectToAction("Error404", "Error");
 
                     if (Check.IsSuperAdmin(permission) || (Check.IsSupervisor(permission) && Check.IsSameCompany(idCompany, creditCard.CompanyId)))
                         return View(creditCard);
@@ -325,12 +366,14 @@ namespace IceCreamSystem.Controllers
                     }
                 }
                 else
+                {
+                    TempData["error"] = "YOU ARE NOT LOGGED IN";
                     return RedirectToAction("LogIn", "Employees");
+                }
             }
             catch
             {
-                TempData["error"] = "You need to login";
-                return RedirectToAction("LogIn", "Employees");
+                return RedirectToAction("Error500", "Error");
             }
         }
 
@@ -359,12 +402,12 @@ namespace IceCreamSystem.Controllers
                     db.SaveChanges();
 
                     trans.Commit();
-                    TempData["confirm"] = "Successful Delete";
+                    TempData["confirm"] = "SUCCESSFUL DELETE";
                 }
                 catch
                 {
                     trans.Rollback();
-                    TempData["error"] = "An error happened. Please try again";
+                    TempData["error"] = "ERROR 500, TRAY AGAIN, IF THE ERROR PERSIST CONTACT THE SYSTEM SUPPLIER";
                 }
             }
             return RedirectToAction("Index");
@@ -373,23 +416,19 @@ namespace IceCreamSystem.Controllers
         public ActionResult Active(int? id)
         {
             if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
+                return RedirectToAction("Error500", "Error");
             try
             {
-                int idUser = (int)Session["idUser"];
-                int permission = (int)Session["permission"];
-                int idCompany = (int)Session["idCompany"];
-                string userName = (string)Session["username"];
+                int idUser = Session["idUser"] != null ? (int)Session["idUser"] : 0;
+                int permission = Session["permission"] != null ? (int)Session["permission"] : 0;
+                int idCompany = Session["permission"] != null ? (int)Session["idCompany"] : 0;
+                string userName = Session["permission"] != null ? (string)Session["username"] : null;
 
                 if (Check.IsLogOn(idUser, permission, idCompany, userName))
                 {
                     CreditCard creditCard = db.CreditCard.Find(id);
                     if (creditCard == null)
-                    {
-                        return HttpNotFound();
-                    }
+                        return RedirectToAction("Error404", "Error");
 
                     if (Check.IsSuperAdmin(permission) || (Check.IsSupervisor(permission) && Check.IsSameCompany(idCompany, creditCard.CompanyId)))
                         return View(creditCard);
@@ -400,12 +439,14 @@ namespace IceCreamSystem.Controllers
                     }
                 }
                 else
+                {
+                    TempData["error"] = "YOU ARE NOT LOGGED IN";
                     return RedirectToAction("LogIn", "Employees");
+                }
             }
             catch
             {
-                TempData["error"] = "You need to login";
-                return RedirectToAction("LogIn", "Employees");
+                return RedirectToAction("Error500", "Error");
             }
         }
 
@@ -434,12 +475,12 @@ namespace IceCreamSystem.Controllers
                     db.SaveChanges();
 
                     trans.Commit();
-                    TempData["confirm"] = "Successful Reactivation";
+                    TempData["confirm"] = "SUCCESSFUL REACTIVATION";
                 }
                 catch
                 {
                     trans.Rollback();
-                    TempData["error"] = "An error happened. Please try again";
+                    TempData["error"] = "ERROR 500, TRAY AGAIN, IF THE ERROR PERSIST CONTACT THE SYSTEM SUPPLIER";
                 }
             }
             return RedirectToAction("Index");

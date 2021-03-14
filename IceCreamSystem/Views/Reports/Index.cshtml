@@ -1,6 +1,5 @@
 ﻿
 @{
-    Layout = "~/Views/Shared/_AdminLite.cshtml";
     ViewBag.Title = "Reports";
 }
 <div class="row">
@@ -9,68 +8,96 @@
             <div class="input-group">
                 <div class="form-group">
                     <label>
-                        Initial Date:
+                        Period:
                     </label>
                     <div class="input-group">
                         <div class="input-group-prepend">
                             <span class="input-group-text">
                                 <i class="far fa-calendar-alt"></i>
                             </span>
-                            <input type="text" class="form-control" data-inputmask-alias="datetime" data-inputmask-inputformat="dd/mm/yyyy" data-mask="" im-insert="false">
+                            <input type="text" class="form-control float-left" id="reservation" style=" float: left;">
                         </div>
                     </div>
                 </div>
-                <div class="form-group">
-                    <label>
-                        Final Date:
-                    </label>
-                    <div class="input-group">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text">
-                                <i class="far fa-calendar-alt"></i>
-                            </span>
-                            <input type="text" class="form-control" data-inputmask-alias="datetime" data-inputmask-inputformat="dd/mm/yyyy" data-mask="" im-insert="false">
-                        </div>
+            </div>
+        </div>
+    </div>
+    @if (@Session["permission"] != null && ((int)@Session["permission"] == 1 || (int)@Session["permission"] == 2))
+    {//superadmin, admin
+        <div class="col-12 col-sm-6 col-md-3">
+            <a class="pay" data-toggle="modal" data-target="#modal" data-url="@Url.Content("~/Reports/ReportsEmployees")">
+                <div class="info-box">
+                    <span class="info-box-icon bg-warning elevation-1"><i class="fas fa-users"></i></span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">Employees</span>
+                        <span class="info-box-number">@ViewBag.CountEmployees</span>
+                    </div>
+                </div>
+            </a>
+        </div>
+    }
+    @if (@Session["permission"] != null && ((int)@Session["permission"] == 1 || (int)@Session["permission"] == 2 || (int)@Session["permission"] == 3 || (int)@Session["permission"] == 4))
+    {//superadmin, admin, supervisor, stockist
+        <div class="col-12 col-sm-6 col-md-3">
+            <a class="pay" data-toggle="modal" data-target="#modal" data-url="@Url.Content("~/Reports/ReportsStock")">
+                <div class="info-box">
+                    <span class="info-box-icon bg-info elevation-1"><i class="fas fa-cubes"></i></span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">Stock</span>
+                        <span class="info-box-number">@ViewBag.CountStock</span>
+                    </div>
+                </div>
+            </a>
+        </div>
+    }
+    @if (@Session["permission"] != null && ((int)@Session["permission"] == 1 || (int)@Session["permission"] == 2 || (int)@Session["permission"] == 3 || (int)@Session["permission"] == 5))
+    {//superadmin, admin, supervisor, seller
+        <div class="col-12 col-sm-6 col-md-3">
+            <a class="pay" data-toggle="modal" data-target="#modal" data-url="@Url.Content("~/Reports/ReportsSales")">
+                <div class="info-box">
+                    <span class="info-box-icon bg-success elevation-1"><i class="fas fa-shopping-cart"></i></span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">Sales</span>
+                        <span class="info-box-number">@ViewBag.CountSales</span>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-12 col-sm-6 col-md-3">
+            <a class="pay" data-toggle="modal" data-target="#modal" data-url="@Url.Content("~/Reports/ReportsPayments")">
+                <div class="info-box">
+                    <span class="info-box-icon bg-primary elevation-1"><i class="fas fa-cash-register"></i></span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">Payments</span>
+                        <span class="info-box-number">@ViewBag.CountPayments</span>
+                    </div>
+                </div>
+            </a>
+        </div>
+    }
+</div>
 
-                    </div>
+<div class="modal" id="modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-header" style="background-color: #00CED1;">
+                    <h5 class="modal-title">Reports</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 </div>
             </div>
-        </div>
-    </div>
-    <div class="col-12 col-sm-6 col-md-3">
-        <div class="info-box">
-            <span class="info-box-icon bg-warning elevation-1"><i class="fas fa-users"></i></span>
-            <div class="info-box-content">
-                <span class="info-box-text">Employees</span>
-                <span class="info-box-number">@ViewBag.CountEmployees</span>
-            </div>
-        </div>
-    </div>
-    <div class="col-12 col-sm-6 col-md-3">
-        <div class="info-box">
-            <span class="info-box-icon bg-info elevation-1"><i class="fas fa-cubes"></i></span>
-            <div class="info-box-content">
-                <span class="info-box-text">Stock</span>
-                <span class="info-box-number">@ViewBag.CountStock</span>
-            </div>
-        </div>
-    </div>
-    <div class="col-12 col-sm-6 col-md-3">
-        <div class="info-box">
-            <span class="info-box-icon bg-success elevation-1"><i class="fas fa-shopping-cart"></i></span>
-            <div class="info-box-content">
-                <span class="info-box-text">Sales</span>
-                <span class="info-box-number">@ViewBag.CountSales</span>
-            </div>
-        </div>
-    </div>
-    <div class="col-12 col-sm-6 col-md-3">
-        <div class="info-box">
-            <span class="info-box-icon bg-primary elevation-1"><i class="fas fa-cash-register"></i></span>
-            <div class="info-box-content">
-                <span class="info-box-text">Payments</span>
-                <span class="info-box-number">@ViewBag.CountPayments</span>
+            <div class="modal-body">
             </div>
         </div>
     </div>
 </div>
+@section Scripts {
+    <script type="text/javascript">
+        $(".pay").click(function () {
+            var period = $("#reservation").val();
+
+            document.cookie = "period=" + period + ";path =/;"
+        })
+    </script>
+}
+

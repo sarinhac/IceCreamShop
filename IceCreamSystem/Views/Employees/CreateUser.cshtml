@@ -6,12 +6,6 @@
 }
 
 
-@if (ViewBag.error != null)
-{
-    <div class="alert alert-danger" role="alert">
-        @ViewBag.error
-    </div>
-}
 @using (Html.BeginForm())
 {
     @Html.AntiForgeryToken()
@@ -22,7 +16,7 @@
             @Html.HiddenFor(model => model.IdEmployee)
 
             <div class="form-group">
-                @Html.LabelFor(model => model.LoginUser, htmlAttributes: new { @class = "control-label col-md-2" })
+                @Html.LabelFor(model => model.LoginUser, htmlAttributes: new { @class = "control-label col-md-12" })
                 <div class="col-md-12">
                     <div class="input-group">
                         <div class="input-group-prepend">
@@ -40,7 +34,7 @@
             @Html.HiddenFor(model => model.IdEmployee)
 
             <div class="form-group">
-                @Html.LabelFor(model => model.PasswordUser, htmlAttributes: new { @class = "control-label col-md-2" })
+                @Html.LabelFor(model => model.PasswordUser, htmlAttributes: new { @class = "control-label col-md-12" })
                 <div class="col-md-12">
                     <div class="input-group">
                         <div class="input-group-prepend">
